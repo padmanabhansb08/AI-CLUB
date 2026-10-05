@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthLayout } from '../components/layout/AuthLayout';
 import { Input } from '../components/ui/Input';
+import { Select } from '../components/ui/Select';
 import { Button } from '../components/ui/Button';
 import { authService } from '../services/authService';
+import { YEAR_OPTIONS, DEPARTMENT_OPTIONS, SECTION_OPTIONS } from '../constants/academicOptions';
 
 export const Register: React.FC = () => {
   const navigate = useNavigate();
@@ -133,34 +135,37 @@ export const Register: React.FC = () => {
             error={errors.registerNumber}
             required
           />
-          <Input
+          <Select
             label="Year"
             name="year"
-            placeholder="1st, 2nd..."
             value={formData.year}
             onChange={handleChange}
             error={errors.year}
+            placeholder="Select Year"
+            options={YEAR_OPTIONS}
             required
           />
         </div>
 
         <div className="form-row">
-          <Input
+          <Select
             label="Department"
             name="department"
-            placeholder="CSE, ECE..."
             value={formData.department}
             onChange={handleChange}
             error={errors.department}
+            placeholder="Select Department"
+            options={DEPARTMENT_OPTIONS}
             required
           />
-          <Input
+          <Select
             label="Class / Section"
             name="classSection"
-            placeholder="A, B, C..."
             value={formData.classSection}
             onChange={handleChange}
             error={errors.classSection}
+            placeholder="Select Section"
+            options={SECTION_OPTIONS}
             required
           />
         </div>

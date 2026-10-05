@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { Sparkles } from 'lucide-react';
 import { AuthLayout } from '../components/layout/AuthLayout';
 import { Input } from '../components/ui/Input';
 import { Button } from '../components/ui/Button';
@@ -20,17 +21,34 @@ export const Login: React.FC = () => {
     try {
       const response = await authService.login(email, password);
       if (response.success) {
-        // Handle successful login routing
         console.log('Login successful');
         navigate('/dashboard');
       } else {
-        setError(response.message || 'Login failed');
+        setError(response.error || response.message || 'Login failed');
       }
-    } catch (err) {
+    } catch {
       setError('An error occurred during login');
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleDemoLogin = (role: 'student' | 'admin' = 'student') => {
+    setError('');
+    setIsLoading(true);
+    try {
+      authService.loginAsDemo(role);
+      navigate(role === 'admin' ? '/admin' : '/dashboard');
+    } catch {
+      setError('Failed to initiate demo session');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleAutoFill = () => {
+    setEmail('student@college.edu');
+    setPassword('demopassword123');
   };
 
   return (
@@ -72,6 +90,42 @@ export const Login: React.FC = () => {
         <Button type="submit" isLoading={isLoading} className="mb-4">
           Login
         </Button>
+
+        <div className="auth-divider">
+          <span>OR</span>
+        </div>
+
+        <Button
+          type="button"
+          variant="secondary"
+          className="demo-btn mb-3"
+          onClick={() => handleDemoLogin('student')}
+          disabled={isLoading}
+          id="demo-login-btn"
+        >
+          <Sparkles size={16} style={{ color: 'var(--accent-color)' }} />
+          <span>Demo Login</span>
+        </Button>
+
+        <div className="flex-between mb-6" style={{ fontSize: '0.8rem', color: 'var(--text-tertiary)' }}>
+          <button
+            type="button"
+            onClick={handleAutoFill}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: 'var(--accent-color)',
+              cursor: 'pointer',
+              fontSize: '0.8rem',
+              padding: 0
+            }}
+          >
+            Auto-fill demo credentials
+          </button>
+          <Link to="/admin/login" className="text-accent" style={{ fontSize: '0.8rem' }}>
+            Admin Portal &rarr;
+          </Link>
+        </div>
 
         <div className="text-sm" style={{ textAlign: 'center', color: 'var(--text-secondary)' }}>
           New member?{' '}
