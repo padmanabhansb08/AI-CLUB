@@ -47,15 +47,8 @@ function App() {
           <Routes>
             {/* Public Auth Routes */}
             <Route path="/" element={<Login />} />
-            <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/admin/login" element={<AdminLogin />} />
-            
-            {/* Multi-page /app.html entry routes */}
-            <Route path="/app.html" element={<Login />} />
-            <Route path="/app.html/login" element={<Login />} />
-            <Route path="/app.html/register" element={<Register />} />
-            <Route path="/app.html/dashboard" element={<RoleGuard allowedRole="student"><Dashboard /></RoleGuard>} />
             
             {/* Redirect /admin directly to /admin (which will be guarded and either allow or redirect to /admin/login) */}
             <Route path="/admin" element={

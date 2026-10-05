@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 @import url('./dashboard.css');
 @import url('./achievements.css');
 @import url('./updates.css');
@@ -7,35 +7,27 @@
 @import url('./admin.css');
 
 :root {
-  /* Color Palette - Dark Cinematic AI Void Theme */
-  --stage-black: #050505;
-  --bg-primary: #050505;
-  --bg-secondary: #0c0c0c;
-  --bg-tertiary: #141414;
+  /* Color Palette - Neutral base with one accent color (Electric Blue) */
+  --bg-primary: #0a0a0a;
+  --bg-secondary: #121212;
+  --bg-tertiary: #1c1c1c;
   
-  --ink: #fafafa;
-  --muted: #a7a6a6;
-  --nav: #b6b5b5;
-  --strip: #8b8a8a;
-  --pill: #ffffff;
-  --pill-ink: #050505;
-
-  --text-primary: #fafafa;
-  --text-secondary: #a7a6a6;
+  --text-primary: #ffffff;
+  --text-secondary: #a3a3a3;
   --text-tertiary: #737373;
   
-  --border-color: #1f1f1f;
-  --border-hover: #333333;
+  --border-color: #262626;
+  --border-hover: #404040;
   
-  --accent-color: #ffffff;
-  --accent-hover: #e5e5e5;
-  --accent-light: rgba(255, 255, 255, 0.08);
+  --accent-color: #0066ff;
+  --accent-hover: #005ce6;
+  --accent-light: rgba(0, 102, 255, 0.1);
   
-  --error-color: #ff4d4d;
-  --success-color: #00e676;
+  --error-color: #ff3333;
+  --success-color: #00cc66;
 
   /* Typography */
-  --font-sans: 'Manrope', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
   
   /* Spacing */
   --spacing-1: 0.25rem;
@@ -50,7 +42,6 @@
   --radius-sm: 4px;
   --radius-md: 6px;
   --radius-lg: 8px;
-  --radius-full: 999px;
 }
 
 * {
@@ -363,39 +354,36 @@ button {
   align-items: center;
   justify-content: center;
   width: 100%;
-  padding: 0.65rem 1.25rem;
+  padding: 0.625rem 1rem;
   font-size: 0.875rem;
-  font-weight: 600;
-  border-radius: var(--radius-full);
+  font-weight: 500;
+  border-radius: var(--radius-md);
   border: none;
   transition: all 0.2s ease;
-  font-family: var(--font-sans);
 }
 
 .btn:disabled {
-  opacity: 0.5;
+  opacity: 0.7;
   cursor: not-allowed;
 }
 
 .btn-primary {
-  background-color: var(--pill);
-  color: var(--pill-ink);
+  background-color: var(--accent-color);
+  color: white;
 }
 
 .btn-primary:hover:not(:disabled) {
   background-color: var(--accent-hover);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 16px rgba(255, 255, 255, 0.12);
 }
 
 .btn-secondary {
-  background-color: rgba(255, 255, 255, 0.04);
+  background-color: transparent;
   color: var(--text-primary);
   border: 1px solid var(--border-color);
 }
 
 .btn-secondary:hover:not(:disabled) {
-  background-color: rgba(255, 255, 255, 0.08);
+  background-color: var(--bg-tertiary);
   border-color: var(--border-hover);
 }
 
