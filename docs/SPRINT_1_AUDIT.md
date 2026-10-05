@@ -120,7 +120,8 @@ The inspection covers frontend architecture, backend services, database schema a
 
 ## 6. Files Impacted
 
-### Files to be Modified:
+### Files to be Modified
+
 - `docker-compose.yml`
 - `.gitignore`
 - `package.json`
@@ -152,7 +153,8 @@ The inspection covers frontend architecture, backend services, database schema a
 - `src/services/profileService.ts`
 - `src/services/content/repository.ts`
 
-### Files to be Created:
+### Files to be Created
+
 - `.env.example`
 - `docs/SPRINT_1_AUDIT.md` (this file)
 - `docs/ARCHITECTURE.md`
@@ -168,8 +170,10 @@ The inspection covers frontend architecture, backend services, database schema a
 - `src/components/common/ErrorState.tsx`
 - `src/components/common/EmptyState.tsx`
 
-### Files to be Cleaned Up / Deleted:
+### Files to be Cleaned Up / Deleted
+
 - `server/src/db/migrate4.ts` (subsumed by unified migration runner)
 - `server/src/db/run_003.ts` (subsumed)
 - `server/src/db/run_005.ts` (subsumed)
 - `server/src/db/init-db.cjs` (local helper script)
+

@@ -1,6 +1,7 @@
 # AI CLUB — Database Architecture & Schema Specification
 
 ## 1. Overview
+
 AI CLUB utilizes a relational PostgreSQL 15 database configured with connection pooling (`pg.Pool`), primary and foreign key constraints, cascading deletions, and secondary B-tree indexes for fast lookup and query execution.
 
 ---
@@ -32,7 +33,9 @@ erDiagram
 ## 3. Core Tables
 
 ### 3.1 `users`
+
 Authentication credentials and system authorization level.
+
 - `id` (UUID, Primary Key, `gen_random_uuid()`)
 - `email` (VARCHAR(255), Unique, Not Null)
 - `password_hash` (VARCHAR(255), Not Null)
@@ -41,7 +44,9 @@ Authentication credentials and system authorization level.
 - `updated_at` (TIMESTAMPTZ, Default NOW())
 
 ### 3.2 `members`
+
 Academic identity and club profile details.
+
 - `id` (UUID, Primary Key, `gen_random_uuid()`)
 - `user_id` (UUID, Foreign Key -> `users(id)` ON DELETE CASCADE)
 - `full_name` (VARCHAR(255), Not Null)
@@ -61,6 +66,7 @@ Academic identity and club profile details.
 - `joined_at` (TIMESTAMPTZ, Default NOW())
 
 ### 3.3 Domain Tables
+
 - `achievements`: Award recognitions, hackathons, publications (`achievement_members` junction).
 - `updates`: Technology articles, club breakthroughs, curated tech summaries.
 - `projects`: Collaborative AI projects, problems, expected outcomes.
@@ -85,7 +91,8 @@ CREATE TABLE IF NOT EXISTS migrations (
 );
 ```
 
-### Execution Flow:
+### Execution Flow
+
 1. Connect to PostgreSQL pool.
 2. Query `migrations` for existing entries.
 3. Compare against registered migrations list:
@@ -97,7 +104,8 @@ CREATE TABLE IF NOT EXISTS migrations (
 4. Apply pending scripts inside transactional blocks (`BEGIN` / `COMMIT` / `ROLLBACK`).
 5. Safe for repeated runs without duplicate execution errors.
 
-### Running Migrations:
+### Running Migrations
+
 ```bash
 # From repository root
 npm run db:migrate
@@ -113,7 +121,8 @@ cd server && npm run db:migrate
 Database seeding is managed via `server/src/db/seeds/001_initial_seed.ts`.
 The seed script is idempotent using `ON CONFLICT DO UPDATE` or `ON CONFLICT DO NOTHING`.
 
-### Default Development Credentials:
+### Default Development Credentials
+
 - **Administrator**:
   - Email: `admin@aiclub.com`
   - Password: `admin123`
@@ -125,7 +134,8 @@ The seed script is idempotent using `ON CONFLICT DO UPDATE` or `ON CONFLICT DO N
   - Register Number: `21BCE1001`
   - Department: `CSE`, Year: `3`, Section: `A`
 
-### Running Seeds:
+### Running Seeds
+
 ```bash
 # From repository root
 npm run db:seed

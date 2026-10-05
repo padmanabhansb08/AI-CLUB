@@ -5,6 +5,7 @@
 All backend endpoints return responses adhering to one of the following two canonical envelopes:
 
 ### 1.1 Success Envelope
+
 ```json
 {
   "success": true,
@@ -14,6 +15,7 @@ All backend endpoints return responses adhering to one of the following two cano
 ```
 
 For list endpoints with pagination:
+
 ```json
 {
   "success": true,
@@ -29,6 +31,7 @@ For list endpoints with pagination:
 ```
 
 ### 1.2 Error Envelope
+
 ```json
 {
   "success": false,
@@ -45,9 +48,11 @@ For list endpoints with pagination:
 ## 2. Health & Observability
 
 ### `GET /api/health`
+
 - **Purpose**: Verify backend service liveness and PostgreSQL database connectivity.
 - **Authentication**: None.
 - **Success Response (`200 OK`)**:
+
   ```json
   {
     "success": true,
@@ -58,7 +63,9 @@ For list endpoints with pagination:
     "message": "AI CLUB API is healthy"
   }
   ```
+
 - **Error Response (`503 Service Unavailable`)**:
+
   ```json
   {
     "success": false,
@@ -79,9 +86,11 @@ For list endpoints with pagination:
 ## 3. Authentication Endpoints
 
 ### 3.1 `POST /api/auth/register`
+
 - **Purpose**: Register a new student account and create their academic member profile in an atomic database transaction.
 - **Authentication**: None (Rate limited: 50 requests / 15 minutes).
 - **Request Body**:
+
   ```json
   {
     "email": "student@college.edu",
@@ -95,6 +104,7 @@ For list endpoints with pagination:
     "phone": "+91 9876543210"
   }
   ```
+
 - **Validation Rules**:
   - `email`: Valid email format.
   - `password`: Minimum 8 characters.
@@ -106,6 +116,7 @@ For list endpoints with pagination:
   - `collegeEmail`: Optional (defaults to `email`).
   - `phone`: Optional string.
 - **Success Response (`201 Created`)**:
+
   ```json
   {
     "success": true,
@@ -129,6 +140,7 @@ For list endpoints with pagination:
     "message": "User registered successfully"
   }
   ```
+
 - **Errors**:
   - `400 Bad Request` (`VALIDATION_ERROR`): Payload failed validation schema.
   - `409 Conflict` (`CONFLICT`): An account with this email, register number, or college email already exists.
@@ -137,16 +149,20 @@ For list endpoints with pagination:
 ---
 
 ### 3.2 `POST /api/auth/login`
+
 - **Purpose**: Authenticate existing student or administrator with credentials and receive a signed JWT session token.
 - **Authentication**: None (Rate limited: 50 requests / 15 minutes).
 - **Request Body**:
+
   ```json
   {
     "email": "student@aiclub.com",
     "password": "student123"
   }
   ```
+
 - **Success Response (`200 OK`)**:
+
   ```json
   {
     "success": true,
@@ -169,6 +185,7 @@ For list endpoints with pagination:
     "message": "Login successful"
   }
   ```
+
 - **Errors**:
   - `400 Bad Request` (`VALIDATION_ERROR`): Missing email or password.
   - `401 Unauthorized` (`UNAUTHORIZED`): Invalid credentials.
@@ -177,9 +194,11 @@ For list endpoints with pagination:
 ---
 
 ### 3.3 `GET /api/auth/me`
+
 - **Purpose**: Hydrate authenticated session and retrieve current user context, role, and academic profile.
 - **Authentication**: `Bearer <token>` required.
 - **Success Response (`200 OK`)**:
+
   ```json
   {
     "success": true,
@@ -203,6 +222,7 @@ For list endpoints with pagination:
     "message": "Authenticated user context retrieved"
   }
   ```
+
 - **Errors**:
   - `401 Unauthorized` (`UNAUTHORIZED`): Missing or expired Bearer token.
   - `404 Not Found` (`NOT_FOUND`): User record no longer exists in database.
@@ -210,9 +230,11 @@ For list endpoints with pagination:
 ---
 
 ### 3.4 `POST /api/auth/logout`
+
 - **Purpose**: Terminate current authenticated session.
 - **Authentication**: None or `Bearer <token>`.
 - **Success Response (`200 OK`)**:
+
   ```json
   {
     "success": true,
@@ -226,9 +248,11 @@ For list endpoints with pagination:
 ## 4. Protected Student Endpoints
 
 ### 4.1 `GET /api/me/profile`
+
 - **Purpose**: Retrieve student member profile and calculated profile completion score.
 - **Authentication**: `Bearer <token>` (`student` or `admin`).
 - **Success Response (`200 OK`)**:
+
   ```json
   {
     "success": true,
@@ -250,10 +274,14 @@ For list endpoints with pagination:
   }
   ```
 
+---
+
 ### 4.2 `PATCH /api/me/profile`
+
 - **Purpose**: Update editable profile attributes (bio, links, skills, interests).
 - **Authentication**: `Bearer <token>` (`student`).
 - **Request Body**:
+
   ```json
   {
     "bio": "Exploring foundation models and autonomous agents.",
@@ -261,6 +289,7 @@ For list endpoints with pagination:
     "skills": ["Python", "PyTorch", "Rust", "TypeScript"]
   }
   ```
+
 - **Success Response (`200 OK`)**: Returns updated profile object.
 
 ---
@@ -268,7 +297,9 @@ For list endpoints with pagination:
 ## 5. Protected Admin Endpoints
 
 All endpoints under `/api/admin/*` require `authenticate` and `requireAdmin` (`role === 'admin'`).
+
 Non-admin access returns:
+
 ```json
 {
   "success": false,
@@ -280,7 +311,8 @@ Non-admin access returns:
 }
 ```
 
-### Key Admin Endpoints:
+### Key Admin Endpoints
+
 - `GET /api/admin/members`: Paginated list of registered club members with optional `?search=` and `?department=` filters.
 - `GET /api/admin/members/:id`: Specific member detail.
 - `POST /api/admin/achievements`, `PUT /api/admin/achievements/:id`, `DELETE /api/admin/achievements/:id`.

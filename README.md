@@ -7,6 +7,7 @@ AI CLUB is a student-centered artificial intelligence community platform designe
 ## 1. Technology Stack
 
 ### Frontend
+
 - **Framework**: React 19 + TypeScript + Vite 8
 - **Routing**: React Router 7
 - **Icons & Styling**: Lucide React + Tailored Vanilla CSS Design Tokens (Dark Theme, Glassmorphism)
@@ -14,6 +15,7 @@ AI CLUB is a student-centered artificial intelligence community platform designe
 - **HTTP Client**: Centralized `apiClient` with automatic token injection and typed errors
 
 ### Backend
+
 - **Runtime**: Node.js + Express 5 + TypeScript (`tsx` / `tsc`)
 - **Database**: PostgreSQL 15 via `pg.Pool`
 - **Authentication**: JWT (`jsonwebtoken`) + Secure Password Hashing (`bcrypt`)
@@ -25,7 +27,8 @@ AI CLUB is a student-centered artificial intelligence community platform designe
 ## 2. Architecture Overview
 
 The system strictly adheres to a layered architecture:
-```
+
+```text
 React Frontend
   └── Context (AuthProvider)
       └── Central API Client (src/api/client.ts)
@@ -52,21 +55,29 @@ Detailed architectural blueprints are available in [`docs/ARCHITECTURE.md`](docs
 ## 4. Environment Setup
 
 ### Frontend Environment
+
 Create `.env` in the project root:
+
 ```bash
 cp .env.example .env
 ```
+
 Default contents:
+
 ```ini
 VITE_API_URL=http://localhost:5000/api
 ```
 
 ### Backend Environment
+
 Create `server/.env`:
+
 ```bash
 cp server/.env.example server/.env
 ```
+
 Default contents:
+
 ```ini
 NODE_ENV=development
 PORT=5000
@@ -81,14 +92,17 @@ CORS_ORIGIN=http://localhost:5173
 ## 5. Database Setup & Initialization
 
 ### Option A: Using Docker Compose
+
 ```bash
 docker compose up -d
 ```
 
 ### Option B: Using Local PostgreSQL
+
 Ensure a PostgreSQL instance is running on port `5432` with user `aiclub`, password `aiclub_password`, and database `aiclub_db`.
 
 ### Run Migrations & Seeds
+
 ```bash
 # Apply all tracked database migrations
 npm run db:migrate
@@ -97,7 +111,8 @@ npm run db:migrate
 npm run db:seed
 ```
 
-#### Pre-seeded Development Accounts:
+#### Pre-seeded Development Accounts
+
 | Role | Email | Password | Details |
 | :--- | :--- | :--- | :--- |
 | **Administrator** | `admin@aiclub.com` | `admin123` | Operations & Admin Portal |
@@ -108,17 +123,22 @@ npm run db:seed
 ## 6. Running the Application
 
 ### Start Backend API Server (Port 5000)
+
 ```bash
 cd server
 npm run dev
 ```
+
 Verify backend health:
+
 ```bash
 curl http://localhost:5000/api/health
 ```
 
 ### Start Frontend Application (Port 5173)
+
 From project root:
+
 ```bash
 npm run dev
 ```
@@ -128,10 +148,13 @@ npm run dev
 ## 7. Running Tests & Quality Verification
 
 ### Run Automated Integration & Auth Tests
+
 ```bash
 npm run test
 ```
+
 The test suite validates:
+
 - API health and database connectivity
 - Zod request validation (email format, password min length, missing fields)
 - User registration and atomic profile transactions
@@ -142,11 +165,13 @@ The test suite validates:
 - Role-based authorization (`admin` vs `student` access control)
 
 ### Run Type Checking
+
 ```bash
 npm run typecheck
 ```
 
 ### Build for Production
+
 ```bash
 npm run build
 ```

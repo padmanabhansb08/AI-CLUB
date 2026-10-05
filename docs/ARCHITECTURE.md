@@ -1,6 +1,7 @@
 # AI CLUB — System Architecture Documentation
 
 ## 1. Overview
+
 AI CLUB is a student-centered artificial intelligence community platform designed to foster peer learning, technical project collaboration, and research initiatives.
 Sprint 1 establishes the production-grade foundation, stabilization, data isolation, and authentication subsystems.
 
@@ -24,6 +25,7 @@ graph TD
 ## 3. Layer Breakdown
 
 ### 3.1 Frontend (`src/`)
+
 - **UI Components (`src/components/`)**:
   - `layout/`: App shells (`AuthLayout`, `DashboardLayout`, `AdminLayout`, `RoleGuard`).
   - `ui/`: Design-system primitives (`Button`, `Input`, `Select`).
@@ -35,6 +37,7 @@ graph TD
   - `auth.api.ts`: Dedicated typed service for authentication operations.
 
 ### 3.2 Backend (`server/src/`)
+
 - **Entry & Server (`app.ts`, `server.ts`)**:
   - Configures security headers via `helmet`.
   - Configures environment-aware `cors` policy.
