@@ -4,6 +4,8 @@ import { profileService } from '../services/profileService';
 import type { Member } from '../data/members';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
+import { Select } from '../components/ui/Select';
+import { YEAR_OPTIONS, DEPARTMENT_OPTIONS, SECTION_OPTIONS } from '../constants/academicOptions';
 import { User, Link as LinkIcon, Terminal, CheckCircle, AlertCircle, Edit2, X, Save } from 'lucide-react';
 
 export const Profile: React.FC = () => {
@@ -178,24 +180,26 @@ export const Profile: React.FC = () => {
                 />
                 <span className="text-xs text-gray-500">Read-only</span>
               </div>
-              <Input 
+              <Select 
                 label="Department" 
                 value={isEditing ? editForm.department || '' : profile.department} 
                 onChange={e => handleEditChange('department', e.target.value)}
+                options={DEPARTMENT_OPTIONS}
                 disabled={!isEditing} 
               />
               <div className="grid grid-cols-2 gap-4">
-                <Input 
+                <Select 
                   label="Class/Section" 
                   value={isEditing ? editForm.classSection || '' : profile.classSection} 
                   onChange={e => handleEditChange('classSection', e.target.value)}
+                  options={SECTION_OPTIONS}
                   disabled={!isEditing} 
                 />
-                <Input 
+                <Select 
                   label="Year" 
-                  type="number"
-                  value={isEditing ? editForm.year || '' : profile.year} 
+                  value={isEditing ? String(editForm.year || '') : String(profile.year || '')} 
                   onChange={e => handleEditChange('year', e.target.value)}
+                  options={YEAR_OPTIONS}
                   disabled={!isEditing} 
                 />
               </div>

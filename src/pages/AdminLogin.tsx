@@ -64,6 +64,23 @@ export const AdminLogin: React.FC = () => {
           Sign In as Admin
         </Button>
 
+        <div className="auth-divider">
+          <span>OR</span>
+        </div>
+
+        <Button
+          type="button"
+          variant="secondary"
+          className="demo-btn mb-4"
+          onClick={() => {
+            authService.loginAsDemo('admin');
+            navigate('/admin');
+          }}
+          disabled={isLoading}
+        >
+          Demo Admin Access
+        </Button>
+
         <div className="text-sm" style={{ textAlign: 'center', color: 'var(--text-secondary)' }}>
           <Link to="/" className="text-accent" style={{ fontWeight: 500 }}>
             Return to Student Login
