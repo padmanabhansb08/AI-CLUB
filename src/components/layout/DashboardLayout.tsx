@@ -12,7 +12,8 @@ import {
   Menu,
   X,
   Bell,
-  Megaphone
+  Megaphone,
+  Users
 } from 'lucide-react';
 import { announcementService } from '../../services/content/announcementService';
 import { useAuth } from '../../context/AuthContext';
@@ -52,6 +53,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, page
 
   const navItems = [
     { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
+    { name: 'Members', path: '/members', icon: Users },
     { name: 'Announcements', path: '/announcements', icon: Megaphone },
     { name: 'Achievements', path: '/achievements', icon: Trophy },
     { name: 'AI & Tech', path: '/updates', icon: Rss },

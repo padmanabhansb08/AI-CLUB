@@ -58,6 +58,7 @@ Academic identity and club profile details.
 - `phone` (VARCHAR(50))
 - `status` (VARCHAR(50), Default 'Active')
 - `bio` (TEXT)
+- `profile_photo_url` (VARCHAR(1000))
 - `github_url` (VARCHAR(1000))
 - `linkedin_url` (VARCHAR(1000))
 - `portfolio_url` (VARCHAR(1000))
@@ -65,7 +66,14 @@ Academic identity and club profile details.
 - `technical_interests` (TEXT[])
 - `joined_at` (TIMESTAMPTZ, Default NOW())
 
-### 3.3 Domain Tables
+### 3.3 Member Identity & Skill Normalization
+
+- `skills`: Curated engineering & AI skills catalog (`id`, `name`, `category`).
+- `member_skills`: Many-to-many junction (`member_id`, `skill_id`, `proficiency: 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED' | 'EXPERT'`).
+- `interests`: Curated technical interests catalog (`id`, `name`, `category`).
+- `member_interests`: Many-to-many junction (`member_id`, `interest_id`).
+
+### 3.4 Domain Tables
 
 - `achievements`: Award recognitions, hackathons, publications (`achievement_members` junction).
 - `updates`: Technology articles, club breakthroughs, curated tech summaries.
@@ -101,6 +109,7 @@ CREATE TABLE IF NOT EXISTS migrations (
    - `003_add_events`
    - `004_add_project_teams`
    - `005_add_announcements`
+   - `006_sprint2_skills_interests_profile`
 4. Apply pending scripts inside transactional blocks (`BEGIN` / `COMMIT` / `ROLLBACK`).
 5. Safe for repeated runs without duplicate execution errors.
 

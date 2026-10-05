@@ -153,7 +153,7 @@ npm run dev
 npm run test
 ```
 
-The test suite validates:
+The test suite validates (33 tests across 10 suites):
 
 - API health and database connectivity
 - Zod request validation (email format, password min length, missing fields)
@@ -163,6 +163,12 @@ The test suite validates:
 - Authenticated and unauthenticated `GET /api/auth/me`
 - Logout flow
 - Role-based authorization (`admin` vs `student` access control)
+- Student Profile & weighted Profile Completion calculation
+- Normalized skills catalog & member proficiencies (`BEGINNER` to `EXPERT`)
+- Structured technical interests catalog & member selection
+- Personalized student dashboard with real database stats & chronological activity feed
+- Member directory search by skill/name, filtering, pagination, and sanitized public profiles
+- Server-enforced profile ownership (students cannot tamper with another member profile)
 
 ### Run Type Checking
 

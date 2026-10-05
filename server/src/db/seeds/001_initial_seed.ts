@@ -49,9 +49,9 @@ export async function seed() {
     const memberRes = await client.query(`
       INSERT INTO members (
         user_id, full_name, register_number, department, class_section, year, 
-        college_email, phone, status, bio, skills, technical_interests
+        college_email, phone, status, bio, profile_photo_url, github_url, linkedin_url, portfolio_url, skills, technical_interests
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
       ON CONFLICT (register_number) DO UPDATE SET 
         full_name = EXCLUDED.full_name,
         department = EXCLUDED.department,
@@ -60,6 +60,10 @@ export async function seed() {
         college_email = EXCLUDED.college_email,
         phone = EXCLUDED.phone,
         bio = EXCLUDED.bio,
+        profile_photo_url = EXCLUDED.profile_photo_url,
+        github_url = EXCLUDED.github_url,
+        linkedin_url = EXCLUDED.linkedin_url,
+        portfolio_url = EXCLUDED.portfolio_url,
         skills = EXCLUDED.skills,
         technical_interests = EXCLUDED.technical_interests
       RETURNING id
@@ -74,23 +78,120 @@ export async function seed() {
       '+91 9876543210',
       'Active',
       'AI enthusiast & Full Stack Developer passionate about Machine Learning, NLP, and modern web systems.',
+      'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80',
+      'https://github.com/rahulsharma',
+      'https://linkedin.com/in/rahulsharma',
+      'https://rahulsharma.dev',
       ['Python', 'PyTorch', 'TypeScript', 'React', 'PostgreSQL'],
       ['Deep Learning', 'Computer Vision', 'Generative AI']
     ]);
     const memberId = memberRes.rows[0].id;
 
-    // 4. Sample Achievements
+    // Helper to sync normalized skills for a member
+    const syncSkills = async (mId: string, skillNames: string[]) => {
+      for (const name of skillNames) {
+        const sRes = await client.query(
+          `INSERT INTO skills (name, category) VALUES ($1, 'General') ON CONFLICT (name) DO UPDATE SET name = EXCLUDED.name RETURNING id`,
+          [name]
+        );
+        await client.query(
+          `INSERT INTO member_skills (member_id, skill_id, proficiency) VALUES ($1, $2, 'ADVANCED') ON CONFLICT DO NOTHING`,
+          [mId, sRes.rows[0].id]
+        );
+      }
+    };
+
+    // Helper to sync normalized interests for a member
+    const syncInterests = async (mId: string, interestNames: string[]) => {
+      for (const name of interestNames) {
+        const iRes = await client.query(
+          `INSERT INTO interests (name, category) VALUES ($1, 'Technical') ON CONFLICT (name) DO UPDATE SET name = EXCLUDED.name RETURNING id`,
+          [name]
+        );
+        await client.query(
+          `INSERT INTO member_interests (member_id, interest_id) VALUES ($1, $2) ON CONFLICT DO NOTHING`,
+          [mId, iRes.rows[0].id]
+        );
+      }
+    };
+
+    await syncSkills(memberId, ['Python', 'PyTorch', 'TypeScript', 'React', 'PostgreSQL']);
+    await syncInterests(memberId, ['Deep Learning', 'Computer Vision', 'Generative AI']);
+
+    // 4. Additional Sample Student: Ananya Patel (AI & Data Science)
+    const ananyaPass = await bcrypt.hash('student123', 10);
+    const ananyaUserRes = await client.query(`
+      INSERT INTO users (email, password_hash, role)
+      VALUES ('ananya@aiclub.com', $1, 'student')
+      ON CONFLICT (email) DO UPDATE SET password_hash = EXCLUDED.password_hash, role = 'student'
+      RETURNING id
+    `, [ananyaPass]);
+    const ananyaId = ananyaUserRes.rows[0].id;
+
+    const ananyaMemberRes = await client.query(`
+      INSERT INTO members (
+        user_id, full_name, register_number, department, class_section, year,
+        college_email, phone, status, bio, profile_photo_url, github_url, linkedin_url, skills, technical_interests
+      )
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+      ON CONFLICT (register_number) DO UPDATE SET
+        full_name = EXCLUDED.full_name,
+        department = EXCLUDED.department,
+        class_section = EXCLUDED.class_section,
+        year = EXCLUDED.year,
+        college_email = EXCLUDED.college_email,
+        phone = EXCLUDED.phone,
+        bio = EXCLUDED.bio,
+        profile_photo_url = EXCLUDED.profile_photo_url,
+        github_url = EXCLUDED.github_url,
+        linkedin_url = EXCLUDED.linkedin_url,
+        skills = EXCLUDED.skills,
+        technical_interests = EXCLUDED.technical_interests
+      RETURNING id
+    `, [
+      ananyaId,
+      'Ananya Patel',
+      '22BAI2045',
+      'AIDS',
+      'B',
+      2,
+      'ananya@aiclub.com',
+      '+91 9876543211',
+      'Active',
+      'Data Science & NLP researcher. Working on Edge AI and quantized Transformer architectures.',
+      'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=300&q=80',
+      'https://github.com/ananyapatel',
+      'https://linkedin.com/in/ananyapatel',
+      ['Python', 'TensorFlow', 'Scikit-Learn', 'FastAPI'],
+      ['Natural Language Processing', 'Data Science', 'Research']
+    ]);
+    const ananyaMemberId = ananyaMemberRes.rows[0].id;
+    await syncSkills(ananyaMemberId, ['Python', 'TensorFlow', 'Scikit-Learn', 'FastAPI']);
+    await syncInterests(ananyaMemberId, ['Natural Language Processing', 'Data Science', 'Research']);
+
+    // 5. Sample Achievements
     const achCount = await client.query('SELECT COUNT(*) as cnt FROM achievements');
     if (parseInt(achCount.rows[0].cnt) === 0) {
-      await client.query(`
+      const ach1 = await client.query(`
         INSERT INTO achievements (title, description, category, student_name, event_name, date, year, featured)
-        VALUES 
-          ('First Place — National AI Hackathon', 'Won first place for developing an automated medical imaging diagnostic tool.', 'Hackathons', 'Rahul Sharma', 'National AI Challenge 2026', '2026-03-15', 3, true),
-          ('Best Research Paper Award', 'Published a novel benchmark on small language models on edge devices.', 'Research', 'Ananya Patel', 'IEEE Student Symposium', '2026-02-10', 4, true)
+        VALUES ('First Place — National AI Hackathon', 'Won first place for developing an automated medical imaging diagnostic tool.', 'Hackathons', 'Rahul Sharma', 'National AI Challenge 2026', '2026-03-15', 3, true)
+        RETURNING id
       `);
+      const ach2 = await client.query(`
+        INSERT INTO achievements (title, description, category, student_name, event_name, date, year, featured)
+        VALUES ('Best Research Paper Award', 'Published a novel benchmark on small language models on edge devices.', 'Research', 'Ananya Patel', 'IEEE Student Symposium', '2026-02-10', 4, true)
+        RETURNING id
+      `);
+
+      // Link to achievement_members
+      await client.query(`
+        INSERT INTO achievement_members (achievement_id, member_id)
+        VALUES ($1, $2), ($3, $4)
+        ON CONFLICT DO NOTHING
+      `, [ach1.rows[0].id, memberId, ach2.rows[0].id, ananyaMemberId]);
     }
 
-    // 5. Sample Tech Updates
+    // 6. Sample Tech Updates
     const updCount = await client.query('SELECT COUNT(*) as cnt FROM updates');
     if (parseInt(updCount.rows[0].cnt) === 0) {
       await client.query(`
@@ -101,7 +202,7 @@ export async function seed() {
       `);
     }
 
-    // 6. Sample Projects
+    // 7. Sample Projects
     const projRes = await client.query(`
       INSERT INTO projects (title, short_description, overview, problem, approach, category, difficulty, status, expected_outcome, featured)
       VALUES (
@@ -128,7 +229,7 @@ export async function seed() {
       `, [memberId, projectId]);
     }
 
-    // 7. Sample Courses
+    // 8. Sample Courses
     const courseRes = await client.query(`
       INSERT INTO courses (title, provider, description, category, difficulty, duration, course_url, tracking_method, tracking_status, featured)
       VALUES (
@@ -156,14 +257,14 @@ export async function seed() {
       `, [courseId, memberId]);
     }
 
-    // 8. Sample Announcements
+    // 9. Sample Announcements
     const annCount = await client.query('SELECT COUNT(*) as cnt FROM announcements');
     if (parseInt(annCount.rows[0].cnt) === 0) {
       await client.query(`
         INSERT INTO announcements (title, body, category, priority, status, published_at, created_by)
         VALUES (
           'Welcome to AI CLUB 2026-2027!',
-          'We are excited to kick off Sprint 1 of our community platform. Check out ongoing projects, explore courses, and collaborate with peer members.',
+          'We are excited to kick off Sprint 2 of our community platform. Check out ongoing projects, explore courses, and collaborate with peer members.',
           'general',
           'important',
           'published',
@@ -177,6 +278,7 @@ export async function seed() {
     console.log('[seed] ✓ Seed completed successfully with development accounts.');
     console.log('[seed]   - Admin:   admin@aiclub.com   (password: admin123)');
     console.log('[seed]   - Student: student@aiclub.com (password: student123)');
+    console.log('[seed]   - Student: ananya@aiclub.com  (password: student123)');
   } catch (error) {
     await client.query('ROLLBACK');
     console.error('[seed] ✗ Seed failed:', error);

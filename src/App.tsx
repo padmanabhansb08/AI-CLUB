@@ -23,6 +23,8 @@ import Events from './pages/Events';
 import EventDetail from './pages/EventDetail';
 import { Announcements } from './pages/Announcements';
 import { AnnouncementDetail } from './pages/AnnouncementDetail';
+import { Members } from './pages/Members';
+import { MemberDetail } from './pages/MemberDetail';
 
 // Admin Pages
 import { AdminOverview } from './pages/admin/AdminOverview';
@@ -72,6 +74,8 @@ function App() {
               <Route path="/events/:id" element={<RoleGuard allowedRole="student"><EventDetail /></RoleGuard>} />
               <Route path="/announcements" element={<RoleGuard allowedRole="student"><Announcements /></RoleGuard>} />
               <Route path="/announcements/:id" element={<RoleGuard allowedRole="student"><AnnouncementDetail /></RoleGuard>} />
+              <Route path="/members" element={<RoleGuard allowedRole="student"><Members /></RoleGuard>} />
+              <Route path="/members/:id" element={<RoleGuard allowedRole="student"><MemberDetail /></RoleGuard>} />
               <Route path="/settings" element={<RoleGuard allowedRole="student"><PlaceholderPage title="Settings" /></RoleGuard>} />
 
               {/* Protected Admin Routes */}

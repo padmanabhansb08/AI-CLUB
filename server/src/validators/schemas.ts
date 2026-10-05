@@ -78,18 +78,36 @@ export const courseSchema = z.object({
   featured: z.boolean().optional(),
 });
 
+export const skillItemSchema = z.union([
+  z.string().min(1).max(100),
+  z.object({
+    name: z.string().min(1).max(100),
+    proficiency: z.enum(['BEGINNER', 'INTERMEDIATE', 'ADVANCED', 'EXPERT']).optional(),
+  }),
+]);
+
+export const memberSkillsUpdateSchema = z.object({
+  skills: z.array(skillItemSchema),
+});
+
+export const memberInterestsUpdateSchema = z.object({
+  interests: z.array(z.string().min(1).max(100)),
+});
+
 export const profileUpdateSchema = z.object({
-  fullName: z.string().min(2).optional(),
-  department: z.string().min(2).optional(),
-  classSection: z.string().min(1).optional(),
+  fullName: z.string().min(2).max(100).optional(),
+  department: z.string().min(2).max(100).optional(),
+  classSection: z.string().min(1).max(50).optional(),
   year: z.coerce.number().int().min(1).max(5).optional(),
-  phone: z.string().optional(),
-  bio: z.string().max(500).optional(),
-  githubUrl: z.string().url().optional().or(z.literal('')),
-  linkedinUrl: z.string().url().optional().or(z.literal('')),
-  portfolioUrl: z.string().url().optional().or(z.literal('')),
-  skills: z.array(z.string().max(50)).max(20).optional(),
-  technicalInterests: z.array(z.string().max(50)).max(10).optional(),
+  phone: z.string().max(50).optional().or(z.literal('')),
+  bio: z.string().max(1000).optional().or(z.literal('')),
+  profilePhotoUrl: z.string().url('Invalid profile photo URL').max(1000).optional().or(z.literal('')),
+  githubUrl: z.string().url('Invalid GitHub URL').max(1000).optional().or(z.literal('')),
+  linkedinUrl: z.string().url('Invalid LinkedIn URL').max(1000).optional().or(z.literal('')),
+  portfolioUrl: z.string().url('Invalid Portfolio URL').max(1000).optional().or(z.literal('')),
+  skills: z.array(skillItemSchema).max(50).optional(),
+  technicalInterests: z.array(z.string().max(100)).max(30).optional(),
+  interests: z.array(z.string().max(100)).max(30).optional(),
 });
 
 export const eventSchema = z.object({

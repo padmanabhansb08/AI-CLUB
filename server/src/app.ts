@@ -5,8 +5,12 @@ import helmet from 'helmet';
 import authRoutes from './routes/authRoutes';
 import adminRoutes from './routes/adminRoutes';
 import studentRoutes from './routes/studentRoutes';
+import memberRoutes from './routes/memberRoutes';
 import publicRoutes from './routes/publicRoutes';
 import { router as announcementRoutes } from './routes/announcementRoutes';
+import { authenticate } from './middleware/auth';
+import { dashboardController } from './controllers/dashboardController';
+import { catalogController } from './controllers/catalogController';
 import { pool } from './db';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler';
 import { config } from './config';
@@ -81,6 +85,10 @@ app.get('/api/health', async (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/me', studentRoutes);
+app.use('/api/members', memberRoutes);
+app.get('/api/dashboard', authenticate, dashboardController.getDashboard);
+app.get('/api/skills', catalogController.getSkills);
+app.get('/api/interests', catalogController.getInterests);
 app.use('/api/announcements', announcementRoutes);
 app.use('/api', publicRoutes);
 

@@ -124,7 +124,13 @@ async function request<T>(endpoint: string, options: RequestOptions = {}): Promi
   }
 
   // If response matches standardized { success: true, data: ... }, extract data
-  return (payload.data !== undefined ? payload.data : payload) as T;
+  if (payload.data !== undefined) {
+    if (payload.pagination !== undefined) {
+      return { data: payload.data, pagination: payload.pagination } as T;
+    }
+    return payload.data as T;
+  }
+  return payload as T;
 }
 
 export const apiClient = {

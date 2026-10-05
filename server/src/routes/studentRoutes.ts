@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { authenticate } from '../middleware/auth';
 import { projectController, courseController } from '../controllers/contentController';
 import { studentController } from '../controllers/studentController';
+import { dashboardController } from '../controllers/dashboardController';
 import { studentEventController } from '../controllers/eventController';
 import { projectTeamController } from '../controllers/projectTeamController';
 import { announcementController } from '../controllers/announcementController';
@@ -9,13 +10,23 @@ import { announcementController } from '../controllers/announcementController';
 const router = Router();
 router.use(authenticate);
 
+// Profile routes
 router.get('/profile', studentController.getProfile);
 router.patch('/profile', studentController.updateProfile);
+router.get('/profile/skills', studentController.getSkills);
+router.put('/profile/skills', studentController.updateSkills);
+router.get('/profile/interests', studentController.getInterests);
+router.put('/profile/interests', studentController.updateInterests);
 
+// Dashboard aggregation route
+router.get('/dashboard', dashboardController.getDashboard);
+
+// Projects and Courses
 router.post('/projects/:id/interest', projectController.addInterest);
 router.delete('/projects/:id/interest', projectController.removeInterest);
 router.get('/courses/progress', courseController.getProgress);
 
+// Events
 router.get('/events/registrations', studentEventController.getMyRegistrations);
 router.get('/me/events/registrations', studentEventController.getMyRegistrations); // alias for backwards compatibility
 router.post('/events/:id/register', studentEventController.register);

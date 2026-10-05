@@ -278,19 +278,127 @@ For list endpoints with pagination:
 
 ### 4.2 `PATCH /api/me/profile`
 
-- **Purpose**: Update editable profile attributes (bio, links, skills, interests).
+- **Purpose**: Update editable profile attributes (bio, links, photo, skills, interests).
 - **Authentication**: `Bearer <token>` (`student`).
 - **Request Body**:
 
   ```json
   {
     "bio": "Exploring foundation models and autonomous agents.",
+    "profilePhotoUrl": "https://images.unsplash.com/photo-1534528741775-53994a69daeb",
     "githubUrl": "https://github.com/rahulsharma",
-    "skills": ["Python", "PyTorch", "Rust", "TypeScript"]
+    "skills": ["Python", "PyTorch", "Rust", "TypeScript"],
+    "technicalInterests": ["Deep Learning", "Generative AI"]
   }
   ```
 
-- **Success Response (`200 OK`)**: Returns updated profile object.
+- **Success Response (`200 OK`)**: Returns updated profile object with recalculated `profileCompletion`.
+
+---
+
+### 4.3 `GET /api/dashboard`
+
+- **Purpose**: Retrieve aggregated personalized dashboard data (profile, profile completion, quick counts, announcements, activities).
+- **Authentication**: `Bearer <token>` (`student`).
+- **Success Response (`200 OK`)**:
+
+  ```json
+  {
+    "success": true,
+    "data": {
+      "profile": { ... },
+      "profileCompletion": {
+        "percentage": 85,
+        "completed": 9,
+        "total": 11,
+        "missing": ["portfolio"]
+      },
+      "stats": {
+        "projects": 2,
+        "courses": 1,
+        "achievements": 1,
+        "events": 0,
+        "totalProjects": 5,
+        "totalCourses": 4,
+        "totalEvents": 2
+      },
+      "announcements": [ ... ],
+      "recentProjects": [ ... ],
+      "recentAchievements": [ ... ],
+      "recentActivity": [
+        {
+          "id": "ach-1",
+          "type": "achievement",
+          "title": "Achievement Unlocked",
+          "description": "First Place — National AI Hackathon",
+          "timestamp": "2026-03-15",
+          "icon": "🏆",
+          "link": "/achievements"
+        }
+      ]
+    },
+    "message": "Personalized student dashboard data retrieved"
+  }
+  ```
+
+---
+
+### 4.4 `GET /api/members`
+
+- **Purpose**: Public/authenticated member directory with sanitized fields (no password hashes or private credentials).
+- **Authentication**: Optional / Public.
+- **Query Parameters**:
+  - `page` (default: 1)
+  - `limit` (default: 20, max: 100)
+  - `search` (filter by student name, register number, or skill)
+  - `department` (filter by academic department)
+- **Success Response (`200 OK`)**:
+
+  ```json
+  {
+    "success": true,
+    "data": [
+      {
+        "id": "f9241c2a-7a44-4a25-a1cf-2269c415bef9",
+        "fullName": "Rahul Sharma",
+        "registerNumber": "21BCE1001",
+        "department": "CSE",
+        "classSection": "A",
+        "year": 3,
+        "bio": "AI enthusiast & Full Stack Developer...",
+        "profilePhotoUrl": "https://images.unsplash.com/...",
+        "githubUrl": "https://github.com/rahulsharma",
+        "skills": ["Python", "PyTorch", "TypeScript"],
+        "technicalInterests": ["Deep Learning", "Generative AI"],
+        "joinedAt": "2026-10-05T08:00:00Z",
+        "status": "Active"
+      }
+    ],
+    "pagination": {
+      "page": 1,
+      "limit": 20,
+      "total": 45,
+      "totalPages": 3
+    },
+    "message": "Member directory retrieved"
+  }
+  ```
+
+---
+
+### 4.5 `GET /api/members/:id`
+
+- **Purpose**: Retrieve public member profile by ID.
+- **Authentication**: Optional / Public.
+- **Success Response (`200 OK`)**: Returns sanitized public member profile object.
+
+---
+
+### 4.6 `GET /api/skills` & `GET /api/interests`
+
+- **Purpose**: Retrieve curated catalog of engineering skills and technical interests.
+- **Authentication**: None.
+- **Success Response (`200 OK`)**: Returns list of `{ id, name, category }`.
 
 ---
 
