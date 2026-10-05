@@ -12,7 +12,8 @@ import {
   Menu,
   X,
   Bell,
-  Megaphone
+  Megaphone,
+  Users
 } from 'lucide-react';
 import { announcementService } from '../../services/content/announcementService';
 
@@ -54,6 +55,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, page
     { name: 'AI & Tech', path: '/updates', icon: Rss },
     { name: 'Courses', path: '/courses', icon: BookOpen },
     { name: 'Projects', path: '/projects', icon: Lightbulb },
+    { name: 'Members', path: '/members', icon: Users },
   ];
 
   return (

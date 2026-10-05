@@ -30,5 +30,46 @@ export const memberService = {
 
   getMemberById: async (id: string) => {
     return repository.getById(id);
+  },
+  
+  getPublicMembers: async (page = 1, limit = 20, search?: string, department?: string, year?: string, skill?: string, interest?: string) => {
+    try {
+      const token = localStorage.getItem('token');
+      const url = new URL(`${API_URL}/api/members`);
+      url.searchParams.append('page', page.toString());
+      url.searchParams.append('limit', limit.toString());
+      if (search) url.searchParams.append('search', search);
+      if (department) url.searchParams.append('department', department);
+      if (year) url.searchParams.append('year', year);
+      if (skill) url.searchParams.append('skill', skill);
+      if (interest) url.searchParams.append('interest', interest);
+
+      const res = await fetch(url.toString(), {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      if (!res.ok) throw new Error('Failed to fetch members');
+      return await res.json();
+    } catch (e) {
+      console.error(e);
+      return { data: [], pagination: { page, limit, total: 0, totalPages: 0 } };
+    }
+  },
+
+  getPublicMemberById: async (id: string) => {
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${API_URL}/api/members/${id}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      if (!res.ok) throw new Error('Failed to fetch member details');
+      return await res.json();
+    } catch (e) {
+      console.error(e);
+      throw e;
+    }
   }
 };

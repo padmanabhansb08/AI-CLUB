@@ -7,6 +7,7 @@ import adminRoutes from './routes/adminRoutes';
 import studentRoutes from './routes/studentRoutes';
 import publicRoutes from './routes/publicRoutes';
 import { router as announcementRoutes } from './routes/announcementRoutes';
+import { router as directoryRoutes } from './routes/directoryRoutes';
 import { pool } from './db';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler';
 
@@ -36,6 +37,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/me', studentRoutes);
 app.use('/api/announcements', announcementRoutes);
+app.use('/api/members', directoryRoutes);
 app.use('/api', publicRoutes);
 
 // 404 handling middleware

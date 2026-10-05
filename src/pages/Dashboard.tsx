@@ -240,6 +240,16 @@ export const Dashboard: React.FC = () => {
           </div>
         </StateView>
       </section>
+      {/* Member Directory Discovery */}
+      <section className="dashboard-section mt-6 mb-6 bg-gray-900 border border-gray-800 rounded-lg p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:border-gray-700 transition-colors">
+        <div>
+          <h3 className="text-xl font-bold text-gray-100 mb-1">Member Directory</h3>
+          <p className="text-gray-400 text-sm">Find members by skills, technical interests, and departments for collaboration.</p>
+        </div>
+        <Link to="/members" className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium whitespace-nowrap transition-colors">
+          Explore Members
+        </Link>
+      </section>
     </DashboardLayout>
   );
 };
