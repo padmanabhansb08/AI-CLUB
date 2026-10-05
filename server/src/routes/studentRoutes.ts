@@ -16,7 +16,8 @@ router.post('/projects/:id/interest', projectController.addInterest);
 router.delete('/projects/:id/interest', projectController.removeInterest);
 router.get('/courses/progress', courseController.getProgress);
 
-router.get('/me/events/registrations', studentEventController.getMyRegistrations);
+router.get('/events/registrations', studentEventController.getMyRegistrations);
+router.get('/me/events/registrations', studentEventController.getMyRegistrations); // alias for backwards compatibility
 router.post('/events/:id/register', studentEventController.register);
 router.post('/events/:id/unregister', studentEventController.unregister);
 

@@ -3,10 +3,11 @@ import { Link, useNavigate } from 'react-router-dom';
 import { AuthLayout } from '../components/layout/AuthLayout';
 import { Input } from '../components/ui/Input';
 import { Button } from '../components/ui/Button';
-import { authService } from '../services/authService';
+import { useAuth } from '../context/AuthContext';
 
 export const AdminLogin: React.FC = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -18,17 +19,27 @@ export const AdminLogin: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const response = await authService.login(email, password);
-      if (response.success) {
-        console.log('Admin Login successful');
-        navigate('/admin'); 
+      const user = await login(email, password);
+      if (user.role?.toLowerCase() === 'admin') {
+        navigate('/admin');
       } else {
-        console.error('Admin Login failed:', response.message);
-        setError(response.message || 'Login failed');
+        setError('Access denied: Admin privileges required for this portal.');
       }
-    } catch (err) {
-      console.error('Admin Login exception:', err);
-      setError('An error occurred during login');
+    } catch (err: any) {
+      setError(err.message || 'Authentication failed. Please verify admin credentials.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDemoAdmin = async () => {
+    setError('');
+    setIsLoading(true);
+    try {
+      await login('admin@aiclub.com', 'admin123');
+      navigate('/admin');
+    } catch (err: any) {
+      setError(err.message || 'Unable to connect to AI CLUB server for admin login.');
     } finally {
       setIsLoading(false);
     }
@@ -37,18 +48,18 @@ export const AdminLogin: React.FC = () => {
   return (
     <AuthLayout
       title="Admin Portal"
-      subtitle="Restricted access. Sign in with admin credentials."
+      subtitle="Restricted access. Sign in with administrative credentials."
     >
       <form onSubmit={handleSubmit}>
         <Input
           label="Admin Email"
           type="email"
-          placeholder="admin@college.edu"
+          placeholder="admin@aiclub.com"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
         />
-        
+
         <Input
           label="Password"
           type="password"
@@ -60,7 +71,12 @@ export const AdminLogin: React.FC = () => {
 
         {error && <div className="form-error mb-4">{error}</div>}
 
-        <Button type="submit" isLoading={isLoading} className="mb-4 mt-6" style={{ backgroundColor: 'var(--text-primary)', color: 'var(--bg-primary)' }}>
+        <Button
+          type="submit"
+          isLoading={isLoading}
+          className="mb-4 mt-6"
+          style={{ backgroundColor: 'var(--text-primary)', color: 'var(--bg-primary)' }}
+        >
           Sign In as Admin
         </Button>
 
@@ -72,10 +88,7 @@ export const AdminLogin: React.FC = () => {
           type="button"
           variant="secondary"
           className="demo-btn mb-4"
-          onClick={() => {
-            authService.loginAsDemo('admin');
-            navigate('/admin');
-          }}
+          onClick={handleDemoAdmin}
           disabled={isLoading}
         >
           Demo Admin Access

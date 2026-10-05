@@ -1,4 +1,4 @@
-import { ApiError } from '../apiError';
+import { apiClient, ApiError } from '../../api/client';
 
 export class Repository<T extends { id: string }> {
   private endpoint: string;
@@ -6,11 +6,9 @@ export class Repository<T extends { id: string }> {
   private data: T[] = [];
   private loading: boolean = true;
   private error: ApiError | null = null;
-  private requiresAuth: boolean;
-  
-  constructor(endpoint: string, requiresAuth: boolean = false) {
-    this.endpoint = endpoint;
-    this.requiresAuth = requiresAuth;
+
+  constructor(endpoint: string, _requiresAuth: boolean = false) {
+    this.endpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
     this.fetchData();
   }
 
@@ -20,7 +18,7 @@ export class Repository<T extends { id: string }> {
   }
 
   private notify() {
-    this.listeners.forEach(listener => listener());
+    this.listeners.forEach((listener) => listener());
   }
 
   async fetchData() {
@@ -28,22 +26,14 @@ export class Repository<T extends { id: string }> {
     this.error = null;
     this.notify();
     try {
-      const headers: Record<string, string> = {};
-      if (this.requiresAuth) {
-        headers['Authorization'] = `Bearer ${localStorage.getItem('token')}`;
+      const result = await apiClient.get<T[] | { items: T[] }>(this.endpoint);
+      if (Array.isArray(result)) {
+        this.data = result;
+      } else if (result && Array.isArray((result as any).items)) {
+        this.data = (result as any).items;
+      } else {
+        this.data = [];
       }
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/api${this.endpoint}`, { headers });
-      if (!response.ok) {
-        let errMsg = `HTTP ${response.status}`;
-        try {
-          const errData = await response.json();
-          errMsg = errData.error?.message || errMsg;
-        } catch {}
-        throw new ApiError(errMsg, response.status);
-      }
-      const json = await response.json();
-      this.data = json.data || json;
-      console.log('Repository fetched data for', this.endpoint, 'length:', this.data.length);
       this.loading = false;
       this.notify();
     } catch (error: any) {
@@ -59,21 +49,14 @@ export class Repository<T extends { id: string }> {
 
   retry = () => {
     this.fetchData();
-  }
+  };
 
   getAll(): T[] {
     return this.data;
   }
 
   async getById(id: string): Promise<T> {
-    const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/api${this.endpoint}/${id}`, {
-      headers: this.requiresAuth ? { 'Authorization': `Bearer ${localStorage.getItem('token')}` } : {}
-    });
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}`);
-    }
-    const json = await response.json();
-    return json.data || json;
+    return apiClient.get<T>(`${this.endpoint}/${id}`);
   }
 
   isLoading(): boolean {
@@ -84,60 +67,23 @@ export class Repository<T extends { id: string }> {
     return this.error;
   }
 
-  async create(item: Omit<T, 'id'>) {
-    const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/api/admin${this.endpoint}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
-      },
-      body: JSON.stringify(item)
-    });
-    if (!response.ok) {
-      let errMsg = 'Failed to create';
-      try { const errData = await response.json(); errMsg = errData.error?.message || errMsg; } catch {}
-      throw new ApiError(errMsg, response.status);
-    }
-    const newItem = await response.json();
-    this.data = [...this.data, newItem.data || newItem];
+  async create(item: Omit<T, 'id'>): Promise<T> {
+    const newItem = await apiClient.post<T>(`/admin${this.endpoint}`, item);
+    this.data = [...this.data, newItem];
     this.notify();
     return newItem;
   }
 
-  async update(id: string, updates: Partial<T>) {
-    const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/api/admin${this.endpoint}/${id}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
-      },
-      body: JSON.stringify(updates)
-    });
-    if (!response.ok) {
-      let errMsg = 'Failed to update';
-      try { const errData = await response.json(); errMsg = errData.error?.message || errMsg; } catch {}
-      throw new ApiError(errMsg, response.status);
-    }
-    const updatedItem = await response.json();
-    const actualData = updatedItem.data || updatedItem;
-    this.data = this.data.map(item => item.id === id ? actualData : item);
+  async update(id: string, updates: Partial<T>): Promise<T> {
+    const updatedItem = await apiClient.put<T>(`/admin${this.endpoint}/${id}`, updates);
+    this.data = this.data.map((item) => (item.id === id ? updatedItem : item));
     this.notify();
-    return actualData;
+    return updatedItem;
   }
 
-  async remove(id: string) {
-    const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/api/admin${this.endpoint}/${id}`, {
-      method: 'DELETE',
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
-      }
-    });
-    if (!response.ok) {
-      let errMsg = 'Failed to remove';
-      try { const errData = await response.json(); errMsg = errData.error?.message || errMsg; } catch {}
-      throw new ApiError(errMsg, response.status);
-    }
-    this.data = this.data.filter(item => item.id !== id);
+  async remove(id: string): Promise<void> {
+    await apiClient.delete(`/admin${this.endpoint}/${id}`);
+    this.data = this.data.filter((item) => item.id !== id);
     this.notify();
   }
 }

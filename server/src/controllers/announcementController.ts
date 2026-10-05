@@ -4,6 +4,7 @@ import { announcementService } from '../services/announcementService';
 import { createAnnouncementSchema, updateAnnouncementSchema } from '../schemas/announcementSchema';
 import { pool } from '../db';
 import { ApiError } from '../middleware/errorHandler';
+import { sendSuccess, sendPaginated } from '../utils/response';
 
 async function getMemberId(userId: string): Promise<string> {
   const res = await pool.query('SELECT id FROM members WHERE user_id = $1', [userId]);
@@ -16,93 +17,98 @@ async function getMemberId(userId: string): Promise<string> {
 export const announcementController = {
   async getVisibleAnnouncements(req: AuthRequest, res: Response, next: NextFunction) {
     try {
-      const page = parseInt(req.query.page as string) || 1;
-      const limit = parseInt(req.query.limit as string) || 20;
-      
+      const page = parseInt(req.query.page as string, 10) || 1;
+      const limit = parseInt(req.query.limit as string, 10) || 20;
+
       let memberId: string | null = null;
-      if (req.user && req.user.role === 'student') {
-        memberId = await getMemberId(req.user.id);
+      const userId = req.user?.userId || req.user?.id;
+      if (req.user && req.user.role === 'student' && userId) {
+        memberId = await getMemberId(userId);
       }
-      
+
       const result = await announcementService.getVisibleAnnouncements(memberId, page, limit);
-      res.json(result);
+      return sendPaginated(res, result.data, result.pagination, 'Announcements retrieved');
     } catch (e) {
       next(e);
     }
   },
-  
+
   async getUnreadCount(req: AuthRequest, res: Response, next: NextFunction) {
     try {
-      const memberId = await getMemberId(req.user!.id);
+      const userId = req.user?.userId || req.user?.id;
+      const memberId = await getMemberId(userId!);
       const result = await announcementService.getUnreadCount(memberId);
-      res.json({ data: result });
+      return sendSuccess(res, result, 'Unread announcement count retrieved');
     } catch (e) {
       next(e);
     }
   },
-  
+
   async markAsRead(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const { id } = req.params;
-      const memberId = await getMemberId(req.user!.id);
+      const userId = req.user?.userId || req.user?.id;
+      const memberId = await getMemberId(userId!);
       const result = await announcementService.markAsRead(id as string, memberId);
-      res.json({ data: result });
+      return sendSuccess(res, result, 'Announcement marked as read');
     } catch (e) {
       next(e);
     }
   },
-  
+
   async getById(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const { id } = req.params;
       let memberId: string | null = null;
-      if (req.user && req.user.role === 'student') {
-        memberId = await getMemberId(req.user.id);
+      const userId = req.user?.userId || req.user?.id;
+      if (req.user && req.user.role === 'student' && userId) {
+        memberId = await getMemberId(userId);
       }
       const data = await announcementService.getById(id as string, memberId);
-      res.json({ data });
+      return sendSuccess(res, data, 'Announcement retrieved');
     } catch (e) {
       next(e);
     }
   },
-  
+
   async getAllAdmin(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const data = await announcementService.getAllAdmin();
-      res.json({ data });
+      return sendSuccess(res, data, 'Admin announcements retrieved');
     } catch (e) {
       next(e);
     }
   },
-  
+
   async create(req: AuthRequest, res: Response, next: NextFunction) {
     try {
-      const data = createAnnouncementSchema.parse(req.body);
-      const result = await announcementService.create(data, req.user!.id);
-      res.status(201).json({ data: result });
+      const validated = createAnnouncementSchema.parse(req.body);
+      const userId = req.user?.userId || req.user?.id;
+      const data = await announcementService.create(validated, userId!);
+      return sendSuccess(res, data, 'Announcement created successfully', 201);
     } catch (e) {
       next(e);
     }
   },
-  
+
   async update(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const { id } = req.params;
-      const data = updateAnnouncementSchema.parse(req.body);
-      const result = await announcementService.update(id as string, data);
-      res.json({ data: result });
+      const validated = updateAnnouncementSchema.parse(req.body);
+      const data = await announcementService.update(id as string, validated);
+      return sendSuccess(res, data, 'Announcement updated successfully');
     } catch (e) {
       next(e);
     }
   },
-  
+
   async delete(req: AuthRequest, res: Response, next: NextFunction) {
     try {
       const { id } = req.params;
       await announcementService.delete(id as string);
-      res.status(204).send();
+      return sendSuccess(res, {}, 'Announcement deleted successfully');
     } catch (e) {
       next(e);
     }
-  }
+  },
 };

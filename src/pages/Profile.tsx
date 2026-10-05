@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { authService } from '../services/authService';
+import { useAuth } from '../context/AuthContext';
 import { profileService } from '../services/profileService';
 import type { Member } from '../data/members';
 import { Button } from '../components/ui/Button';
@@ -9,7 +9,7 @@ import { YEAR_OPTIONS, DEPARTMENT_OPTIONS, SECTION_OPTIONS } from '../constants/
 import { User, Link as LinkIcon, Terminal, CheckCircle, AlertCircle, Edit2, X, Save } from 'lucide-react';
 
 export const Profile: React.FC = () => {
-  const user = authService.getCurrentUser();
+  const { user } = useAuth();
   const [profile, setProfile] = useState<Member | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');

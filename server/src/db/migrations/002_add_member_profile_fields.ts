@@ -3,12 +3,12 @@ import { PoolClient } from 'pg';
 export async function up(client: PoolClient) {
   await client.query(`
     ALTER TABLE members
-    ADD COLUMN bio TEXT,
-    ADD COLUMN github_url VARCHAR(1000),
-    ADD COLUMN linkedin_url VARCHAR(1000),
-    ADD COLUMN portfolio_url VARCHAR(1000),
-    ADD COLUMN technical_interests TEXT[],
-    ADD COLUMN skills TEXT[];
+    ADD COLUMN IF NOT EXISTS bio TEXT,
+    ADD COLUMN IF NOT EXISTS github_url VARCHAR(1000),
+    ADD COLUMN IF NOT EXISTS linkedin_url VARCHAR(1000),
+    ADD COLUMN IF NOT EXISTS portfolio_url VARCHAR(1000),
+    ADD COLUMN IF NOT EXISTS technical_interests TEXT[],
+    ADD COLUMN IF NOT EXISTS skills TEXT[];
   `);
 }
 

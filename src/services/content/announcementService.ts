@@ -1,4 +1,4 @@
-// Removed api import
+import { apiClient } from '../../api/client';
 
 export interface Announcement {
   id: string;
@@ -17,88 +17,41 @@ export interface Announcement {
 
 export const announcementService = {
   async getVisibleAnnouncements(page: number = 1, limit: number = 20) {
-    const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3005'}/api/announcements?page=${page}&limit=${limit}`, {
-      headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-    });
-    const json = await res.json();
-    if (!res.ok) throw new Error(json.error || 'Failed');
-    return json;
+    const res = await apiClient.get<any>('/announcements', { params: { page, limit } });
+    const list = Array.isArray(res) ? res : (res?.data || res?.items || []);
+    return {
+      data: list as Announcement[],
+      pagination: res?.pagination || { page, limit, total: list.length, totalPages: 1 },
+    };
   },
 
-  async getUnreadCount() {
-    const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3005'}/api/me/announcements/unread-count`, {
-      headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-    });
-    const json = await res.json();
-    if (!res.ok) throw new Error(json.error || 'Failed');
-    return json.data.count;
+  async getUnreadCount(): Promise<number> {
+    const data = await apiClient.get<{ count: number }>('/me/announcements/unread-count');
+    return data?.count || 0;
   },
 
-  async getById(id: string) {
-    const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3005'}/api/announcements/${id}`, {
-      headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-    });
-    const json = await res.json();
-    if (!res.ok) throw new Error(json.error || 'Failed');
-    return json.data;
+  async getById(id: string): Promise<Announcement> {
+    return apiClient.get<Announcement>(`/announcements/${id}`);
   },
 
   async markAsRead(id: string) {
-    const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3005'}/api/me/announcements/${id}/read`, {
-      method: 'POST',
-      headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-    });
-    const json = await res.json();
-    if (!res.ok) throw new Error(json.error || 'Failed');
-    return json;
+    return apiClient.post(`/me/announcements/${id}/read`);
   },
 
   // Admin routes
   async getAllAdmin() {
-    const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3005'}/api/admin/announcements`, {
-      headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-    });
-    const json = await res.json();
-    if (!res.ok) throw new Error(json.error || 'Failed');
-    return json.data;
+    return apiClient.get<Announcement[]>('/admin/announcements');
   },
 
   async create(data: Partial<Announcement>) {
-    const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3005'}/api/admin/announcements`, {
-      method: 'POST',
-      headers: { 
-        'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(data)
-    });
-    const json = await res.json();
-    if (!res.ok) throw new Error(json.error || 'Failed');
-    return json.data;
+    return apiClient.post<Announcement>('/admin/announcements', data);
   },
 
   async update(id: string, data: Partial<Announcement>) {
-    const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3005'}/api/admin/announcements/${id}`, {
-      method: 'PATCH',
-      headers: { 
-        'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(data)
-    });
-    const json = await res.json();
-    if (!res.ok) throw new Error(json.error || 'Failed');
-    return json.data;
+    return apiClient.patch<Announcement>(`/admin/announcements/${id}`, data);
   },
 
   async delete(id: string) {
-    const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3005'}/api/admin/announcements/${id}`, {
-      method: 'DELETE',
-      headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-    });
-    if (res.status === 204) return { success: true };
-    const json = await res.json();
-    if (!res.ok) throw new Error(json.error || 'Failed');
-    return json;
-  }
+    return apiClient.delete(`/admin/announcements/${id}`);
+  },
 };

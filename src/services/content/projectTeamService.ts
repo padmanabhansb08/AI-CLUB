@@ -1,68 +1,28 @@
 import type { ProjectTeam } from '../../data/projectTeams';
-import { ApiError } from '../apiError';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
-
-function getAuthHeaders() {
-  const token = localStorage.getItem('token');
-  return {
-    'Content-Type': 'application/json',
-    ...(token ? { 'Authorization': `Bearer ${token}` } : {})
-  };
-}
-
-async function handleResponse<T>(res: Response): Promise<T> {
-  const data = await res.json();
-  if (!res.ok) {
-    throw new ApiError(data.error?.message || 'An error occurred', res.status);
-  }
-  return data.data || data;
-}
+import { apiClient } from '../../api/client';
 
 export const projectTeamService = {
   async getProjectTeams(projectId: string): Promise<ProjectTeam[]> {
-    const res = await fetch(`${API_URL}/api/projects/${projectId}/teams`, {
-      headers: getAuthHeaders()
-    });
-    return handleResponse<ProjectTeam[]>(res);
+    return apiClient.get<ProjectTeam[]>(`/projects/${projectId}/teams`);
   },
 
   async createTeam(projectId: string, payload: { name: string; description?: string; maxMembers?: number }): Promise<ProjectTeam> {
-    const res = await fetch(`${API_URL}/api/me/projects/${projectId}/teams`, {
-      method: 'POST',
-      headers: getAuthHeaders(),
-      body: JSON.stringify(payload)
-    });
-    return handleResponse<ProjectTeam>(res);
+    return apiClient.post<ProjectTeam>(`/me/projects/${projectId}/teams`, payload);
   },
 
   async joinTeam(teamId: string): Promise<void> {
-    const res = await fetch(`${API_URL}/api/me/teams/${teamId}/join`, {
-      method: 'POST',
-      headers: getAuthHeaders()
-    });
-    return handleResponse(res);
+    return apiClient.post<void>(`/me/teams/${teamId}/join`);
   },
 
   async leaveTeam(teamId: string): Promise<void> {
-    const res = await fetch(`${API_URL}/api/me/teams/${teamId}/leave`, {
-      method: 'POST',
-      headers: getAuthHeaders()
-    });
-    return handleResponse(res);
+    return apiClient.post<void>(`/me/teams/${teamId}/leave`);
   },
 
   async getMyTeams(): Promise<ProjectTeam[]> {
-    const res = await fetch(`${API_URL}/api/me/project-teams`, {
-      headers: getAuthHeaders()
-    });
-    return handleResponse<ProjectTeam[]>(res);
+    return apiClient.get<ProjectTeam[]>('/me/project-teams');
   },
 
   async getAdminProjectTeams(projectId: string): Promise<ProjectTeam[]> {
-    const res = await fetch(`${API_URL}/api/admin/projects/${projectId}/teams`, {
-      headers: getAuthHeaders()
-    });
-    return handleResponse<ProjectTeam[]>(res);
-  }
+    return apiClient.get<ProjectTeam[]>(`/admin/projects/${projectId}/teams`);
+  },
 };

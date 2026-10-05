@@ -9,7 +9,7 @@ import type { Announcement } from '../services/content/announcementService';
 import { courseService } from '../services/content/courseService';
 import { achievementService } from '../services/content/achievementService';
 import { profileService } from '../services/profileService';
-import { authService } from '../services/authService';
+import { useAuth } from '../context/AuthContext';
 import { ArrowRight, Trophy } from 'lucide-react';
 import { StateView } from '../components/common/StateView';
 import { DashboardProjectTeams } from '../components/DashboardProjectTeams';
@@ -17,7 +17,7 @@ import type { Member } from '../data/members';
 
 export const Dashboard: React.FC = () => {
   const navigate = useNavigate();
-  const user = authService.getCurrentUser();
+  const { user } = useAuth();
   const [profile, setProfile] = React.useState<Member | null>(null);
 
   React.useEffect(() => {
@@ -36,8 +36,11 @@ export const Dashboard: React.FC = () => {
 
   React.useEffect(() => {
     announcementService.getVisibleAnnouncements(1, 3)
-      .then(res => setAnnouncements(res.data))
-      .catch(console.error)
+      .then(res => {
+        const list = Array.isArray(res) ? res : (res?.data || []);
+        setAnnouncements(list);
+      })
+      .catch(() => setAnnouncements([]))
       .finally(() => setLoadingAnnouncements(false));
   }, []);
 

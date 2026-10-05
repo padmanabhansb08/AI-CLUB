@@ -1,87 +1,133 @@
 import { Request, Response, NextFunction } from 'express';
 import { ZodError } from 'zod';
+import { AppError, ValidationError } from '../errors/AppError';
+import { config } from '../config';
 
-export class ApiError extends Error {
-  public status: number;
-  public code: string;
-  public details?: any[];
-  constructor(code: string, message: string, status = 400, details?: any[]) {
-    super(message);
-    this.code = code;
-    this.status = status;
-    this.details = details;
-    Object.setPrototypeOf(this, ApiError.prototype);
+// Compatibility alias for existing codebase
+export class ApiError extends AppError {
+  constructor(code: string, message: string, status = 400, details: any = {}) {
+    super(status, code, message, details);
   }
 }
 
-export const errorHandler = (err: any, req: Request, res: Response, next: NextFunction) => {
-  console.error(err);
-
+export const errorHandler = (
+  err: any,
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  // 1. Zod Validation Error
   if (err instanceof ZodError) {
+    const formattedDetails = err.issues.map((issue) => ({
+      path: issue.path.join('.'),
+      message: issue.message,
+    }));
+
     return res.status(400).json({
+      success: false,
       error: {
         code: 'VALIDATION_ERROR',
-        message: 'Request validation failed',
-        details: err.issues
-      }
+        message: 'Invalid request',
+        details: formattedDetails,
+      },
     });
   }
 
-  // Handle expected application errors
-  if (err.status) {
+  // 2. Typed Application Error (AppError and subclasses)
+  if (err instanceof AppError) {
+    return res.status(err.statusCode).json({
+      success: false,
+      error: {
+        code: err.code,
+        message: err.message,
+        details: err.details || {},
+      },
+    });
+  }
+
+  // 3. PostgreSQL Unique Constraint Violation
+  if (err.code === '23505') {
+    let message = 'Resource already exists';
+    if (err.detail?.includes('email')) {
+      message = 'An account with this email already exists';
+    } else if (err.detail?.includes('register_number')) {
+      message = 'An account with this register number already exists';
+    } else if (err.detail?.includes('college_email')) {
+      message = 'An account with this college email already exists';
+    }
+
+    return res.status(409).json({
+      success: false,
+      error: {
+        code: 'CONFLICT',
+        message,
+        details: {},
+      },
+    });
+  }
+
+  // 4. PostgreSQL Foreign Key Constraint Violation
+  if (err.code === '23503') {
+    return res.status(400).json({
+      success: false,
+      error: {
+        code: 'FOREIGN_KEY_VIOLATION',
+        message: 'Referenced resource does not exist',
+        details: {},
+      },
+    });
+  }
+
+  // 5. Common Auth String Errors
+  if (err.message === 'Invalid credentials') {
+    return res.status(401).json({
+      success: false,
+      error: {
+        code: 'UNAUTHORIZED',
+        message: 'Invalid credentials',
+        details: {},
+      },
+    });
+  }
+
+  // 6. Generic/Legacy errors with status property
+  if (typeof err.status === 'number') {
     return res.status(err.status).json({
+      success: false,
       error: {
         code: err.code || 'API_ERROR',
         message: err.message || 'An error occurred',
-        details: err.details || []
-      }
+        details: err.details || {},
+      },
     });
   }
 
-  // Handle postgresql unique constraint error
-  if (err.code === '23505') {
-    return res.status(409).json({
-      error: {
-        code: 'CONFLICT',
-        message: 'Resource already exists'
-      }
+  // 7. Unknown Internal Errors
+  if (config.NODE_ENV !== 'test') {
+    console.error('[Unhandled Error]', {
+      name: err.name,
+      message: err.message,
+      stack: config.NODE_ENV === 'development' ? err.stack : undefined,
     });
   }
 
-  // Handle postgresql foreign key constraint error
-  if (err.code === '23503') {
-    return res.status(400).json({
-      error: {
-        code: 'FOREIGN_KEY_VIOLATION',
-        message: 'Referenced record does not exist'
-      }
-    });
-  }
-  
-  if (err.message === 'Invalid credentials') {
-    return res.status(401).json({
-      error: {
-        code: 'UNAUTHORIZED',
-        message: 'Invalid credentials'
-      }
-    });
-  }
-
-  // Unknown error
   return res.status(500).json({
+    success: false,
     error: {
       code: 'INTERNAL_SERVER_ERROR',
-      message: 'An unexpected error occurred',
-      details: []
-    }
+      message: 'An unexpected internal error occurred',
+      details: {},
+    },
   });
 };
 
 export const notFoundHandler = (req: Request, res: Response, next: NextFunction) => {
   res.status(404).json({
+    success: false,
     error: {
       code: 'NOT_FOUND',
-      message: 'Route not found'
-    }
+      message: `Route not found: ${req.method} ${req.path}`,
+      details: {},
+    },
   });
 };

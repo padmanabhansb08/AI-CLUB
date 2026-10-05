@@ -5,6 +5,7 @@ import { useRepository } from '../services/content/useRepository';
 import { projectService } from '../services/content/projectService';
 import { ArrowLeft, Check, Book, ExternalLink, FileText, Link as LinkIcon, User } from 'lucide-react';
 import { ProjectTeamsSection } from '../components/ProjectTeamsSection';
+import { apiClient } from '../api/client';
 
 export const ProjectDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -18,14 +19,13 @@ export const ProjectDetail: React.FC = () => {
     try {
       setInterestLoading(true);
       if (!interested) {
-        await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/api/me/projects/${project.id}/interest`, {
-          method: 'POST',
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-        });
+        await apiClient.post(`/me/projects/${project.id}/interest`);
+      } else {
+        await apiClient.delete(`/me/projects/${project.id}/interest`);
       }
       setInterested(!interested);
     } catch (err) {
-      console.error(err);
+      console.error('Failed to toggle interest:', err);
     } finally {
       setInterestLoading(false);
     }

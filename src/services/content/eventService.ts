@@ -1,4 +1,4 @@
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3005';
+import { apiClient } from '../../api/client';
 
 export interface EventType {
   id: string;
@@ -20,102 +20,50 @@ export interface EventType {
   currentStudentRegistrationStatus?: 'registered' | 'unregistered';
 }
 
-function getHeaders() {
-  const token = localStorage.getItem('token');
-  return {
-    'Content-Type': 'application/json',
-    ...(token ? { 'Authorization': `Bearer ${token}` } : {})
-  };
-}
-
 export const eventService = {
   // Public / Student
   async getEvents(page = 1, limit = 10, filters: any = {}) {
-    const query = new URLSearchParams({ page: page.toString(), limit: limit.toString(), ...filters }).toString();
-    const res = await fetch(`${API_URL}/api/events?${query}`, { headers: getHeaders() });
-    if (!res.ok) throw new Error('Failed to fetch events');
-    return res.json();
+    return apiClient.get<any>('/events', { params: { page, limit, ...filters } });
   },
 
-  async getEventById(id: string) {
-    const res = await fetch(`${API_URL}/api/events/${id}`, { headers: getHeaders() });
-    if (!res.ok) throw new Error('Failed to fetch event');
-    const data = await res.json();
-    return data.data as EventType;
+  async getEventById(id: string): Promise<EventType> {
+    return apiClient.get<EventType>(`/events/${id}`);
   },
 
   async register(id: string) {
-    const res = await fetch(`${API_URL}/api/me/events/${id}/register`, {
-      method: 'POST',
-      headers: getHeaders()
-    });
-    if (!res.ok) throw new Error('Failed to register');
-    return res.json();
+    return apiClient.post(`/me/events/${id}/register`);
   },
 
   async unregister(id: string) {
-    const res = await fetch(`${API_URL}/api/me/events/${id}/unregister`, {
-      method: 'POST',
-      headers: getHeaders()
-    });
-    if (!res.ok) throw new Error('Failed to unregister');
-    return res.json();
+    return apiClient.post(`/me/events/${id}/unregister`);
   },
 
   async getMyRegistrations() {
-    const res = await fetch(`${API_URL}/api/me/events/registrations`, { headers: getHeaders() });
-    if (!res.ok) throw new Error('Failed to fetch registrations');
-    return res.json();
+    return apiClient.get<any>('/me/events/registrations');
   },
 
   // Admin
   async getAdminEvents(page = 1, limit = 10, filters: any = {}) {
-    const query = new URLSearchParams({ page: page.toString(), limit: limit.toString(), ...filters }).toString();
-    const res = await fetch(`${API_URL}/api/admin/events?${query}`, { headers: getHeaders() });
-    if (!res.ok) throw new Error('Failed to fetch admin events');
-    return res.json();
+    return apiClient.get<any>('/admin/events', { params: { page, limit, ...filters } });
   },
 
-  async getAdminEventById(id: string) {
-    const res = await fetch(`${API_URL}/api/admin/events/${id}`, { headers: getHeaders() });
-    if (!res.ok) throw new Error('Failed to fetch event');
-    const data = await res.json();
-    return data.data as EventType;
+  async getAdminEventById(id: string): Promise<EventType> {
+    return apiClient.get<EventType>(`/admin/events/${id}`);
   },
 
   async createEvent(data: Partial<EventType>) {
-    const res = await fetch(`${API_URL}/api/admin/events`, {
-      method: 'POST',
-      headers: getHeaders(),
-      body: JSON.stringify(data)
-    });
-    if (!res.ok) throw new Error('Failed to create event');
-    return res.json();
+    return apiClient.post<any>('/admin/events', data);
   },
 
   async updateEvent(id: string, data: Partial<EventType>) {
-    const res = await fetch(`${API_URL}/api/admin/events/${id}`, {
-      method: 'PATCH',
-      headers: getHeaders(),
-      body: JSON.stringify(data)
-    });
-    if (!res.ok) throw new Error('Failed to update event');
-    return res.json();
+    return apiClient.patch<any>(`/admin/events/${id}`, data);
   },
 
   async deleteEvent(id: string) {
-    const res = await fetch(`${API_URL}/api/admin/events/${id}`, {
-      method: 'DELETE',
-      headers: getHeaders()
-    });
-    if (!res.ok) throw new Error('Failed to delete event');
-    return true;
+    return apiClient.delete(`/admin/events/${id}`);
   },
 
   async getRegistrations(id: string) {
-    const res = await fetch(`${API_URL}/api/admin/events/${id}/registrations`, { headers: getHeaders() });
-    if (!res.ok) throw new Error('Failed to fetch registrations');
-    const data = await res.json();
-    return data.data;
-  }
+    return apiClient.get<any>(`/admin/events/${id}/registrations`);
+  },
 };
