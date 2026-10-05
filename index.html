@@ -29,8 +29,17 @@
       --pill: #ffffff;         /* CTA fill */
       --pill-ink: #050505;     /* CTA text */
       --stage-black: #050505;
-      
-      --gutter: clamp(2rem, 5.2vw, 5.5rem);
+
+      /* Reference canvas: 1487 × 1058 */
+      --u: calc(100vh / 1058); /* 1 design px locked to HEIGHT */
+      --uw: calc(100vw / 1487);
+      --h: clamp(var(--u), calc(var(--u) * .65 + var(--uw) * .35), calc(var(--u) * 1.16));
+    }
+
+    @supports (height: 100dvh) {
+      :root {
+        --u: calc(100dvh / 1058);
+      }
     }
 
     /* ════════════════════════════════════════
@@ -64,7 +73,7 @@
     }
 
     /* ════════════════════════════════════════
-       BACKGROUND — CLOUDFRONT VIDEO & FADE OVERLAYS
+       BACKGROUND — CLOUDFRONT VIDEO & OVERLAYS
        ════════════════════════════════════════ */
     .plate {
       position: absolute;
@@ -77,17 +86,16 @@
     .plate-video {
       position: absolute;
       left: 50%;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      min-width: 1200px;
-      transform: translateX(-50%);
+      top: calc(1 * var(--u));
+      width: calc(1492 * var(--u));
+      height: calc(1054 * var(--u));
+      transform: translateX(calc(-50% - calc(0.5 * var(--u))));
       object-fit: cover;
       pointer-events: none;
       background-color: var(--stage-black);
     }
 
-    /* High-fidelity multi-stop cinematic fades */
+    /* Desktop FADE OVERLAYS on .plate::after (both gradients kept) */
     .plate::after {
       content: '';
       position: absolute;
@@ -95,80 +103,55 @@
       pointer-events: none;
       background-image:
         linear-gradient(to bottom,
-          rgba(5,5,5,0.1) 0%,
-          rgba(5,5,5,0) 25%,
-          rgba(5,5,5,0) 70%,
-          rgba(5,5,5,0.35) 78%,
-          rgba(5,5,5,0.72) 84%,
-          rgba(5,5,5,0.92) 92%,
-          #050505 100%),
+          rgba(5,5,5,0) 78.8%, rgba(5,5,5,.23) 79.6%, rgba(5,5,5,.45) 81.4%,
+          rgba(5,5,5,.75) 83.3%, rgba(5,5,5,.84) 85.2%, rgba(5,5,5,.888) 88%,
+          rgba(5,5,5,.905) 91%, rgba(5,5,5,.96) 95%, #050505 100%),
         linear-gradient(to right,
-          #050505 0%,
-          rgba(5,5,5,0.92) 15%,
-          rgba(5,5,5,0.65) 28%,
-          rgba(5,5,5,0.1) 40%,
-          transparent 48%,
-          transparent 52%,
-          rgba(5,5,5,0.1) 60%,
-          rgba(5,5,5,0.65) 72%,
-          rgba(5,5,5,0.92) 85%,
-          #050505 100%);
+          #050505 calc(50% - calc(746 * var(--u))),
+          transparent calc(50% - calc(676 * var(--u))),
+          transparent calc(50% + calc(676 * var(--u))),
+          #050505 calc(50% + calc(746 * var(--u))));
     }
 
     /* ════════════════════════════════════════
-       TOPBAR & HEADER ALIGNMENT (PERFECT HORIZONTAL CENTER)
+       DESKTOP TOPBAR & HEADER
        ════════════════════════════════════════ */
     .topbar {
       position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: clamp(68px, 9vh, 92px);
-      padding: 0 var(--gutter);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      z-index: 40;
+      inset: 0 0 auto 0;
+      height: 0;
+      z-index: 20;
     }
 
-    .brand-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 12px;
-      text-decoration: none;
-      color: var(--ink);
-      cursor: pointer;
-      z-index: 5;
-    }
-
-    .brand-svg {
-      width: clamp(26px, 2.2vw, 32px);
-      height: clamp(40px, 3.4vw, 49px);
+    .brand {
+      position: absolute;
+      left: calc(75 * var(--u));
+      top: calc(27 * var(--u));
+      width: calc(31.5 * var(--u));
+      height: calc(48.5 * var(--u));
       display: block;
-      flex-shrink: 0;
+      text-decoration: none;
+      cursor: pointer;
     }
 
-    .brand-text {
-      font-size: clamp(1rem, 1.2vw, 1.25rem);
-      font-weight: 700;
-      letter-spacing: -0.01em;
-      color: var(--ink);
+    .brand svg {
+      width: 100%;
+      height: 100%;
+      display: block;
     }
 
-    /* Nav links strictly centered horizontally and vertically */
     .links {
       position: absolute;
       left: 50%;
-      top: 50%;
+      top: calc(51 * var(--u));
       transform: translate(-50%, -50%);
       display: flex;
       align-items: center;
-      gap: clamp(1.5rem, 2.4vw, 2.8rem);
       white-space: nowrap;
     }
 
     .links a {
-      font-size: clamp(0.9rem, 1.05vw, 1.05rem);
+      font-size: calc(19.0 * var(--u));
       font-weight: 400;
       color: var(--nav);
       text-decoration: none;
@@ -177,6 +160,18 @@
 
     .links a:hover {
       color: var(--ink);
+    }
+
+    .links a:nth-child(2) {
+      margin-left: calc(24.5 * var(--u));
+    }
+
+    .links a:nth-child(3) {
+      margin-left: calc(23.5 * var(--u));
+    }
+
+    .links a:nth-child(4) {
+      margin-left: calc(26.0 * var(--u));
     }
 
     .pill {
@@ -188,23 +183,28 @@
       align-items: center;
       justify-content: center;
       box-sizing: border-box;
-      transition: all 0.22s ease;
+      transition: opacity 0.2s ease, transform 0.2s ease;
       cursor: pointer;
-      white-space: nowrap;
-      font-weight: 600;
     }
 
     .pill:hover {
       opacity: 0.92;
-      transform: translateY(-1px);
-      box-shadow: 0 4px 18px rgba(255, 255, 255, 0.16);
+      transform: scale(1.02);
     }
 
     .pill-nav {
-      height: clamp(42px, 5vh, 48px);
-      padding: 0 clamp(1.4rem, 1.8vw, 2rem);
-      font-size: clamp(0.9rem, 1vw, 1rem);
-      z-index: 5;
+      position: absolute;
+      right: calc(75.4 * var(--u));
+      top: calc(27 * var(--u));
+      width: calc(175 * var(--u));
+      height: calc(49 * var(--u));
+      font-size: calc(20.6 * var(--u));
+      font-weight: 500;
+    }
+
+    .pill-nav span {
+      display: inline-block;
+      transform: translateY(calc(1 * var(--u)));
     }
 
     .burger {
@@ -212,55 +212,26 @@
     }
 
     /* ════════════════════════════════════════
-       HERO CONTENT (FLUID LEFT COLUMN)
+       HERO CONTENT
        ════════════════════════════════════════ */
     .hero {
       position: absolute;
       inset: 0;
-      padding: 0 var(--gutter);
-      display: flex;
-      align-items: center;
       pointer-events: none;
       z-index: 10;
     }
 
-    .hero-content {
-      max-width: clamp(480px, 39vw, 640px);
-      display: flex;
-      flex-direction: column;
-      gap: clamp(1rem, 2.2vh, 1.8rem);
-      pointer-events: auto;
-      margin-top: -2vh;
-    }
-
-    .hero-eyebrow {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      font-size: clamp(0.72rem, 0.85vw, 0.82rem);
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.16em;
-      color: var(--muted);
-      margin-bottom: -0.25rem;
-    }
-
-    .hero-eyebrow .pulse-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background-color: #00e676;
-      box-shadow: 0 0 8px #00e676;
-    }
-
     .headline {
-      font-size: clamp(2.4rem, 4.3vw, 4.5rem);
-      line-height: 1.08;
+      position: absolute;
+      left: calc(75.5 * var(--u));
+      top: calc(230.5 * var(--u));
+      font-size: calc(71.6 * var(--h));
+      line-height: calc(80.5 * var(--h));
       font-weight: 400;
-      letter-spacing: -0.025em;
+      letter-spacing: calc(0.3 * var(--h));
       color: var(--ink);
       white-space: nowrap;
-      margin: 0;
+      pointer-events: auto;
     }
 
     .headline span {
@@ -268,12 +239,16 @@
     }
 
     .sub {
-      font-size: clamp(0.95rem, 1.15vw, 1.2rem);
-      line-height: 1.55;
+      position: absolute;
+      left: calc(75.5 * var(--u));
+      top: calc(230.5 * var(--u) + calc(189.0 * var(--h)));
+      font-size: calc(20.7 * var(--h));
+      line-height: calc(23.5 * var(--h));
       font-weight: 400;
+      word-spacing: calc(1.8 * var(--h));
       color: var(--muted);
-      margin: 0;
-      max-width: 50ch;
+      white-space: nowrap;
+      pointer-events: auto;
     }
 
     .sub span {
@@ -281,82 +256,151 @@
     }
 
     .actions {
-      display: flex;
-      align-items: center;
-      gap: clamp(1.2rem, 2vw, 2rem);
-      margin-top: clamp(0.4rem, 1vh, 1rem);
+      position: static;
+      pointer-events: auto;
     }
 
     .pill-cta {
-      height: clamp(48px, 5.5vh, 54px);
-      padding: 0 clamp(1.75rem, 2.4vw, 2.4rem);
-      font-size: clamp(0.95rem, 1.1vw, 1.05rem);
+      position: absolute;
+      left: calc(74.9 * var(--u));
+      top: calc(230.5 * var(--u) + calc(264.5 * var(--h)));
+      width: calc(175.6 * var(--h));
+      height: calc(50 * var(--h));
+      font-size: calc(20.6 * var(--h));
+      font-weight: 500;
+      pointer-events: auto;
+    }
+
+    .pill-cta span {
+      display: inline-block;
+      transform: translateY(calc(1 * var(--h)));
     }
 
     .ghost {
-      font-size: clamp(0.95rem, 1.1vw, 1.05rem);
+      position: absolute;
+      left: calc(74.9 * var(--u) + calc(220.6 * var(--h)));
+      top: calc(230.5 * var(--u) + calc(279.5 * var(--h)));
+      font-size: calc(20.6 * var(--h));
       font-weight: 500;
-      letter-spacing: 0.01em;
+      letter-spacing: calc(0.12 * var(--h));
       color: #ffffff;
       text-decoration: none;
       white-space: nowrap;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
-      transition: all 0.2s ease;
+      pointer-events: auto;
+      transition: opacity 0.2s ease;
       cursor: pointer;
     }
 
     .ghost:hover {
       opacity: 0.8;
-      transform: translateX(3px);
     }
 
     /* ════════════════════════════════════════
-       PARTNER STRIP (.logos) PINNED SAFELY AT BOTTOM
+       PARTNER STRIP (.logos)
        ════════════════════════════════════════ */
     .logos {
       position: absolute;
-      bottom: clamp(1.2rem, 3.2vh, 2.2rem);
+      width: calc(741 * var(--u));
       left: 50%;
-      transform: translateX(-50%);
-      width: auto;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: clamp(2rem, 4.5vw, 4.8rem);
+      top: 0;
+      height: 100%;
+      transform: translateX(calc(-50% + calc(20 * var(--u))));
       color: var(--strip);
-      z-index: 25;
-      pointer-events: auto;
+      pointer-events: none;
+      z-index: 10;
     }
 
     .lg {
-      display: inline-flex;
+      position: absolute;
+      display: flex;
       align-items: center;
-      gap: 9px;
+      pointer-events: auto;
       text-decoration: none;
-      color: var(--strip);
-      transition: color 0.2s ease;
-    }
-
-    .lg:hover {
-      color: #dedede;
+      color: inherit;
     }
 
     .lg svg {
-      width: 22px;
-      height: 22px;
-      fill: currentColor;
       display: block;
+      fill: currentColor;
     }
 
     .lg-word {
+      position: absolute;
       font-family: 'IpsumMark', 'Manrope', sans-serif;
       font-weight: 700;
-      font-size: clamp(0.85rem, 0.95vw, 0.95rem);
       color: currentColor;
-      letter-spacing: -0.01em;
       white-space: nowrap;
+      letter-spacing: -0.01em;
+      line-height: 1;
+    }
+
+    /* lg1 */
+    .lg1 {
+      left: calc(-0.5 * var(--u));
+      top: calc(994.7 * var(--u));
+    }
+    .lg1 svg {
+      width: calc(30.5 * var(--u));
+      height: calc(31 * var(--u));
+    }
+    .lg1 .lg-word {
+      left: calc(37 * var(--u));
+      top: calc(5.6 * var(--u));
+      font-size: calc(18.1 * var(--u));
+    }
+
+    /* lg2 */
+    .lg2 {
+      left: calc(206.5 * var(--u));
+      top: calc(995.7 * var(--u));
+    }
+    .lg2 svg {
+      width: calc(24.5 * var(--u));
+      height: calc(30 * var(--u));
+    }
+    .lg2 .lg-word {
+      left: calc(31 * var(--u));
+      top: calc(7.3 * var(--u));
+      font-size: calc(18.5 * var(--u));
+    }
+    .lg2 .dot {
+      display: inline-block;
+      width: 0.09em;
+      height: 0.09em;
+      border-radius: 50%;
+      background-color: currentColor;
+      vertical-align: 0.62em;
+      margin-left: 0.06em;
+    }
+
+    /* lg3 */
+    .lg3 {
+      left: calc(416.5 * var(--u));
+      top: calc(996.7 * var(--u));
+    }
+    .lg3 svg {
+      width: calc(28.5 * var(--u));
+      height: calc(28 * var(--u));
+    }
+    .lg3 .lg-word {
+      left: calc(35 * var(--u));
+      top: calc(7.3 * var(--u));
+      font-size: calc(16.15 * var(--u));
+    }
+
+    /* lg4 */
+    .lg4 {
+      left: calc(620.5 * var(--u));
+      top: calc(998.7 * var(--u));
+    }
+    .lg4 svg {
+      width: calc(28.5 * var(--u));
+      height: calc(25.5 * var(--u));
+    }
+    .lg4 .lg-word {
+      left: calc(37 * var(--u));
+      top: calc(8.3 * var(--u));
+      font-size: calc(15.3 * var(--u));
     }
 
     /* ════════════════════════════════════════
@@ -366,7 +410,7 @@
       @keyframes rise {
         from {
           opacity: 0;
-          transform: translateY(16px);
+          transform: translateY(calc(14 * var(--u)));
         }
         to {
           opacity: 1;
@@ -374,10 +418,10 @@
         }
       }
 
-      @keyframes riseCenter {
+      @keyframes riseNav {
         from {
           opacity: 0;
-          transform: translate(-50%, calc(-50% + 16px));
+          transform: translate(-50%, calc(-50% + calc(14 * var(--u))));
         }
         to {
           opacity: 1;
@@ -386,112 +430,244 @@
       }
 
       @keyframes fade {
-        from { opacity: 0; }
-        to { opacity: 1; }
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
       }
 
-      .brand-link,
+      .brand,
       .pill-nav {
         animation: rise 0.8s cubic-bezier(.22, 1, .36, 1) both;
       }
 
       .links {
-        animation: riseCenter 0.8s cubic-bezier(.22, 1, .36, 1) both;
-      }
-
-      .hero-eyebrow {
-        animation: rise 0.85s cubic-bezier(.22, 1, .36, 1) 0.04s both;
+        animation: riseNav 0.8s cubic-bezier(.22, 1, .36, 1) both;
       }
 
       .headline {
-        animation: rise 0.9s cubic-bezier(.22, 1, .36, 1) 0.08s both;
+        animation: rise 0.9s cubic-bezier(.22, 1, .36, 1) 0.06s both;
       }
 
       .sub {
-        animation: rise 0.9s cubic-bezier(.22, 1, .36, 1) 0.16s both;
+        animation: rise 0.9s cubic-bezier(.22, 1, .36, 1) 0.14s both;
       }
 
-      .actions {
-        animation: rise 0.9s cubic-bezier(.22, 1, .36, 1) 0.24s both;
+      .pill-cta,
+      .ghost {
+        animation: rise 0.9s cubic-bezier(.22, 1, .36, 1) 0.22s both;
       }
 
-      .logos {
-        animation: fade 1.1s ease 0.35s both;
+      .lg {
+        animation: fade 1.1s ease 0.34s both;
       }
     }
 
     /* ════════════════════════════════════════
-       MOBILE & RESPONSIVE BEHAVIOR
+       MOBILE MENU OVERLAY
        ════════════════════════════════════════ */
-    @media (max-width: 900px) {
-      .headline {
-        white-space: normal;
+    .menu {
+      display: none;
+    }
+
+    /* ════════════════════════════════════════
+       PORTRAIT / NARROW FLOW LAYOUT
+       ════════════════════════════════════════ */
+    @media (max-aspect-ratio: 11/10) {
+      :root {
+        --m: min(calc(100vw / 430), 1.34px);
+        --u: var(--m);
       }
-      .sub {
-        white-space: normal;
+
+      html, body {
+        overflow-y: auto;
       }
+
+      .stage {
+        display: flex;
+        flex-direction: column;
+        height: auto;
+        min-height: 100vh;
+        min-height: 100dvh;
+        overflow-y: auto;
+        overflow-x: hidden;
+        padding-top: env(safe-area-inset-top);
+        padding-bottom: env(safe-area-inset-bottom);
+      }
+
+      .plate-video {
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        transform: none;
+        object-fit: cover;
+        object-position: 43% center;
+      }
+
+      .plate::after {
+        background-image:
+          linear-gradient(to right,
+            rgba(5,5,5,.86) 0%,
+            rgba(5,5,5,.66) 42%,
+            rgba(5,5,5,.20) 78%,
+            rgba(5,5,5,.10) 100%),
+          linear-gradient(to bottom,
+            rgba(5,5,5,.72) 0%,
+            rgba(5,5,5,.34) 24%,
+            rgba(5,5,5,.34) 56%,
+            rgba(5,5,5,.80) 82%,
+            rgba(5,5,5,.97) 94%,
+            #050505 100%);
+      }
+
       .links,
       .pill-nav {
         display: none !important;
       }
+
+      .topbar {
+        position: relative;
+        height: calc(75 * var(--m));
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 calc(28 * var(--m));
+        z-index: 50;
+      }
+
+      .brand {
+        position: static;
+        width: calc(28 * var(--m));
+        height: calc(43 * var(--m));
+      }
+
       .burger {
         display: flex;
-        width: 44px;
-        height: 44px;
+        position: static;
+        width: calc(44 * var(--m));
+        height: calc(44 * var(--m));
         border-radius: 999px;
         background: rgba(255, 255, 255, 0.06);
         border: 1px solid rgba(255, 255, 255, 0.14);
         backdrop-filter: blur(12px);
         -webkit-backdrop-filter: blur(12px);
         cursor: pointer;
+        padding: 0;
         align-items: center;
         justify-content: center;
         flex-direction: column;
-        gap: 5px;
+        gap: calc(5 * var(--m));
         z-index: 100;
       }
 
       .burger .bar {
         display: block;
-        width: 18px;
-        height: 1.5px;
+        width: calc(18 * var(--m));
+        height: calc(1.5 * var(--m));
         background-color: #fafafa;
         border-radius: 1px;
         transition: transform 0.3s cubic-bezier(.22, 1, .36, 1);
       }
 
       .stage.is-open .burger .bar:first-child {
-        transform: translateY(3.25px) rotate(45deg);
+        transform: translateY(calc(3.25 * var(--m))) rotate(45deg);
       }
 
       .stage.is-open .burger .bar:last-child {
-        transform: translateY(-3.25px) rotate(-45deg);
+        transform: translateY(calc(-3.25 * var(--m))) rotate(-45deg);
       }
 
       .hero {
         position: relative;
-        padding-top: 120px;
-        padding-bottom: 120px;
+        padding: calc(60 * var(--m)) calc(28 * var(--m)) calc(40 * var(--m));
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+
+      .headline {
+        position: static;
+        font-size: calc(42 * var(--m));
+        line-height: 1.15;
+        white-space: normal;
+        letter-spacing: -0.01em;
+      }
+
+      .headline span {
+        display: inline;
+      }
+
+      .sub {
+        position: static;
+        margin-top: calc(22 * var(--m));
+        font-size: calc(16 * var(--m));
+        line-height: 1.45;
+        word-spacing: normal;
+        white-space: normal;
+      }
+
+      .sub span {
+        display: inline;
+      }
+
+      .actions {
+        margin-top: calc(34 * var(--m));
+        display: flex;
+        flex-direction: column;
+        gap: calc(16 * var(--m));
         align-items: flex-start;
       }
 
-      .hero-content {
-        max-width: 100%;
-        margin-top: 0;
+      .pill-cta {
+        position: static;
+        width: 100%;
+        max-width: calc(280 * var(--m));
+        height: calc(50 * var(--m));
+        font-size: calc(17 * var(--m));
+      }
+
+      .ghost {
+        position: static;
+        font-size: calc(17 * var(--m));
+        padding: calc(4 * var(--m)) calc(8 * var(--m));
       }
 
       .logos {
+        position: relative;
+        left: auto;
+        top: auto;
+        transform: none;
+        width: 100%;
+        margin-top: auto;
+        padding: calc(40 * var(--m)) calc(28 * var(--m)) calc(36 * var(--m));
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 1.5rem;
-        width: calc(100% - 2 * var(--gutter));
+        gap: calc(28 * var(--m)) calc(20 * var(--m));
       }
 
+      .lg {
+        position: relative;
+        left: auto !important;
+        top: auto !important;
+        display: flex;
+        align-items: center;
+      }
+
+      .lg-word {
+        position: static;
+        margin-left: calc(10 * var(--m));
+        font-size: calc(14.5 * var(--m)) !important;
+      }
+
+      /* Mobile Full Screen Menu Overlay */
       .menu {
         display: flex;
         position: fixed;
         inset: 0;
-        background: radial-gradient(circle at 50% 20%, rgba(22, 22, 22, 0.98), #050505 85%);
+        background: radial-gradient(circle at 50% 20%, rgba(25, 25, 25, 0.98), #050505 85%);
         backdrop-filter: blur(28px);
         -webkit-backdrop-filter: blur(28px);
         z-index: 90;
@@ -500,7 +676,7 @@
         transition: opacity 0.42s cubic-bezier(.22, 1, .36, 1), visibility 0.42s;
         flex-direction: column;
         justify-content: space-between;
-        padding: 100px 32px 40px;
+        padding: calc(90 * var(--m)) calc(30 * var(--m)) calc(40 * var(--m));
       }
 
       .stage.is-open .menu {
@@ -516,50 +692,128 @@
       }
 
       .menu-eyebrow {
-        font-size: 0.75rem;
+        font-size: calc(12 * var(--m));
         text-transform: uppercase;
         letter-spacing: 0.18em;
         color: var(--muted);
-        margin-bottom: 1.5rem;
+        margin-bottom: calc(20 * var(--m));
+        opacity: 0;
+        transform: translateY(calc(10 * var(--m)));
+        transition: opacity 0.4s ease, transform 0.4s ease;
       }
 
       .menu-list {
         list-style: none;
         display: flex;
         flex-direction: column;
-        gap: 1.25rem;
+        gap: calc(18 * var(--m));
+      }
+
+      .menu-list li {
+        opacity: 0;
+        transform: translateY(calc(12 * var(--m)));
+        transition: opacity 0.4s ease, transform 0.4s ease;
       }
 
       .menu-list a {
-        font-size: 1.65rem;
+        font-size: max(calc(31 * var(--m)), 25px);
         color: var(--ink);
         text-decoration: none;
-        font-weight: 500;
+        font-weight: 400;
         display: flex;
         align-items: center;
         justify-content: space-between;
       }
 
+      .menu-list a::after {
+        content: '›';
+        font-size: 1.1em;
+        color: var(--muted);
+      }
+
       .menu-foot {
         display: flex;
         flex-direction: column;
-        gap: 1rem;
-        padding-top: 2rem;
+        gap: calc(16 * var(--m));
+        padding-top: calc(30 * var(--m));
+        opacity: 0;
+        transform: translateY(calc(12 * var(--m)));
+        transition: opacity 0.4s ease, transform 0.4s ease;
       }
 
       .menu-foot .pill {
         width: 100%;
-        height: 50px;
-        font-size: 1.05rem;
+        height: calc(52 * var(--m));
+        font-size: calc(18 * var(--m));
       }
 
       .menu-foot .ghost {
-        justify-content: center;
-        font-size: 1rem;
+        position: static;
+        text-align: center;
+        font-size: calc(16 * var(--m));
         color: var(--muted);
+      }
+
+      .stage.is-open .menu-eyebrow {
+        opacity: 1;
+        transform: translateY(0);
+        transition-delay: 0.06s;
+      }
+
+      .stage.is-open .menu-list li:nth-child(1) { opacity: 1; transform: translateY(0); transition-delay: 0.10s; }
+      .stage.is-open .menu-list li:nth-child(2) { opacity: 1; transform: translateY(0); transition-delay: 0.16s; }
+      .stage.is-open .menu-list li:nth-child(3) { opacity: 1; transform: translateY(0); transition-delay: 0.22s; }
+      .stage.is-open .menu-list li:nth-child(4) { opacity: 1; transform: translateY(0); transition-delay: 0.28s; }
+
+      .stage.is-open .menu-foot {
+        opacity: 1;
+        transform: translateY(0);
+        transition-delay: 0.34s;
       }
     }
 
+    /* ════════════════════════════════════════
+       TABLET PORTRAIT BAND (≥600px AND max-aspect-ratio 11/10)
+       ════════════════════════════════════════ */
+    @media (min-width: 600px) and (max-aspect-ratio: 11/10) {
+      :root {
+        --m: min(calc(100vw / 860), calc(100vh / 760), 1.25px);
+        --u: var(--m);
+      }
+
+      .plate-video {
+        object-position: 44% center;
+      }
+
+      .plate::after {
+        background-image:
+          linear-gradient(to right,
+            rgba(5,5,5,.84) 0%,
+            rgba(5,5,5,.60) 42%,
+            rgba(5,5,5,.16) 78%,
+            rgba(5,5,5,.06) 100%),
+          linear-gradient(to bottom,
+            rgba(5,5,5,.66) 0%,
+            rgba(5,5,5,.28) 24%,
+            rgba(5,5,5,.30) 56%,
+            rgba(5,5,5,.78) 82%,
+            rgba(5,5,5,.96) 94%,
+            #050505 100%);
+      }
+
+      .headline span {
+        display: block;
+      }
+
+      .logos {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        grid-template-columns: none;
+      }
+    }
+
+    /* Reduced Motion Override */
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after {
         animation-duration: 0.001s !important;
@@ -572,18 +826,17 @@
 <body>
 
   <div class="stage">
-    <!-- Cinematic Full-Bleed Video Plate -->
+    <!-- Full-bleed background plate with CloudFront video -->
     <div class="plate">
       <video class="plate-video" autoplay muted loop playsinline preload="auto" aria-hidden="true">
         <source src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260808_112712_da9d53df-6d27-4b12-bdf6-aa9dc2622bdf.mp4" type="video/mp4">
       </video>
     </div>
 
-    <!-- Perfectly Aligned Header Topbar -->
+    <!-- Header / Topbar -->
     <header class="topbar">
-      <!-- Left: Brand Logo + Identity -->
-      <a href="/" class="brand-link" aria-label="AI Club Home">
-        <svg class="brand-svg" viewBox="0 0 31.5 48.5" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <a href="/" class="brand" aria-label="Home">
+        <svg viewBox="0 0 31.5 48.5" fill="none" xmlns="http://www.w3.org/2000/svg">
           <defs>
             <linearGradient id="bg1" x1="8" y1="0" x2="34.1" y2="28.9" gradientUnits="userSpaceOnUse">
               <stop offset="0" stop-color="#9e9e9e"/>
@@ -602,24 +855,19 @@
           <rect x="0.5" y="18.5" width="9" height="10" fill="#fdfdfd"/>
           <rect x="22" y="19.5" width="9.5" height="9.5" fill="#fdfdfd"/>
         </svg>
-        <span class="brand-text">AI CLUB</span>
       </a>
 
-      <!-- Center: AI Club Navigation Links -->
       <nav class="links" aria-label="Primary">
         <a href="./app.html#/projects">Projects</a>
         <a href="./app.html#/courses">Courses</a>
         <a href="./app.html#/achievements">Achievements</a>
         <a href="./app.html#/events">Events</a>
-        <a href="./app.html#/announcements">Announcements</a>
       </nav>
 
-      <!-- Right: Member Portal CTA -->
       <a href="./app.html" class="pill pill-nav">
-        <span>Member Portal</span>
+        <span>Get Started</span>
       </a>
 
-      <!-- Mobile Hamburger Button -->
       <button class="burger" id="burger" aria-label="Open menu" aria-expanded="false" aria-controls="menu">
         <i class="bar"></i>
         <i class="bar"></i>
@@ -629,90 +877,84 @@
     <!-- Mobile Overlay Menu -->
     <nav class="menu" id="menu" aria-hidden="true">
       <div class="menu-inner">
-        <p class="menu-eyebrow">AI Club Navigation</p>
+        <p class="menu-eyebrow">AI Club</p>
         <ul class="menu-list">
           <li><a href="./app.html#/projects">Projects</a></li>
           <li><a href="./app.html#/courses">Courses</a></li>
           <li><a href="./app.html#/achievements">Achievements</a></li>
           <li><a href="./app.html#/events">Events</a></li>
-          <li><a href="./app.html#/announcements">Announcements</a></li>
         </ul>
         <div class="menu-foot">
           <a href="./app.html" class="pill">
-            <span>Access Member Portal</span>
+            <span>Get Started</span>
           </a>
-          <a href="./app.html#/register" class="ghost">Join AI Club &rarr;</a>
+          <a href="./app.html#/projects" class="ghost">View Projects</a>
         </div>
       </div>
     </nav>
 
-    <!-- Hero Section (Aligned with Header Left Margin) -->
+    <!-- Main Hero -->
     <main class="hero">
-      <div class="hero-content">
-        <div class="hero-eyebrow">
-          <span class="pulse-dot"></span>
-          <span>Campus AI Innovation Ecosystem</span>
-        </div>
-
-        <h1 class="headline">
-          <span>The Next Layer</span>
-          <span>of AI Innovation</span>
-        </h1>
-
-        <p class="sub">
-          <span>The premier collegiate ecosystem to build autonomous agents,</span>
-          <span>train deep neural networks, and pioneer breakthrough machine intelligence.</span>
-        </p>
-
-        <div class="actions">
-          <a href="./app.html" class="pill pill-cta">
-            <span>Explore AI Club</span>
-          </a>
-          <a href="./app.html#/projects" class="ghost">
-            <span>View Projects</span>
-            <span>&rarr;</span>
-          </a>
-        </div>
+      <h1 class="headline">
+        <span>The Next Layer</span>
+        <span>of AI Innovation</span>
+      </h1>
+      <p class="sub">
+        <span>A unified innovation platform to help student teams build,</span>
+        <span>ship, and scale intelligent AI systems with confidence.</span>
+      </p>
+      <div class="actions">
+        <a href="./app.html" class="pill pill-cta">
+          <span>Explore AI Club</span>
+        </a>
+        <a href="./app.html#/projects" class="ghost">View Projects</a>
       </div>
     </main>
 
-    <!-- Partner & Technology Strip (Pinned Comfortably at Bottom) -->
-    <div class="logos" aria-label="Key Frameworks & Technologies">
-      <!-- PyTorch -->
-      <a href="https://pytorch.org" target="_blank" rel="noopener noreferrer" class="lg" title="PyTorch">
-        <svg viewBox="0 0 24 24" fill="currentColor">
-          <path d="M12.748 0a12.016 12.016 0 0 0-3.69 1.144L7.545 2.658a.59.59 0 0 0-.097.802.593.593 0 0 0 .783.14l1.393-.895c2.47-1.42 5.586-1.096 7.697.804 2.457 2.213 2.68 5.92.518 8.423l-4.484 4.887a.498.498 0 0 0 .041.714.498.498 0 0 0 .707-.043l4.494-4.898c2.616-3.029 2.348-7.514-.627-10.194A8.784 8.784 0 0 0 12.748 0zm3.856 4.908a1.185 1.185 0 1 0 0 2.37 1.185 1.185 0 0 0 0-2.37zM7.22 8.79a.5.5 0 0 0-.36.155l-4.493 4.9C-.25 16.873.018 21.36 2.993 24.037a8.777 8.777 0 0 0 5.143 2.435c1.282.164 2.583-.07 3.69-.616l1.513-1.514a.592.592 0 0 0 .097-.802.592.592 0 0 0-.783-.141l-1.393.896c-2.47 1.42-5.586 1.095-7.697-.805-2.457-2.213-2.68-5.92-.518-8.423l4.484-4.887a.5.5 0 0 0-.306-.889z"/>
+    <!-- Partner Strip -->
+    <div class="logos" aria-label="Partners">
+      <!-- lg1 -->
+      <div class="lg lg1">
+        <svg viewBox="0 0 30 31" fill="currentColor">
+          <path fill-rule="evenodd" clip-rule="evenodd" d="M0 0.5H30V30.5H0V0.5ZM19.5 5.4C16.6833 5.4 14.4 7.68335 14.4 10.5C14.4 13.3166 16.6833 15.6 19.5 15.6C22.3166 15.6 24.6 13.3166 24.6 10.5C24.6 7.68335 22.3166 5.4 19.5 5.4Z"/>
+          <circle cx="19.5" cy="10.5" r="3.2"/>
         </svg>
-        <span class="lg-word">PyTorch</span>
-      </a>
+        <span class="lg-word">logoipsum</span>
+      </div>
 
-      <!-- TensorFlow -->
-      <a href="https://www.tensorflow.org" target="_blank" rel="noopener noreferrer" class="lg" title="TensorFlow">
-        <svg viewBox="0 0 24 24" fill="currentColor">
-          <path d="M12 0L2.25 5.63v11.25L7.5 19.9v-5.63l4.5 2.6V0zm0 16.87l4.5-2.6v5.63l5.25-3.02V5.63L12 0v16.87zm-1.5-6.5l-3-1.73V5.2l3 1.73v3.44zm3 0v-3.44l3-1.73v3.44l-3 1.73z"/>
+      <!-- lg2 -->
+      <div class="lg lg2">
+        <svg viewBox="0 0 25 30" fill="currentColor">
+          <rect x="0" y="0" width="7" height="30" rx="3.5"/>
+          <path d="M12.5 0C19.4036 0 25 5.59644 25 12.5C25 19.4036 19.4036 25 12.5 25V0Z"/>
         </svg>
-        <span class="lg-word">TensorFlow</span>
-      </a>
+        <span class="lg-word">logoipsum<span class="dot"></span></span>
+      </div>
 
-      <!-- Hugging Face -->
-      <a href="https://huggingface.co" target="_blank" rel="noopener noreferrer" class="lg" title="Hugging Face">
-        <svg viewBox="0 0 24 24" fill="currentColor">
-          <path d="M12 2C6.477 2 2 6.477 2 12c0 2.22.724 4.27 1.947 5.927l-.61 3.05a.75.75 0 0 0 .885.885l3.05-.61A9.957 9.957 0 0 0 12 22c5.523 0 10-4.477 10-10S17.523 2 12 2zm-4 8a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3zm8 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3zm-8 5.5a.75.75 0 0 1 .75-.75h6.5a.75.75 0 0 1 0 1.5h-6.5a.75.75 0 0 1-.75-.75z"/>
+      <!-- lg3 -->
+      <div class="lg3 lg">
+        <svg viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="3.1">
+          <circle cx="14" cy="14" r="12.35"/>
+          <path d="M14 6C18.4183 6 22 9.58172 22 14" stroke-linecap="round"/>
+          <path d="M14 22C9.58172 22 6 18.4183 6 14" stroke-linecap="round"/>
         </svg>
-        <span class="lg-word">Hugging Face</span>
-      </a>
+        <span class="lg-word">logoipsum</span>
+      </div>
 
-      <!-- NVIDIA AI -->
-      <a href="https://www.nvidia.com" target="_blank" rel="noopener noreferrer" class="lg" title="NVIDIA AI">
-        <svg viewBox="0 0 24 24" fill="currentColor">
-          <path d="M3.242 7.03c.516-1.547 1.488-2.915 2.82-3.926C8.24 1.464 10.974.72 13.784.87c2.81.15 5.44 1.182 7.47 2.92a10.916 10.916 0 0 1 3.25 5.518c.28 1.134.34 2.316.18 3.486-.3 2.18-1.39 4.21-3.08 5.72-2.12 1.9-5.01 2.86-7.89 2.62-2.88-.24-5.54-1.63-7.29-3.8l2.91-2.32c1.07 1.34 2.7 2.2 4.46 2.35 1.76.15 3.52-.44 4.82-1.6 1.04-.93 1.7-2.18 1.88-3.52.1-.72.06-1.45-.11-2.15a6.726 6.726 0 0 0-2-3.4c-1.25-1.07-2.87-1.7-4.6-1.79-1.73-.09-3.41.37-4.75 1.29-.82.56-1.42 1.34-1.74 2.24l-3.9-2.38z"/>
+      <!-- lg4 -->
+      <div class="lg4 lg">
+        <svg viewBox="0 0 28 25.5" fill="none">
+          <path d="M2 11C6 5 11 5 14 8C17 11 22 11 26 5V12C22 18 17 18 14 15C11 12 6 12 2 18V11Z" fill="currentColor"/>
+          <path d="M2 17.5C6 21.5 11 21.5 14 18.5C17 15.5 22 15.5 26 21.5" stroke="currentColor" stroke-width="3.05" stroke-linecap="round"/>
+          <path d="M2 22.5C6 26.5 11 26.5 14 23.5C17 20.5 22 20.5 26 26.5" stroke="currentColor" stroke-width="3.05" stroke-linecap="round"/>
         </svg>
-        <span class="lg-word">NVIDIA AI</span>
-      </a>
+        <span class="lg-word">logoipsum</span>
+      </div>
     </div>
   </div>
 
   <script>
+    // Minimal JS for menu toggling, responsive resets and keyboard accessibility
     (function() {
       const burger = document.getElementById('burger');
       const stage = document.querySelector('.stage');
@@ -747,9 +989,9 @@
         });
       });
 
-      // Close on resize when transitioning to wide screen
+      // Close on resize when transitioning to desktop landscape aspect ratio > 1.1
       window.addEventListener('resize', function() {
-        if (window.innerWidth > 900 && stage.classList.contains('is-open')) {
+        if ((window.innerWidth / window.innerHeight) > 1.1 && stage.classList.contains('is-open')) {
           toggleMenu(false);
         }
       });
