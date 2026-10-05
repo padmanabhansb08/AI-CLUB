@@ -32,7 +32,7 @@ export const memberDirectoryController = {
 
   getMemberById: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { id } = req.params;
+      const id = req.params.id as string;
       const member = await memberRepo.findPublicById(id);
       if (!member) {
         throw new NotFoundError(`Member with ID '${id}' not found`);

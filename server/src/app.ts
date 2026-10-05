@@ -8,6 +8,7 @@ import studentRoutes from './routes/studentRoutes';
 import memberRoutes from './routes/memberRoutes';
 import publicRoutes from './routes/publicRoutes';
 import { router as announcementRoutes } from './routes/announcementRoutes';
+import { router as directoryRoutes } from './routes/directoryRoutes';
 import { authenticate } from './middleware/auth';
 import { dashboardController } from './controllers/dashboardController';
 import { catalogController } from './controllers/catalogController';
@@ -90,6 +91,7 @@ app.get('/api/dashboard', authenticate, dashboardController.getDashboard);
 app.get('/api/skills', catalogController.getSkills);
 app.get('/api/interests', catalogController.getInterests);
 app.use('/api/announcements', announcementRoutes);
+app.use('/api/directory', directoryRoutes);
 app.use('/api', publicRoutes);
 
 // 404 handling middleware
