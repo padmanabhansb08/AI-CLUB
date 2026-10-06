@@ -130,7 +130,7 @@ export const Courses: React.FC = () => {
           <div className="flex items-center gap-2.5 mb-1.5">
             <GraduationCap className="text-indigo-400" size={28} />
             <h2 className="text-2xl font-bold tracking-tight text-white m-0">
-              COURSES & LEARNING PATHS
+              Courses & Learning Paths
             </h2>
           </div>
           <p className="text-sm text-[var(--text-muted,#94a3b8)]">

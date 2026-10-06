@@ -84,63 +84,64 @@ export const Notifications: React.FC = () => {
     <DashboardLayout pageTitle="Notifications">
       <div className="max-w-4xl mx-auto space-y-6 pb-16">
         {/* Header Banner */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 rounded-3xl bg-gradient-to-r from-[#121624] via-[#161c2e] to-[#121624] border border-white/10 shadow-xl">
-          <div className="flex items-center gap-4">
-            <div className="p-3.5 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-400">
-              <Bell size={26} />
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 sm:p-6 rounded-2xl bg-[#0d131f] border border-white/10 shadow-sm">
+          <div className="flex items-center gap-3.5 min-w-0">
+            <div className="p-3 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400 shrink-0">
+              <Bell size={24} />
             </div>
-            <div>
-              <h1 className="text-xl sm:text-2xl font-black text-white flex items-center gap-2">
-                <span>Notification Center</span>
+            <div className="min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <h1 className="text-lg sm:text-xl font-bold text-white tracking-tight">Notification Center</h1>
                 {unreadCount > 0 && (
-                  <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/40">
+                  <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-500/15 text-blue-400 border border-blue-500/30 font-mono">
                     {unreadCount} unread
                   </span>
                 )}
-              </h1>
-              <p className="text-xs text-gray-400 mt-0.5">
-                Stay informed on event updates, course progress, team invitations, and achievements.
+              </div>
+              <p className="text-xs text-slate-400 mt-1 line-clamp-1 sm:line-clamp-none">
+                Stay informed on events, learning milestones, team invitations, and recognition.
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 shrink-0 self-start sm:self-auto">
             {unreadCount > 0 && activeTab !== 'ACTIVITY' && (
               <button
                 onClick={handleMarkAllAsRead}
-                className="px-3.5 py-2 rounded-xl text-xs font-semibold bg-white/5 hover:bg-white/10 text-cyan-300 border border-white/10 hover:border-cyan-500/30 transition-all flex items-center gap-1.5"
+                className="btn btn-secondary btn-sm flex items-center gap-1.5 text-xs text-blue-400 border-blue-500/30 hover:bg-blue-500/10"
               >
-                <CheckCheck size={15} />
+                <CheckCheck size={14} />
                 <span>Mark All Read</span>
               </button>
             )}
 
             <button
               onClick={() => setPreferencesOpen(true)}
-              className="p-2 sm:px-3 sm:py-2 rounded-xl text-xs font-semibold bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white border border-white/10 transition-all flex items-center gap-1.5"
+              className="btn btn-secondary btn-sm flex items-center gap-1.5 text-xs text-slate-300 hover:text-white"
               title="Notification Preferences"
+              aria-label="Notification Preferences"
             >
-              <Sliders size={16} />
-              <span className="hidden sm:inline">Preferences</span>
+              <Sliders size={14} />
+              <span>Preferences</span>
             </button>
           </div>
         </div>
 
         {/* Tab Controls */}
-        <div className="flex items-center gap-2 p-1.5 rounded-2xl bg-[#121624] border border-white/10 w-fit">
+        <div className="flex items-center gap-1.5 p-1 rounded-xl bg-[#0d131f] border border-white/10 w-full sm:w-fit overflow-x-auto">
           <button
             onClick={() => {
               setActiveTab('ALL');
               setPage(1);
             }}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+            className={`flex items-center justify-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all shrink-0 ${
               activeTab === 'ALL'
-                ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-md shadow-cyan-500/20'
-                : 'text-gray-400 hover:text-white hover:bg-white/5'
+                ? 'bg-blue-600 text-white shadow-sm'
+                : 'text-slate-400 hover:text-white hover:bg-white/5'
             }`}
           >
-            <Layers size={14} />
-            <span>All Notifications</span>
+            <Layers size={13} />
+            <span>All</span>
           </button>
 
           <button
@@ -148,16 +149,16 @@ export const Notifications: React.FC = () => {
               setActiveTab('UNREAD');
               setPage(1);
             }}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+            className={`flex items-center justify-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all shrink-0 ${
               activeTab === 'UNREAD'
-                ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-md shadow-cyan-500/20'
-                : 'text-gray-400 hover:text-white hover:bg-white/5'
+                ? 'bg-blue-600 text-white shadow-sm'
+                : 'text-slate-400 hover:text-white hover:bg-white/5'
             }`}
           >
-            <Inbox size={14} />
+            <Inbox size={13} />
             <span>Unread</span>
             {unreadCount > 0 && (
-              <span className="ml-1 px-1.5 py-0.2 rounded-full text-[10px] bg-white/20 text-white font-bold">
+              <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-white/20 text-white font-mono font-bold">
                 {unreadCount}
               </span>
             )}
@@ -168,37 +169,37 @@ export const Notifications: React.FC = () => {
               setActiveTab('ACTIVITY');
               setPage(1);
             }}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+            className={`flex items-center justify-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all shrink-0 ${
               activeTab === 'ACTIVITY'
-                ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-md shadow-cyan-500/20'
-                : 'text-gray-400 hover:text-white hover:bg-white/5'
+                ? 'bg-blue-600 text-white shadow-sm'
+                : 'text-slate-400 hover:text-white hover:bg-white/5'
             }`}
           >
-            <Activity size={14} />
+            <Activity size={13} />
             <span>Activity Feed</span>
           </button>
         </div>
 
         {/* Body */}
         {loading ? (
-          <div className="py-20 flex flex-col items-center justify-center text-gray-400 bg-[#121624]/40 rounded-3xl border border-white/5">
-            <Loader2 size={32} className="animate-spin text-cyan-400 mb-2" />
+          <div className="py-20 flex flex-col items-center justify-center text-slate-400 bg-[#0d131f] rounded-2xl border border-white/5">
+            <Loader2 size={32} className="animate-spin text-blue-400 mb-2" />
             <span className="text-xs">Loading updates...</span>
           </div>
         ) : activeTab === 'ACTIVITY' ? (
           /* Activity Feed View */
           activities.length === 0 ? (
-            <div className="py-20 text-center rounded-3xl bg-[#121624]/60 border border-white/10 p-8">
-              <Activity size={40} className="mx-auto text-gray-600 mb-2 opacity-50" />
+            <div className="py-20 text-center rounded-2xl bg-[#0d131f] border border-white/10 p-8">
+              <Activity size={40} className="mx-auto text-slate-600 mb-2 opacity-50" />
               <h3 className="text-sm font-bold text-white">No recent activity logged</h3>
-              <p className="text-xs text-gray-400 max-w-sm mx-auto mt-1">
+              <p className="text-xs text-slate-400 max-w-sm mx-auto mt-1">
                 Participate in events, courses, or projects to begin building your activity timeline.
               </p>
             </div>
           ) : (
-            <div className="rounded-3xl bg-[#121624] border border-white/10 p-6 space-y-4">
+            <div className="rounded-2xl bg-[#0d131f] border border-white/10 p-6 space-y-4">
               <h3 className="text-sm font-bold text-white mb-2 flex items-center gap-2">
-                <Clock size={16} className="text-cyan-400" />
+                <Clock size={16} className="text-blue-400" />
                 <span>Your Platform Timeline</span>
               </h3>
               <div className="divide-y divide-white/5">
@@ -228,14 +229,14 @@ export const Notifications: React.FC = () => {
           )
         ) : notifications.length === 0 ? (
           /* Notifications Empty State */
-          <div className="py-20 text-center rounded-3xl bg-[#121624]/60 border border-white/10 p-8">
-            <Inbox size={42} className="mx-auto text-gray-600 mb-2 opacity-50" />
+          <div className="py-20 text-center rounded-2xl bg-[#0d131f] border border-white/10 p-8">
+            <Inbox size={42} className="mx-auto text-slate-600 mb-2 opacity-50" />
             <h3 className="text-sm font-bold text-white">
               {activeTab === 'UNREAD' ? 'No unread notifications' : 'No notifications yet'}
             </h3>
-            <p className="text-xs text-gray-400 max-w-sm mx-auto mt-1">
+            <p className="text-xs text-slate-400 max-w-sm mx-auto mt-1">
               {activeTab === 'UNREAD'
-                ? "You're all caught up! Switch to 'All Notifications' to view past history."
+                ? "You're all caught up! Switch to 'All' to view past history."
                 : 'Important platform updates and achievements will appear here.'}
             </p>
           </div>
