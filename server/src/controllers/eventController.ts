@@ -9,6 +9,7 @@ import {
   checkInSchema 
 } from '../validators/schemas';
 import { sendSuccess, sendPaginated } from '../utils/response';
+import { auditService } from '../services/auditService';
 
 export const publicEventController = {
   async getAll(req: Request, res: Response, next: NextFunction) {
@@ -179,6 +180,17 @@ export const adminEventController = {
     try {
       const eventId = req.params.id || req.params.eventId;
       const event = await eventService.publishEvent(eventId);
+      
+      auditService.logAction({
+        actorId: req.user?.id || req.user?.userId,
+        action: 'EVENT_PUBLISHED',
+        entityType: 'EVENT',
+        entityId: eventId,
+        afterData: { title: event?.title, status: 'PUBLISHED' },
+        ipAddress: req.ip,
+        userAgent: req.get('user-agent'),
+      }).catch(() => {});
+
       return sendSuccess(res, event, 'Event published successfully');
     } catch (err) {
       next(err);
@@ -190,6 +202,17 @@ export const adminEventController = {
       const eventId = req.params.id || req.params.eventId;
       const { reason } = eventCancelSchema.parse(req.body);
       const event = await eventService.cancelEvent(eventId, reason);
+
+      auditService.logAction({
+        actorId: req.user?.id || req.user?.userId,
+        action: 'EVENT_CANCELLED',
+        entityType: 'EVENT',
+        entityId: eventId,
+        afterData: { title: event?.title, status: 'CANCELLED', reason },
+        ipAddress: req.ip,
+        userAgent: req.get('user-agent'),
+      }).catch(() => {});
+
       return sendSuccess(res, event, 'Event cancelled successfully');
     } catch (err) {
       next(err);
@@ -201,6 +224,17 @@ export const adminEventController = {
       const eventId = req.params.id || req.params.eventId;
       const { force } = eventCompleteSchema.parse(req.body || {});
       const event = await eventService.completeEvent(eventId, force);
+
+      auditService.logAction({
+        actorId: req.user?.id || req.user?.userId,
+        action: 'EVENT_COMPLETED',
+        entityType: 'EVENT',
+        entityId: eventId,
+        afterData: { title: event?.title, status: 'COMPLETED' },
+        ipAddress: req.ip,
+        userAgent: req.get('user-agent'),
+      }).catch(() => {});
+
       return sendSuccess(res, event, 'Event marked as completed successfully');
     } catch (err) {
       next(err);

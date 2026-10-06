@@ -22,10 +22,17 @@ import {
   Camera,
   Layers,
   Award,
-  BookOpen
+  BookOpen,
+  FolderGit2,
+  Trophy
 } from 'lucide-react';
 import { coursesApi } from '../api/courses.api';
+import { projectsApi } from '../api/projects.api';
+import { achievementsApi } from '../api/achievements.api';
 import type { CourseEnrollmentItem } from '../types/courses';
+import type { ProjectItem } from '../types/projects';
+import type { MemberAchievementItem, MemberAchievementStats } from '../types/achievements';
+import { AchievementBadge } from '../components/achievements/AchievementBadge';
 
 export const Profile: React.FC = () => {
   const {
@@ -65,12 +72,24 @@ export const Profile: React.FC = () => {
   const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
   const [newInterestName, setNewInterestName] = useState('');
 
-  // Course Enrollments State (Sprint 5)
+  // Course Enrollments State (Sprint 5) & Projects State (Sprint 4) & Achievements (Sprint 6)
   const [myEnrollments, setMyEnrollments] = useState<CourseEnrollmentItem[]>([]);
+  const [myProjects, setMyProjects] = useState<ProjectItem[]>([]);
+  const [myAchievements, setMyAchievements] = useState<MemberAchievementItem[]>([]);
+  const [achievementStats, setAchievementStats] = useState<MemberAchievementStats | null>(null);
 
   useEffect(() => {
     coursesApi.getMyCourses()
       .then(data => setMyEnrollments(data || []))
+      .catch(() => {});
+    projectsApi.getMyProjects()
+      .then(data => setMyProjects(data || []))
+      .catch(() => {});
+    achievementsApi.getMyAchievements()
+      .then(data => setMyAchievements(data || []))
+      .catch(() => {});
+    achievementsApi.getMyStats()
+      .then(data => setAchievementStats(data))
       .catch(() => {});
   }, []);
 
@@ -452,6 +471,63 @@ export const Profile: React.FC = () => {
                 )}
               </div>
 
+              {/* Projects & Collaborations (Sprint 4) */}
+              <div className="rounded-xl border border-gray-800 bg-gray-900/40 p-6 space-y-4">
+                <div className="flex items-center justify-between border-b border-gray-800 pb-3">
+                  <h3 className="text-base font-semibold text-gray-200 flex items-center gap-2 m-0">
+                    <FolderGit2 size={18} className="text-emerald-400" /> Projects & Collaborations
+                  </h3>
+                  <a
+                    href="/projects/my"
+                    className="text-xs text-accent hover:underline flex items-center gap-1"
+                  >
+                    View All &rarr;
+                  </a>
+                </div>
+
+                {myProjects.length === 0 ? (
+                  <p className="text-sm text-gray-500 italic">No project participations yet. Explore active club initiatives!</p>
+                ) : (
+                  <div className="space-y-3">
+                    {myProjects.slice(0, 4).map((proj) => {
+                      const isComplete = proj.status === 'COMPLETED' || proj.progress_percentage === 100;
+                      return (
+                        <div
+                          key={proj.id}
+                          className="p-3 rounded-lg bg-gray-800/40 border border-gray-800 flex items-center justify-between gap-3"
+                        >
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="text-xs font-semibold text-gray-200 truncate">
+                                {proj.title}
+                              </span>
+                              <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium uppercase ${
+                                isComplete
+                                  ? 'bg-emerald-500/15 text-emerald-400'
+                                  : 'bg-blue-500/15 text-blue-400'
+                              }`}>
+                                {proj.current_member_role || proj.status}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-3 text-[11px] text-gray-400">
+                              <span>{typeof proj.domain === 'string' ? proj.domain.replace(/_/g, ' ') : 'AI / ML'}</span>
+                              <span>Progress: {proj.progress_percentage || 0}%</span>
+                            </div>
+                          </div>
+
+                          <a
+                            href={`/projects/${proj.slug || proj.id}`}
+                            className="text-xs px-2.5 py-1 rounded bg-gray-800 hover:bg-gray-700 text-gray-200 border border-gray-700 transition"
+                          >
+                            View
+                          </a>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
               {/* Learning & Courses (Sprint 5) */}
               <div className="rounded-xl border border-gray-800 bg-gray-900/40 p-6 space-y-4">
                 <div className="flex items-center justify-between border-b border-gray-800 pb-3">
@@ -507,6 +583,67 @@ export const Profile: React.FC = () => {
                           >
                             {isComplete ? 'Review' : 'Continue'}
                           </a>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
+              {/* Achievements & Recognition (Sprint 6) */}
+              <div className="rounded-xl border border-gray-800 bg-gray-900/40 p-6 space-y-4">
+                <div className="flex items-center justify-between border-b border-gray-800 pb-3">
+                  <div className="flex items-center gap-2">
+                    <Trophy size={18} className="text-amber-400" />
+                    <h3 className="text-base font-semibold text-gray-200 m-0">
+                      Achievements & Recognition
+                    </h3>
+                    {achievementStats && (
+                      <span className="text-xs font-bold text-amber-400 font-mono ml-2">
+                        ⭐ {achievementStats.totalPoints} PTS
+                      </span>
+                    )}
+                  </div>
+                  <a
+                    href="/achievements"
+                    className="text-xs text-accent hover:underline flex items-center gap-1"
+                  >
+                    View All &rarr;
+                  </a>
+                </div>
+
+                {myAchievements.length === 0 ? (
+                  <p className="text-sm text-gray-500 italic">No achievements unlocked yet. Attend events or complete courses to start earning recognition!</p>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {myAchievements.map((item) => {
+                      const ach = item.achievement;
+                      return (
+                        <div
+                          key={item.id}
+                          className="p-3 rounded-lg bg-gray-800/40 border border-gray-800 flex items-center gap-3"
+                        >
+                          <AchievementBadge
+                            iconName={ach?.icon}
+                            isUnlocked={true}
+                            size="md"
+                          />
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center justify-between gap-1 mb-0.5">
+                              <span className="text-xs font-bold text-white truncate">
+                                {ach?.name || 'Achievement'}
+                              </span>
+                              <span className="text-[10px] font-bold text-amber-400 font-mono">
+                                +{ach?.points || 10}
+                              </span>
+                            </div>
+                            <p className="text-[11px] text-gray-400 line-clamp-1">
+                              {ach?.description}
+                            </p>
+                            <span className="text-[10px] text-gray-500 mt-1 block">
+                              Earned {new Date(item.earned_at).toLocaleDateString()}
+                            </span>
+                          </div>
                         </div>
                       );
                     })}

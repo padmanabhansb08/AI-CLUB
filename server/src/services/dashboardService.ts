@@ -6,9 +6,11 @@ export interface DashboardStats {
   courses: number;
   achievements: number;
   events: number;
+  points?: number;
   totalProjects: number;
   totalCourses: number;
   totalEvents: number;
+  unreadNotifications?: number;
 }
 
 export interface ActivityItem {
@@ -33,6 +35,9 @@ export interface DashboardData {
   myProjects?: any[];
   myCourses?: any[];
   continueLearning?: any;
+  totalPoints?: number;
+  unreadNotificationsCount?: number;
+  recentNotifications?: any[];
 }
 
 export const dashboardService = {
@@ -47,6 +52,9 @@ export const dashboardService = {
       projectTeamsRes,
       courseProgressRes,
       achievementsRes,
+      totalPointsRes,
+      unreadNotifRes,
+      recentNotifRes,
       eventsRes,
       allProjectsCountRes,
       allCoursesCountRes,
@@ -61,8 +69,32 @@ export const dashboardService = {
       query('SELECT COUNT(*) as count FROM project_team_members WHERE member_id = $1', [memberId]),
       // Student's courses
       query('SELECT COUNT(*) as count FROM course_progress WHERE member_id = $1', [memberId]),
-      // Student's achievements
-      query('SELECT COUNT(*) as count FROM achievement_members WHERE member_id = $1', [memberId]),
+      // Student's achievements (supports both tables)
+      query(`
+        SELECT COUNT(DISTINCT achievement_id) as count 
+        FROM (
+          SELECT achievement_id FROM member_achievements WHERE member_id = $1
+          UNION
+          SELECT achievement_id FROM achievement_members WHERE member_id = $1
+        ) combined
+      `, [memberId]),
+      // Student's total points
+      query(`
+        SELECT COALESCE(SUM(a.points), 0) as total_points
+        FROM member_achievements ma
+        JOIN achievements a ON a.id = ma.achievement_id
+        WHERE ma.member_id = $1
+      `, [memberId]),
+      // Unread notifications
+      query('SELECT COUNT(*) as count FROM notifications WHERE recipient_id = $1 AND read_at IS NULL', [memberId]),
+      // Recent notifications
+      query(`
+        SELECT id, type, title, message, data, priority, read_at, created_at
+        FROM notifications
+        WHERE recipient_id = $1
+        ORDER BY created_at DESC
+        LIMIT 5
+      `, [memberId]),
       // Student's registered events
       query('SELECT COUNT(*) as count FROM event_registrations WHERE member_id = $1', [memberId]),
       // Total counts for context
@@ -103,15 +135,19 @@ export const dashboardService = {
       query(`
         SELECT 
           a.id, 
-          a.title, 
+          COALESCE(a.name, a.title) as title, 
           a.category, 
           a.student_name as "studentName", 
           a.year,
           a.date,
-          EXISTS(SELECT 1 FROM achievement_members am WHERE am.achievement_id = a.id AND am.member_id = $1) as "isMine"
+          EXISTS(
+            SELECT 1 FROM member_achievements ma WHERE ma.achievement_id = a.id AND ma.member_id = $1
+            UNION
+            SELECT 1 FROM achievement_members am WHERE am.achievement_id = a.id AND am.member_id = $1
+          ) as "isMine"
         FROM achievements a
-        ORDER BY a.date DESC NULLS LAST
-        LIMIT 3
+        ORDER BY a.created_at DESC
+        LIMIT 4
       `, [memberId]),
       // Upcoming Events with student registration status
       query(`
@@ -155,6 +191,8 @@ export const dashboardService = {
       courses: myCourseCount,
       achievements: myAchievementCount,
       events: myEventCount,
+      points: parseInt(totalPointsRes.rows[0]?.total_points || '0', 10),
+      unreadNotifications: parseInt(unreadNotifRes.rows[0]?.count || '0', 10),
       totalProjects: parseInt(allProjectsCountRes.rows[0].count, 10),
       totalCourses: parseInt(allCoursesCountRes.rows[0].count, 10),
       totalEvents: parseInt(allEventsCountRes.rows[0].count, 10),
@@ -165,13 +203,13 @@ export const dashboardService = {
       query(`
         SELECT 
           a.id, 
-          a.title, 
+          COALESCE(a.name, a.title) as title, 
           a.category, 
-          COALESCE(a.date::text, a.created_at::text) as timestamp
-        FROM achievement_members am
-        JOIN achievements a ON a.id = am.achievement_id
-        WHERE am.member_id = $1
-        ORDER BY a.created_at DESC
+          COALESCE(ma.earned_at::text, a.created_at::text) as timestamp
+        FROM member_achievements ma
+        JOIN achievements a ON a.id = ma.achievement_id
+        WHERE ma.member_id = $1
+        ORDER BY ma.earned_at DESC
         LIMIT 3
       `, [memberId]),
       query(`
@@ -326,6 +364,9 @@ export const dashboardService = {
       myProjects: myProjectsRes.rows,
       myCourses: myCoursesRes.rows,
       continueLearning: activeCourse,
+      totalPoints: parseInt(totalPointsRes.rows[0]?.total_points || '0', 10),
+      unreadNotificationsCount: parseInt(unreadNotifRes.rows[0]?.count || '0', 10),
+      recentNotifications: recentNotifRes.rows,
     };
   },
 };

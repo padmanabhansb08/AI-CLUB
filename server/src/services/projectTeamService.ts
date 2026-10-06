@@ -2,6 +2,8 @@ import { projectTeamRepository } from '../repositories/projectTeamRepository';
 import { projectRepo } from '../repositories/projectRepository';
 import { ApiError } from '../middleware/errorHandler';
 import { pool, query } from '../db';
+import { notificationService } from './notificationService';
+import { achievementService } from './achievementService';
 
 export const projectTeamService = {
   async getProjectTeams(projectId: string, currentMemberId?: string) {
@@ -172,6 +174,7 @@ export const projectTeamService = {
       }
 
       await client.query('COMMIT');
+      achievementService.evaluateMemberAchievements(memberId).catch(() => {});
       return { success: true };
     } catch (e) {
       await client.query('ROLLBACK');
@@ -302,7 +305,19 @@ export const projectTeamService = {
       throw new ApiError('BAD_REQUEST', 'An invitation is already pending for this student');
     }
 
-    return projectTeamRepository.createInvitation(teamId, invitedMemberId, callerMemberId);
+    const inv = await projectTeamRepository.createInvitation(teamId, invitedMemberId, callerMemberId);
+    try {
+      notificationService.createNotification({
+        recipient_id: invitedMemberId,
+        type: 'TEAM_INVITATION',
+        title: 'Team Invitation',
+        message: `You were invited to join team "${team.name}".`,
+        data: { teamId: team.id, invitationId: inv.id, teamName: team.name },
+      }).catch(() => {});
+    } catch {
+      // Non-blocking
+    }
+    return inv;
   },
 
   async getMyInvitations(memberId: string) {
@@ -342,6 +357,22 @@ export const projectTeamService = {
 
     // If accepted: join team atomically
     await projectTeamService.joinTeam(invitation.team_id, callerMemberId);
-    return projectTeamRepository.updateInvitationStatus(invitationId, 'ACCEPTED');
+    const accepted = await projectTeamRepository.updateInvitationStatus(invitationId, 'ACCEPTED');
+    try {
+      const team = await projectTeamRepository.getTeamById(invitation.team_id);
+      if (team && team.team_lead_id) {
+        notificationService.createNotification({
+          recipient_id: team.team_lead_id,
+          type: 'TEAM_INVITATION_ACCEPTED',
+          title: 'Team Invitation Accepted',
+          message: `A student accepted the invitation to join team "${team.name}".`,
+          data: { teamId: team.id, memberId: callerMemberId },
+        }).catch(() => {});
+      }
+      achievementService.evaluateMemberAchievements(callerMemberId).catch(() => {});
+    } catch {
+      // Non-blocking
+    }
+    return accepted;
   },
 };

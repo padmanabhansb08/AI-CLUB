@@ -28,13 +28,19 @@ export const RoleGuard: React.FC<RoleGuardProps> = ({ children, allowedRole, red
   const userRole = user.role?.toLowerCase();
   const targetRole = allowedRole.toLowerCase();
 
-  if (userRole !== targetRole) {
-    // If student attempts to access admin route, redirect to student dashboard
-    if (targetRole === 'admin') {
+  const isAdminRole = userRole === 'admin' || userRole === 'super_admin';
+
+  if (targetRole === 'admin') {
+    if (!isAdminRole) {
+      // If non-admin attempts to access admin route, redirect to student dashboard
       return <Navigate to="/dashboard" replace />;
     }
-    // If admin attempts to access student route, allow or redirect to /admin
-    if (userRole === 'admin') {
+    return <>{children}</>;
+  }
+
+  if (userRole !== targetRole) {
+    // If admin attempts to access student route, allow
+    if (isAdminRole) {
       return <>{children}</>;
     }
     return <Navigate to={redirectTo || '/'} replace />;

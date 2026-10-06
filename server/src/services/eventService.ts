@@ -1,4 +1,6 @@
 import { eventRepository } from '../repositories/eventRepository';
+import { notificationService } from './notificationService';
+import { achievementService } from './achievementService';
 import { AppError } from '../errors/AppError';
 
 export const eventService = {
@@ -107,7 +109,26 @@ export const eventService = {
       throw new AppError(400, 'VALIDATION_ERROR', 'Cancellation reason is required');
     }
 
-    return await eventRepository.cancel(id, reason.trim());
+    const cancelled = await eventRepository.cancel(id, reason.trim());
+    try {
+      const attendees = await eventRepository.getRegistrations(id);
+      for (const att of attendees) {
+        const memberId = att.member_id || att.id;
+        if (memberId) {
+          notificationService.createNotification({
+            recipient_id: memberId,
+            type: 'EVENT_CANCELLED',
+            title: 'Event Cancelled',
+            message: `The event "${event.title}" has been cancelled: ${reason.trim()}`,
+            data: { eventId: id, reason: reason.trim() },
+            priority: 'HIGH',
+          }).catch(() => {});
+        }
+      }
+    } catch {
+      // Non-blocking
+    }
+    return cancelled;
   },
 
   async completeEvent(id: string, force = false) {
@@ -160,6 +181,19 @@ export const eventService = {
     }
 
     const reg = await eventRepository.registerMemberTransactional(eventId, member.id);
+    try {
+      const event = await eventRepository.getById(eventId);
+      notificationService.createNotification({
+        recipient_id: member.id,
+        type: 'EVENT_REGISTRATION_CONFIRMED',
+        title: 'Event Registration Confirmed',
+        message: `You are confirmed for "${event?.title || 'Event'}".`,
+        data: { eventId, eventTitle: event?.title },
+      }).catch(() => {});
+      achievementService.evaluateMemberAchievements(member.id).catch(() => {});
+    } catch {
+      // Non-blocking
+    }
     return reg;
   },
 
@@ -194,7 +228,13 @@ export const eventService = {
     records: Array<{ memberId: string; status: 'PRESENT' | 'ABSENT' | 'LATE' }>,
     markedByUserId: string
   ) {
-    return await eventRepository.markAttendanceTransactional(eventId, records, markedByUserId);
+    const result = await eventRepository.markAttendanceTransactional(eventId, records, markedByUserId);
+    for (const r of records) {
+      if (r.status === 'PRESENT') {
+        achievementService.evaluateMemberAchievements(r.memberId).catch(() => {});
+      }
+    }
+    return result;
   },
 
   async bulkMarkAttendance(
@@ -204,7 +244,13 @@ export const eventService = {
     markedByUserId: string
   ) {
     const records = memberIds.map((memberId) => ({ memberId, status }));
-    return await eventRepository.markAttendanceTransactional(eventId, records, markedByUserId);
+    const result = await eventRepository.markAttendanceTransactional(eventId, records, markedByUserId);
+    if (status === 'PRESENT') {
+      for (const mId of memberIds) {
+        achievementService.evaluateMemberAchievements(mId).catch(() => {});
+      }
+    }
+    return result;
   },
 
   async checkIn(
@@ -213,10 +259,14 @@ export const eventService = {
     status: 'PRESENT' | 'ABSENT' | 'LATE',
     markedByUserId: string
   ) {
-    return await eventRepository.markAttendanceTransactional(
+    const result = await eventRepository.markAttendanceTransactional(
       eventId,
       [{ memberId, status }],
       markedByUserId
     );
+    if (status === 'PRESENT') {
+      achievementService.evaluateMemberAchievements(memberId).catch(() => {});
+    }
+    return result;
   },
 };
