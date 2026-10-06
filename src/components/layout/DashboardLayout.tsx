@@ -15,7 +15,8 @@ import {
   Calendar,
   GraduationCap,
   Megaphone,
-  Users
+  Users,
+  Bot
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { NotificationBell } from '../notifications/NotificationBell';
@@ -38,6 +39,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, page
 
   const navItems = [
     { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
+    { name: 'AI Assistant', path: '/ai-assistant', icon: Bot },
     { name: 'Notifications', path: '/notifications', icon: Bell },
     { name: 'Announcements', path: '/announcements', icon: Megaphone },
     { name: 'Events', path: '/events', icon: Calendar },

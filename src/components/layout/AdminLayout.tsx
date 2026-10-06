@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { NavLink, useNavigate, Outlet } from 'react-router-dom';
 import { 
   Users, Trophy, Zap, BookOpen, BarChart3, Settings, LogOut, 
-  Menu, X, Bell, Search, LayoutDashboard, Calendar, Megaphone, FolderGit2, ShieldCheck
+  Menu, X, Bell, Search, LayoutDashboard, Calendar, Megaphone, FolderGit2, ShieldCheck, Sparkles
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { NotificationBell } from '../notifications/NotificationBell';
@@ -24,6 +24,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ pageTitle, children })
 
   const navItems = [
     { name: 'Overview', path: '/admin', icon: <LayoutDashboard size={20} /> },
+    { name: 'AI Insights', path: '/admin/ai-insights', icon: <Sparkles size={20} /> },
     { name: 'Members', path: '/admin/members', icon: <Users size={20} /> },
     { name: 'Announcements', path: '/admin/announcements', icon: <Megaphone size={20} /> },
     { name: 'Events', path: '/admin/events', icon: <Calendar size={20} /> },

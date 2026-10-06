@@ -1,10 +1,13 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { DashboardLayout } from '../components/layout/DashboardLayout';
 import { useDashboard } from '../hooks/useDashboard';
 import { LoadingState } from '../components/common/LoadingState';
 import { ErrorState } from '../components/common/ErrorState';
 import { EmptyState } from '../components/common/EmptyState';
+import { aiApi } from '../api/ai.api';
+import { AIRecommendationCard } from '../components/ai/AIRecommendationCard';
+import type { StudentDashboardInsights } from '../types/ai';
 import { 
   ArrowRight, 
   Trophy, 
@@ -16,12 +19,28 @@ import {
   Activity,
   Megaphone,
   UserCheck,
-  PlayCircle
+  PlayCircle,
+  Bot,
+  Target
 } from 'lucide-react';
 
 export const Dashboard: React.FC = () => {
   const navigate = useNavigate();
   const { data, loading, error, retry } = useDashboard();
+  const [aiInsights, setAiInsights] = useState<StudentDashboardInsights | null>(null);
+  const [aiTab, setAiTab] = useState<'courses' | 'events' | 'projects'>('courses');
+
+  useEffect(() => {
+    let isMounted = true;
+    aiApi.getInsights()
+      .then(res => {
+        if (isMounted) setAiInsights(res);
+      })
+      .catch(err => {
+        console.warn('AI insights unavailable:', err?.message);
+      });
+    return () => { isMounted = false; };
+  }, []);
 
   if (loading) {
     return (
@@ -136,6 +155,115 @@ export const Dashboard: React.FC = () => {
             >
               <PlayCircle size={16} /> Resume Course <ArrowRight size={14} />
             </button>
+          </div>
+        )}
+
+        {/* Next Best Action Banner & AI Intelligence Section (Sprint 8) */}
+        {aiInsights && (
+          <div className="space-y-4">
+            {/* Next Best Action Banner */}
+            <div className="p-4 sm:p-5 rounded-2xl border border-sky-500/30 bg-gradient-to-r from-sky-950/40 via-slate-900 to-sky-900/20 shadow-lg flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div className="space-y-1 flex-1">
+                <div className="flex items-center gap-2">
+                  <span className="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-sky-500/20 text-sky-300 border border-sky-500/30 uppercase tracking-wider flex items-center gap-1 font-mono">
+                    <Target size={12} /> Next Best Action
+                  </span>
+                  <span className="text-xs text-gray-400">Personalized Activity Signal</span>
+                </div>
+                <h4 className="text-base font-bold text-white mt-1">
+                  {aiInsights.nextBestAction}
+                </h4>
+                <p className="text-xs text-gray-400">
+                  {aiInsights.skillSummary}
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2 self-start md:self-auto shrink-0">
+                <button
+                  onClick={() => navigate('/ai-assistant')}
+                  className="px-4 py-2 rounded-lg bg-sky-500 hover:bg-sky-400 text-slate-950 font-semibold text-xs flex items-center gap-1.5 transition-colors shadow"
+                >
+                  <Bot size={14} /> AI Assistant &rarr;
+                </button>
+              </div>
+            </div>
+
+            {/* AI Personalized Recommendations Deck */}
+            <div className="p-5 rounded-2xl border border-gray-800 bg-gray-900/50 space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-gray-800 pb-3">
+                <div className="flex items-center gap-2">
+                  <div className="p-1.5 rounded-lg bg-sky-500/10 text-sky-400 border border-sky-500/20">
+                    <Sparkles size={16} />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold text-gray-100">
+                      Recommended For You
+                    </h3>
+                    <p className="text-[11px] text-gray-400">
+                      AI recommendations grounded in your profile, skills, and learning progress
+                    </p>
+                  </div>
+                </div>
+
+                {/* Tabs */}
+                <div className="flex items-center gap-1 bg-gray-800/80 p-1 rounded-lg border border-gray-700/60 self-start sm:self-auto">
+                  <button
+                    onClick={() => setAiTab('courses')}
+                    className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
+                      aiTab === 'courses' ? 'bg-sky-500 text-slate-950 font-semibold' : 'text-gray-400 hover:text-gray-200'
+                    }`}
+                  >
+                    Courses ({aiInsights.recommendedCourses.length})
+                  </button>
+                  <button
+                    onClick={() => setAiTab('events')}
+                    className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
+                      aiTab === 'events' ? 'bg-sky-500 text-slate-950 font-semibold' : 'text-gray-400 hover:text-gray-200'
+                    }`}
+                  >
+                    Events ({aiInsights.recommendedEvents.length})
+                  </button>
+                  <button
+                    onClick={() => setAiTab('projects')}
+                    className={`px-3 py-1 rounded text-xs font-medium transition-colors ${
+                      aiTab === 'projects' ? 'bg-sky-500 text-slate-950 font-semibold' : 'text-gray-400 hover:text-gray-200'
+                    }`}
+                  >
+                    Projects ({aiInsights.recommendedProjects.length})
+                  </button>
+                </div>
+              </div>
+
+              {/* Grid of Recommendation Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {aiTab === 'courses' && aiInsights.recommendedCourses.map(c => (
+                  <AIRecommendationCard key={c.courseId} type="course" item={c} />
+                ))}
+                {aiTab === 'events' && aiInsights.recommendedEvents.map(e => (
+                  <AIRecommendationCard key={e.eventId} type="event" item={e} />
+                ))}
+                {aiTab === 'projects' && aiInsights.recommendedProjects.map(p => (
+                  <AIRecommendationCard key={p.projectId} type="project" item={p} />
+                ))}
+              </div>
+
+              {/* Weekly Highlights Mini-bar */}
+              {aiInsights.weeklyHighlights.length > 0 && (
+                <div className="pt-3 border-t border-gray-800/80 flex flex-wrap items-center gap-2">
+                  <span className="text-[11px] font-semibold text-gray-400 font-mono uppercase">
+                    Weekly Highlights:
+                  </span>
+                  {aiInsights.weeklyHighlights.map((hl, hIdx) => (
+                    <span 
+                      key={hIdx} 
+                      className="text-[11px] px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-300 border border-emerald-500/20"
+                    >
+                      {hl}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         )}
 

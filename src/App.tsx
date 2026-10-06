@@ -9,7 +9,6 @@ import { RoleGuard } from './components/layout/RoleGuard';
 
 // Student Pages
 import { Dashboard } from './pages/Dashboard';
-import { PlaceholderPage } from './pages/Placeholder';
 import { Achievements } from './pages/Achievements';
 import { AchievementDetail } from './pages/AchievementDetail';
 import { Updates } from './pages/Updates';
@@ -30,9 +29,12 @@ import MyEvents from './pages/MyEvents';
 import { Announcements } from './pages/Announcements';
 import { AnnouncementDetail } from './pages/AnnouncementDetail';
 import { Notifications } from './pages/Notifications';
+import { AIAssistant } from './pages/AIAssistant';
+import { Settings } from './pages/Settings';
 
 // Admin Pages
 import { AdminOverview } from './pages/admin/AdminOverview';
+import { AdminAIInsights } from './pages/admin/AdminAIInsights';
 import { AdminMembers } from './pages/admin/AdminMembers';
 import { AdminMemberDetail } from './pages/admin/AdminMemberDetail';
 import { AdminAnalytics } from './pages/admin/AdminAnalytics';
@@ -96,9 +98,11 @@ function App() {
               <Route path="/announcements" element={<RoleGuard allowedRole="student"><Announcements /></RoleGuard>} />
               <Route path="/announcements/:id" element={<RoleGuard allowedRole="student"><AnnouncementDetail /></RoleGuard>} />
               <Route path="/notifications" element={<RoleGuard allowedRole="student"><Notifications /></RoleGuard>} />
-              <Route path="/settings" element={<RoleGuard allowedRole="student"><PlaceholderPage title="Settings" /></RoleGuard>} />
+              <Route path="/ai-assistant" element={<RoleGuard allowedRole="student"><AIAssistant /></RoleGuard>} />
+              <Route path="/settings" element={<RoleGuard allowedRole="student"><Settings /></RoleGuard>} />
 
               {/* Protected Admin Routes */}
+              <Route path="/admin/ai-insights" element={<RoleGuard allowedRole="admin" redirectTo="/admin/login"><AdminAIInsights /></RoleGuard>} />
               <Route path="/admin/members" element={<RoleGuard allowedRole="admin" redirectTo="/admin/login"><AdminMembers /></RoleGuard>} />
               <Route path="/admin/members/:id" element={<RoleGuard allowedRole="admin" redirectTo="/admin/login"><AdminMemberDetail /></RoleGuard>} />
               <Route path="/admin/achievements" element={<RoleGuard allowedRole="admin" redirectTo="/admin/login"><AdminAchievements /></RoleGuard>} />

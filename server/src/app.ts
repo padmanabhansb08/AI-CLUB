@@ -17,6 +17,7 @@ import { router as announcementRoutes } from './routes/announcementRoutes';
 import { router as directoryRoutes } from './routes/directoryRoutes';
 import achievementRoutes from './routes/achievementRoutes';
 import notificationRoutes from './routes/notificationRoutes';
+import aiRoutes from './routes/aiRoutes';
 import { authenticate } from './middleware/auth';
 import { dashboardController } from './controllers/dashboardController';
 import { catalogController } from './controllers/catalogController';
@@ -108,6 +109,7 @@ app.use('/api/modules', moduleRoutes);
 app.use('/api/lessons', lessonRoutes);
 app.use('/api/achievements', achievementRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/ai', aiRoutes);
 app.use('/api', publicRoutes);
 
 // 404 handling middleware

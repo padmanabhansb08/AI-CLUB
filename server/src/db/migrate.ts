@@ -10,6 +10,7 @@ import * as m8 from './migrations/008_sprint4_projects_teams_collaboration';
 import * as m9 from './migrations/009_sprint5_courses_lms';
 import * as m10 from './migrations/010_sprint6_achievements_notifications';
 import * as m11 from './migrations/011_sprint7_admin_analytics_audit';
+import * as m12 from './migrations/012_sprint8_ai_intelligence_layer';
 
 interface Migration {
   name: string;
@@ -29,6 +30,7 @@ const MIGRATIONS: Migration[] = [
   { name: '009_sprint5_courses_lms', up: m9.up, down: m9.down },
   { name: '010_sprint6_achievements_notifications', up: m10.up, down: m10.down },
   { name: '011_sprint7_admin_analytics_audit', up: m11.up, down: m11.down },
+  { name: '012_sprint8_ai_intelligence_layer', up: m12.up, down: m12.down },
 ];
 
 export async function runMigrations() {
