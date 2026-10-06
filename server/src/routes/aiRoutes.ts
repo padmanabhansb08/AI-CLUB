@@ -1,8 +1,12 @@
 import { Router } from 'express';
 import { aiController } from '../controllers/aiController';
 import { authenticate, requireAdmin } from '../middleware/auth';
+import { aiLimiter } from '../middleware/rateLimiter';
 
 const router = Router();
+
+// Apply AI rate limiter to prevent prompt flood and LLM token exhaustion
+router.use(aiLimiter);
 
 // 1. Status (Public / Safe)
 router.get('/status', aiController.getStatus);

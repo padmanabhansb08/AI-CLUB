@@ -23,14 +23,37 @@ import { dashboardController } from './controllers/dashboardController';
 import { catalogController } from './controllers/catalogController';
 import { pool } from './db';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler';
+import { requestId } from './middleware/requestId';
+import { apiLimiter } from './middleware/rateLimiter';
 import { config } from './config';
 
 const app = express();
 
-// Security Middleware
-app.use(helmet());
+// 1. Request ID Correlation (Must run first for full lifecycle tracing)
+app.use(requestId);
 
-// Flexible CORS for development
+// 2. Hardened Security Headers (OWASP Recommended Content-Security-Policy & HSTS)
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", "'unsafe-inline'"],
+        styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
+        fontSrc: ["'self'", 'https://fonts.gstatic.com', 'data:'],
+        imgSrc: ["'self'", 'data:', 'https:', 'blob:'],
+        connectSrc: ["'self'", 'http://localhost:5000', 'http://127.0.0.1:5000', config.CORS_ORIGIN],
+        objectSrc: ["'none'"],
+        frameAncestors: ["'none'"],
+        upgradeInsecureRequests: config.NODE_ENV === 'production' ? [] : null,
+      },
+    },
+    crossOriginResourcePolicy: { policy: 'cross-origin' },
+    hsts: config.NODE_ENV === 'production' ? { maxAge: 31536000, includeSubDomains: true } : false,
+  })
+);
+
+// 3. Strict Environment-Aware CORS
 const allowedOrigins = [
   config.CORS_ORIGIN,
   'http://localhost:5173',
@@ -42,7 +65,7 @@ const allowedOrigins = [
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Allow requests with no origin (e.g. mobile apps, curl, server-to-server)
+      // Allow non-browser requests (e.g. curl, test runners, server-to-server)
       if (!origin) return callback(null, true);
       if (allowedOrigins.includes(origin) || config.NODE_ENV === 'development') {
         return callback(null, true);
@@ -53,45 +76,73 @@ app.use(
   })
 );
 
+// 4. Input Limits & Parser
 app.use(express.json({ limit: '1mb' }));
 
-// Structured Request Logging (timestamp, HTTP method, path, status, duration)
+// 5. Global API Rate Limiter (Bypassed during automated test suites)
+app.use(apiLimiter);
+
+// 6. Structured Request Logging with Correlation ID
 app.use((req, res, next) => {
   const start = Date.now();
   res.on('finish', () => {
     const duration = Date.now() - start;
     const timestamp = new Date().toISOString();
-    // Do not log health checks in test environment
     if (config.NODE_ENV !== 'test') {
-      console.log(`[${timestamp}] ${req.method} ${req.originalUrl} ${res.statusCode} - ${duration}ms`);
+      console.log(
+        `[${timestamp}] [${req.id || 'no-id'}] ${req.method} ${req.originalUrl} ${res.statusCode} - ${duration}ms`
+      );
     }
   });
   next();
 });
 
-// Standardized Health Check
-app.get('/api/health', async (req, res) => {
+// 7. Liveness Probe (GET /health & GET /api/health)
+app.get(['/health', '/api/health'], (req, res) => {
+  return res.status(200).json({
+    success: true,
+    data: {
+      status: 'ok',
+      service: 'ai-club-api',
+      database: 'connected',
+      uptime: process.uptime(),
+      timestamp: new Date().toISOString(),
+    },
+    message: 'AI CLUB API is healthy',
+  });
+});
+
+// 8. Readiness Probe (GET /ready & GET /api/ready - verifies DB connection pool)
+app.get(['/ready', '/api/ready'], async (req, res) => {
   try {
     await pool.query('SELECT 1');
     return res.status(200).json({
       success: true,
-      data: { status: 'ok', database: 'connected' },
-      message: 'AI CLUB API is healthy',
+      data: {
+        status: 'ready',
+        database: 'connected',
+        timestamp: new Date().toISOString(),
+      },
+      message: 'AI CLUB API is ready to accept traffic',
     });
-  } catch (error) {
+  } catch (error: any) {
     return res.status(503).json({
       success: false,
-      data: { status: 'error', database: 'disconnected' },
+      data: {
+        status: 'not_ready',
+        database: 'disconnected',
+      },
       error: {
         code: 'SERVICE_UNAVAILABLE',
         message: 'Database connection failed',
+        requestId: req.id,
         details: {},
       },
     });
   }
 });
 
-// Routes
+// 9. Domain API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/me', studentRoutes);
@@ -112,10 +163,10 @@ app.use('/api/notifications', notificationRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api', publicRoutes);
 
-// 404 handling middleware
+// 10. Fallthrough 404 Handler
 app.use(notFoundHandler);
 
-// Error handling middleware
+// 11. Centralized Production Error Handler
 app.use(errorHandler);
 
 export default app;

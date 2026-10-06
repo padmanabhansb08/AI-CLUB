@@ -1,192 +1,166 @@
-# AI CLUB — Technical Foundation & Community Platform
+# AI CLUB — Production Community, Learning & AI Platform
 
-AI CLUB is a student-centered artificial intelligence community platform designed to foster peer learning, collaborative AI projects, achievements, and research initiatives.
+[![CI Pipeline](https://github.com/padmanabhansb08/AI-CLUB/actions/workflows/ci.yml/badge.svg)](https://github.com/padmanabhansb08/AI-CLUB/actions/workflows/ci.yml)
+[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](docs/RELEASE_NOTES.md)
+[![Tests](https://img.shields.io/badge/tests-205%20passed-brightgreen.svg)](docs/RELEASE_NOTES.md)
+[![License](https://img.shields.io/badge/license-ISC-green.svg)](package.json)
+
+**AI CLUB** is an enterprise-grade artificial intelligence student community and learning platform. Built across Sprints 1 through 9, the platform combines hands-on project collaboration, an interactive learning management system, event scheduling, gamified recognition, administrative operations, and context-aware artificial intelligence.
 
 ---
 
-## 1. Technology Stack
+## 1. Platform Features & Domain Modules
+
+- **Authentication & RBAC (Sprint 1)**: Stateless JWT authentication, secure `bcrypt` hashing, and role-based permissions (Student, Instructor, Admin, Super Admin).
+- **Profiles & Activity Dashboard (Sprint 2)**: Custom profile management, skills catalog, technical interests, and personalized activity feeds.
+- **Events & Attendance (Sprint 3)**: Event discovery, seat reservation with concurrency protection, QR check-in, and attendance audit logs.
+- **Projects & Team Collaboration (Sprint 4)**: Open project catalog, atomic team formation, capacity enforcement, role management, and milestones.
+- **Courses & LMS (Sprint 5)**: Multi-module curriculum, structured lessons, rich video/text learning, and atomic lesson progress tracking.
+- **Achievements & Notifications (Sprint 6)**: Criteria-driven gamification, unlockable badges, points, and real-time in-app notification center.
+- **Admin Control Center & Analytics (Sprint 7)**: Platform KPI dashboard, member moderation, domain analytics, append-only audit logging, and secure data exports.
+- **AI Intelligence Layer (Sprint 8)**: Grounded multi-domain search, course/event recommendations, skill gap analysis, and student AI assistant with privacy isolation.
+- **Production Hardening & Operations (Sprint 9)**: End-to-end request tracing (`X-Request-Id`), OWASP ASVS baseline, Helmet CSP headers, multi-tier rate limiting, composite index optimization, multi-stage Docker containerization, and GitHub Actions CI/CD.
+
+---
+
+## 2. Technology Stack
 
 ### Frontend
-
 - **Framework**: React 19 + TypeScript + Vite 8
 - **Routing**: React Router 7
 - **Icons & Styling**: Lucide React + Tailored Vanilla CSS Design Tokens (Dark Theme, Glassmorphism)
 - **State Management**: React Context (`AuthProvider`) with centralized session synchronization
 - **HTTP Client**: Centralized `apiClient` with automatic token injection and typed errors
 
-### Backend
-
-- **Runtime**: Node.js + Express 5 + TypeScript (`tsx` / `tsc`)
-- **Database**: PostgreSQL 15 via `pg.Pool`
+### Backend API
+- **Runtime**: Node.js 20 LTS + Express 5 + TypeScript
+- **Database**: PostgreSQL 15 via `pg.Pool` with connection pooling
 - **Authentication**: JWT (`jsonwebtoken`) + Secure Password Hashing (`bcrypt`)
 - **Validation**: Schema-driven validation with `zod`
-- **Security**: `helmet`, `cors`, and `express-rate-limit`
+- **Security**: `helmet` (CSP, HSTS), `cors`, and `express-rate-limit`
+- **Tracing**: Request ID correlation (`X-Request-Id`) across all HTTP lifecycles and structured logs
 
 ---
 
-## 2. Architecture Overview
-
-The system strictly adheres to a layered architecture:
+## 3. Architecture Blueprint
 
 ```text
-React Frontend
-  └── Context (AuthProvider)
-      └── Central API Client (src/api/client.ts)
-          └── HTTP / JSON
-              └── Express Routers & Middlewares (auth, rate limiting, error handling)
-                  └── Controllers (src/controllers/)
-                      └── Services (src/services/)
-                          └── Repositories (src/repositories/)
-                              └── PostgreSQL 15 Pool
+React 19 Frontend SPA (Nginx / Vite)
+  └── Reverse Proxy / API Gateway
+      └── Express 5 API Server (Node 20)
+          ├── Request ID Correlation (X-Request-Id)
+          ├── Helmet CSP & Security Headers
+          ├── Strict CORS Validation
+          ├── Rate Limiting (Auth, AI, Export, General APIs)
+          ├── Zod Schema Validation
+          ├── JWT Authentication & RBAC Guards
+          └── Domain Services (Auth, Events, Projects, LMS, Badges, Admin, AI)
+              └── Parameterized SQL Repositories
+                  └── PostgreSQL 15 Relational Database
 ```
 
 Detailed architectural blueprints are available in [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 
 ---
 
-## 3. Prerequisites
+## 4. Local Development Setup
 
-- **Node.js**: v18.0.0+ (Tested on v24)
-- **npm**: v9.0.0+
-- **PostgreSQL**: v14+ (Local installation or Docker)
+### 4.1 Prerequisites
+- **Node.js**: `v20.x LTS`
+- **PostgreSQL**: `v15.x` (Local installation or Docker)
+- **Docker & Docker Compose**: (Optional, for containerized run)
 
----
-
-## 4. Environment Setup
-
-### Frontend Environment
-
-Create `.env` in the project root:
-
+### 4.2 Installation
 ```bash
+# Clone the repository
+git clone https://github.com/padmanabhansb08/AI-CLUB.git
+cd AI-CLUB
+
+# Install root dependencies
+npm ci
+
+# Install server dependencies
+cd server && npm ci && cd ..
+```
+
+### 4.3 Environment Configuration
+```bash
+# Frontend environment
 cp .env.example .env
-```
 
-Default contents:
-
-```ini
-VITE_API_URL=http://localhost:5000/api
-```
-
-### Backend Environment
-
-Create `server/.env`:
-
-```bash
+# Backend server environment
 cp server/.env.example server/.env
 ```
 
-Default contents:
-
-```ini
-NODE_ENV=development
-PORT=5000
-DATABASE_URL=postgresql://aiclub:aiclub_password@localhost:5432/aiclub_db
-JWT_SECRET=replace_with_secure_secret
-JWT_EXPIRES_IN=7d
-CORS_ORIGIN=http://localhost:5173
-```
-
----
-
-## 5. Database Setup & Initialization
-
-### Option A: Using Docker Compose
-
+### 4.4 Database Initialization
 ```bash
-docker compose up -d
-```
+# Option A: Start PostgreSQL container
+docker compose up -d db
 
-### Option B: Using Local PostgreSQL
-
-Ensure a PostgreSQL instance is running on port `5432` with user `aiclub`, password `aiclub_password`, and database `aiclub_db`.
-
-### Run Migrations & Seeds
-
-```bash
-# Apply all tracked database migrations
+# Option B: Run database migrations and seeds
 npm run db:migrate
-
-# Seed development accounts and sample data
 npm run db:seed
 ```
 
 #### Pre-seeded Development Accounts
-
-| Role | Email | Password | Details |
+| Role | Email | Password | Purpose |
 | :--- | :--- | :--- | :--- |
-| **Administrator** | `admin@aiclub.com` | `admin123` | Operations & Admin Portal |
-| **Student** | `student@aiclub.com` | `student123` | Rahul Sharma (`21BCE1001`, CSE, Year 3, Sec A) |
+| **Administrator** | `admin@aiclub.com` | `admin123` | Operations, Moderation & Admin Portal |
+| **Student** | `student@aiclub.com` | `student123` | Primary student testing account |
 
----
-
-## 6. Running the Application
-
-### Start Backend API Server (Port 5000)
-
+### 4.5 Start Applications
 ```bash
-cd server
-npm run dev
-```
+# Start backend API (Port 5000)
+cd server && npm run dev
 
-Verify backend health:
-
-```bash
-curl http://localhost:5000/api/health
-```
-
-### Start Frontend Application (Port 5173)
-
-From project root:
-
-```bash
+# Start frontend development server (Port 5173) in a new terminal
 npm run dev
 ```
 
 ---
 
-## 7. Running Tests & Quality Verification
+## 5. Automated Testing & Verification
 
-### Run Automated Integration & Auth Tests
-
-```bash
-npm run test
-```
-
-The test suite validates (33 tests across 10 suites):
-
-- API health and database connectivity
-- Zod request validation (email format, password min length, missing fields)
-- User registration and atomic profile transactions
-- Duplicate email & register number conflict rejection (`409 Conflict`)
-- Valid and invalid login attempts
-- Authenticated and unauthenticated `GET /api/auth/me`
-- Logout flow
-- Role-based authorization (`admin` vs `student` access control)
-- Student Profile & weighted Profile Completion calculation
-- Normalized skills catalog & member proficiencies (`BEGINNER` to `EXPERT`)
-- Structured technical interests catalog & member selection
-- Personalized student dashboard with real database stats & chronological activity feed
-- Member directory search by skill/name, filtering, pagination, and sanitized public profiles
-- Server-enforced profile ownership (students cannot tamper with another member profile)
-
-### Run Type Checking
+The test suite contains **205 automated tests across 64 suites (100% pass rate)** validating core domain logic, security protections, and edge cases:
 
 ```bash
+# Run all tests
+npm test
+
+# Run type checks
 npm run typecheck
-```
+npm --prefix server run typecheck
 
-### Build for Production
-
-```bash
+# Run production build validation
 npm run build
+npm --prefix server run build
 ```
 
 ---
 
-## 8. Documentation
+## 6. Production Deployment & Containers
 
-- [System Architecture](docs/ARCHITECTURE.md): Comprehensive system design and layer breakdown.
-- [API Specification](docs/API.md): Standard response envelopes, auth endpoints, and error codes.
-- [Database Guide](docs/DATABASE.md): Schema, relationships, migrations, and indexing strategy.
-- [Sprint 1 Audit Report](docs/SPRINT_1_AUDIT.md): Initial audit findings, security remediation, and changes.
+AI CLUB is fully containerized with multi-stage, non-root Docker configurations.
+
+```bash
+# Build and run complete production stack (Database, API, Frontend)
+docker compose up -d --build
+
+# Verify liveness & readiness probes
+curl http://localhost:5000/health
+curl http://localhost:5000/ready
+```
+
+See [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) for Kubernetes and cloud production deployment runbooks.
+
+---
+
+## 7. Documentation Index
+
+- [System Architecture](docs/ARCHITECTURE.md): Complete architecture diagram and layer breakdown.
+- [Security Policy](docs/SECURITY.md): OWASP ASVS baseline, RBAC matrix, and threat modeling.
+- [Deployment Guide](docs/DEPLOYMENT.md): Container deployment, zero-downtime migrations, and rollbacks.
+- [Incident Response](docs/INCIDENT_RESPONSE.md): Disaster recovery runbooks and severity classification.
+- [Technical Debt](docs/TECHNICAL_DEBT.md): Prioritized engineering debt ledger.
+- [Release Notes](docs/RELEASE_NOTES.md): v1.0.0 feature summary and verification metrics.
+- [Changelog](CHANGELOG.md): Chronological history of platform releases.

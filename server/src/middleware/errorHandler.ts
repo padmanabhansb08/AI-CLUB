@@ -2,7 +2,6 @@ import { Request, Response, NextFunction } from 'express';
 import { ZodError } from 'zod';
 import {
   AppError,
-  ValidationError,
   BadRequestError,
   UnauthorizedError,
   ForbiddenError,
@@ -63,6 +62,8 @@ export const errorHandler = (
   res: Response,
   next: NextFunction
 ) => {
+  const reqId = req.id || 'req_unknown';
+
   // 1. Zod Validation Error
   if (err instanceof ZodError) {
     const formattedDetails = err.issues.map((issue) => ({
@@ -75,6 +76,7 @@ export const errorHandler = (
       error: {
         code: 'VALIDATION_ERROR',
         message: 'Invalid request',
+        requestId: reqId,
         details: formattedDetails,
       },
     });
@@ -87,6 +89,7 @@ export const errorHandler = (
       error: {
         code: err.code,
         message: err.message,
+        requestId: reqId,
         details: err.details || {},
       },
     });
@@ -118,6 +121,7 @@ export const errorHandler = (
       error: {
         code,
         message,
+        requestId: reqId,
         details: {},
       },
     });
@@ -130,38 +134,54 @@ export const errorHandler = (
       error: {
         code: 'FOREIGN_KEY_VIOLATION',
         message: 'Referenced resource does not exist',
+        requestId: reqId,
         details: {},
       },
     });
   }
 
-  // 5. Common Auth String Errors
+  // 5. PostgreSQL Not-Null Constraint Violation
+  if (err.code === '23502') {
+    return res.status(400).json({
+      success: false,
+      error: {
+        code: 'BAD_REQUEST',
+        message: 'Missing required database field',
+        requestId: reqId,
+        details: {},
+      },
+    });
+  }
+
+  // 6. Common Auth String Errors
   if (err.message === 'Invalid credentials') {
     return res.status(401).json({
       success: false,
       error: {
         code: 'UNAUTHORIZED',
         message: 'Invalid credentials',
+        requestId: reqId,
         details: {},
       },
     });
   }
 
-  // 6. Generic/Legacy errors with status property
+  // 7. Generic/Legacy errors with status property
   if (typeof err.status === 'number') {
     return res.status(err.status).json({
       success: false,
       error: {
         code: err.code || 'API_ERROR',
         message: err.message || 'An error occurred',
+        requestId: reqId,
         details: err.details || {},
       },
     });
   }
 
-  // 7. Unknown Internal Errors
+  // 8. Unknown Internal Errors (Sanitize for production)
   if (config.NODE_ENV !== 'test') {
-    console.error('[Unhandled Error]', {
+    console.error(`[Unhandled Error] [${reqId}]`, {
       name: err.name,
       message: err.message,
       stack: config.NODE_ENV === 'development' ? err.stack : undefined,
@@ -173,7 +193,8 @@ export const errorHandler = (
     error: {
       code: 'INTERNAL_SERVER_ERROR',
       message: 'An unexpected internal error occurred',
-      details: {},
+      requestId: reqId,
+      details: config.NODE_ENV === 'development' ? { message: err.message } : {},
     },
   });
 };
@@ -184,6 +205,7 @@ export const notFoundHandler = (req: Request, res: Response, next: NextFunction)
     error: {
       code: 'NOT_FOUND',
       message: `Route not found: ${req.method} ${req.path}`,
+      requestId: req.id || 'req_unknown',
       details: {},
     },
   });
