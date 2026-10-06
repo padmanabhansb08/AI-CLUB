@@ -31,9 +31,13 @@ import { AnnouncementDetail } from './pages/AnnouncementDetail';
 import { Notifications } from './pages/Notifications';
 import { AIAssistant } from './pages/AIAssistant';
 import { Settings } from './pages/Settings';
+import { ApplicationHub } from './pages/ApplicationHub';
+import { AssessmentTest } from './pages/AssessmentTest';
 
 // Admin Pages
 import { AdminOverview } from './pages/admin/AdminOverview';
+import { AdminApplications } from './pages/admin/AdminApplications';
+import { AdminApplicationDetail } from './pages/admin/AdminApplicationDetail';
 import { AdminAIInsights } from './pages/admin/AdminAIInsights';
 import { AdminMembers } from './pages/admin/AdminMembers';
 import { AdminMemberDetail } from './pages/admin/AdminMemberDetail';
@@ -100,8 +104,13 @@ function App() {
               <Route path="/notifications" element={<RoleGuard allowedRole="student"><Notifications /></RoleGuard>} />
               <Route path="/ai-assistant" element={<RoleGuard allowedRole="student"><AIAssistant /></RoleGuard>} />
               <Route path="/settings" element={<RoleGuard allowedRole="student"><Settings /></RoleGuard>} />
+              <Route path="/application" element={<RoleGuard allowedRole="student"><ApplicationHub /></RoleGuard>} />
+              <Route path="/application/test" element={<RoleGuard allowedRole="student"><AssessmentTest /></RoleGuard>} />
+              <Route path="/application/status" element={<RoleGuard allowedRole="student"><ApplicationHub /></RoleGuard>} />
 
               {/* Protected Admin Routes */}
+              <Route path="/admin/applications" element={<RoleGuard allowedRole="admin" redirectTo="/admin/login"><AdminApplications /></RoleGuard>} />
+              <Route path="/admin/applications/:id" element={<RoleGuard allowedRole="admin" redirectTo="/admin/login"><AdminApplicationDetail /></RoleGuard>} />
               <Route path="/admin/ai-insights" element={<RoleGuard allowedRole="admin" redirectTo="/admin/login"><AdminAIInsights /></RoleGuard>} />
               <Route path="/admin/members" element={<RoleGuard allowedRole="admin" redirectTo="/admin/login"><AdminMembers /></RoleGuard>} />
               <Route path="/admin/members/:id" element={<RoleGuard allowedRole="admin" redirectTo="/admin/login"><AdminMemberDetail /></RoleGuard>} />

@@ -48,12 +48,26 @@ export const authService = {
 
       const memRes = await client.query(
         `INSERT INTO members (
-          user_id, full_name, register_number, department, class_section, year, college_email, phone
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+          user_id, full_name, register_number, department, class_section, year, college_email, phone, status
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'Applicant')
         RETURNING id, full_name as "fullName", register_number as "registerNumber", department, class_section as "classSection", year, college_email as "collegeEmail", phone, status`,
         [user.id, data.fullName, data.registerNumber, data.department, data.classSection, data.year, collegeEmail, data.phone || null]
       );
       const member = memRes.rows[0];
+
+      // Create initial membership application
+      const year = new Date().getFullYear();
+      const randomPart = Math.floor(100000 + Math.random() * 900000);
+      const appNumber = `AIC-${year}-${randomPart}`;
+
+      const appRes = await client.query(
+        `INSERT INTO membership_applications (
+          user_id, member_id, application_number, status
+        ) VALUES ($1, $2, $3, 'TEST_REQUIRED')
+        RETURNING id, application_number as "applicationNumber", status as "applicationStatus"`,
+        [user.id, member.id, appNumber]
+      );
+      const app = appRes.rows[0];
 
       await client.query('COMMIT');
 
@@ -79,6 +93,11 @@ export const authService = {
           collegeEmail: member.collegeEmail,
           phone: member.phone,
           status: member.status,
+          membershipStatus: 'NONE',
+          isClubMember: false,
+          applicationId: app.id,
+          applicationNumber: app.applicationNumber,
+          applicationStatus: app.applicationStatus,
         },
       };
     } catch (err) {
@@ -108,6 +127,15 @@ export const authService = {
 
     // Fetch member details if student
     let memberData: any = {};
+    let membershipInfo = {
+      membershipStatus: user.role === 'admin' || user.role === 'super_admin' ? 'ACTIVE' : 'NONE',
+      isClubMember: user.role === 'admin' || user.role === 'super_admin',
+      memberNumber: null as string | null,
+      applicationId: null as string | null,
+      applicationNumber: null as string | null,
+      applicationStatus: null as string | null,
+    };
+
     if (user.role === 'student') {
       const memRes = await pool.query(
         `SELECT id, full_name as "fullName", register_number as "registerNumber", 
@@ -118,6 +146,27 @@ export const authService = {
       );
       if (memRes.rowCount && memRes.rowCount > 0) {
         memberData = memRes.rows[0];
+      }
+
+      const cmRes = await pool.query(
+        `SELECT member_number as "memberNumber", status FROM club_memberships WHERE user_id = $1`,
+        [user.id]
+      );
+      if (cmRes.rowCount && cmRes.rowCount > 0 && cmRes.rows[0].status === 'ACTIVE') {
+        membershipInfo.membershipStatus = 'ACTIVE';
+        membershipInfo.isClubMember = true;
+        membershipInfo.memberNumber = cmRes.rows[0].memberNumber;
+      }
+
+      const appRes = await pool.query(
+        `SELECT id, application_number as "applicationNumber", status as "applicationStatus"
+         FROM membership_applications WHERE user_id = $1 ORDER BY created_at DESC LIMIT 1`,
+        [user.id]
+      );
+      if (appRes.rowCount && appRes.rows[0]) {
+        membershipInfo.applicationId = appRes.rows[0].id;
+        membershipInfo.applicationNumber = appRes.rows[0].applicationNumber;
+        membershipInfo.applicationStatus = appRes.rows[0].applicationStatus;
       }
     }
 
@@ -129,6 +178,7 @@ export const authService = {
         email: user.email,
         role: user.role,
         ...memberData,
+        ...membershipInfo,
       },
     };
   },
@@ -140,6 +190,15 @@ export const authService = {
     }
 
     let memberData: any = {};
+    let membershipInfo = {
+      membershipStatus: user.role === 'admin' || user.role === 'super_admin' ? 'ACTIVE' : 'NONE',
+      isClubMember: user.role === 'admin' || user.role === 'super_admin',
+      memberNumber: null as string | null,
+      applicationId: null as string | null,
+      applicationNumber: null as string | null,
+      applicationStatus: null as string | null,
+    };
+
     if (user.role === 'student') {
       const memRes = await pool.query(
         `SELECT id, full_name as "fullName", register_number as "registerNumber", 
@@ -151,6 +210,27 @@ export const authService = {
       if (memRes.rowCount && memRes.rowCount > 0) {
         memberData = memRes.rows[0];
       }
+
+      const cmRes = await pool.query(
+        `SELECT member_number as "memberNumber", status FROM club_memberships WHERE user_id = $1`,
+        [user.id]
+      );
+      if (cmRes.rowCount && cmRes.rowCount > 0 && cmRes.rows[0].status === 'ACTIVE') {
+        membershipInfo.membershipStatus = 'ACTIVE';
+        membershipInfo.isClubMember = true;
+        membershipInfo.memberNumber = cmRes.rows[0].memberNumber;
+      }
+
+      const appRes = await pool.query(
+        `SELECT id, application_number as "applicationNumber", status as "applicationStatus"
+         FROM membership_applications WHERE user_id = $1 ORDER BY created_at DESC LIMIT 1`,
+        [user.id]
+      );
+      if (appRes.rowCount && appRes.rows[0]) {
+        membershipInfo.applicationId = appRes.rows[0].id;
+        membershipInfo.applicationNumber = appRes.rows[0].applicationNumber;
+        membershipInfo.applicationStatus = appRes.rows[0].applicationStatus;
+      }
     }
 
     return {
@@ -159,6 +239,7 @@ export const authService = {
       email: user.email,
       role: user.role,
       ...memberData,
+      ...membershipInfo,
     };
   },
 };

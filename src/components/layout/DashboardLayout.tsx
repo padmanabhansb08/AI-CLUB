@@ -16,7 +16,8 @@ import {
   GraduationCap,
   Megaphone,
   Users,
-  Bot
+  Bot,
+  Award
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { NotificationBell } from '../notifications/NotificationBell';
@@ -71,8 +72,11 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, page
     navigate('/');
   };
 
+  const isMember = user?.isClubMember || user?.membershipStatus === 'ACTIVE';
+
   const navItems = [
     { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
+    { name: 'Club Application', path: '/application', icon: Award },
     { name: 'AI Assistant', path: '/ai-assistant', icon: Bot },
     { name: 'Notifications', path: '/notifications', icon: Bell },
     { name: 'Announcements', path: '/announcements', icon: Megaphone },
@@ -214,6 +218,38 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, page
 
         {/* Page Content */}
         <div className="dashboard-content">
+          {user?.role === 'student' && !isMember && (
+            <div className="mb-6 p-4 rounded-xl bg-gradient-to-r from-blue-950/60 to-slate-900 border border-blue-600/40 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-lg">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center shrink-0">
+                  <Award size={20} />
+                </div>
+                <div>
+                  <div className="text-sm font-bold text-white flex items-center gap-2">
+                    <span>AI CLUB Selection Status</span>
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-blue-500/20 text-blue-300 border border-blue-400/30">
+                      {user?.applicationStatus?.replace('_', ' ') || 'Application Active'}
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-300 mt-0.5">
+                    {user?.applicationStatus === 'TEST_REQUIRED' 
+                      ? 'You are invited to complete the 25-question technical assessment.' 
+                      : user?.applicationStatus === 'UNDER_REVIEW'
+                        ? 'Your assessment has been submitted and is currently under administrator review.'
+                        : user?.applicationStatus === 'WAITLISTED'
+                          ? 'Your application is on the waitlist. You will be notified of decisions.'
+                          : 'Complete your application to unlock official AI CLUB member privileges.'}
+                  </p>
+                </div>
+              </div>
+              <Link
+                to="/application"
+                className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition-all text-center shrink-0 shadow-sm"
+              >
+                {user?.applicationStatus === 'TEST_REQUIRED' ? 'Start Mock Test →' : 'View Application →'}
+              </Link>
+            </div>
+          )}
           {children}
         </div>
       </main>

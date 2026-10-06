@@ -163,3 +163,5 @@ export const apiClient = {
 
   getBaseUrl: () => API_BASE_URL,
 };
+
+export const client = apiClient;
