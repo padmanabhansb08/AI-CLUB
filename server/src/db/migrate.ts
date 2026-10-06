@@ -5,6 +5,8 @@ import * as m3 from './migrations/003_add_events';
 import * as m4 from './migrations/004_add_project_teams';
 import * as m5 from './migrations/005_add_announcements';
 import * as m6 from './migrations/006_sprint2_skills_interests_profile';
+import * as m7 from './migrations/007_sprint3_events_registration_attendance';
+import * as m8 from './migrations/008_sprint4_projects_teams_collaboration';
 
 interface Migration {
   name: string;
@@ -19,6 +21,8 @@ const MIGRATIONS: Migration[] = [
   { name: '004_add_project_teams', up: m4.up, down: m4.down },
   { name: '005_add_announcements', up: m5.up, down: m5.down },
   { name: '006_sprint2_skills_interests_profile', up: m6.up, down: m6.down },
+  { name: '007_sprint3_events_registration_attendance', up: m7.up, down: m7.down },
+  { name: '008_sprint4_projects_teams_collaboration', up: m8.up, down: m8.down },
 ];
 
 export async function runMigrations() {

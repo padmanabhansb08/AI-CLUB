@@ -110,17 +110,113 @@ export const profileUpdateSchema = z.object({
   interests: z.array(z.string().max(100)).max(30).optional(),
 });
 
-export const eventSchema = z.object({
-  title: z.string().min(2),
-  description: z.string().min(2),
-  event_type: z.string().min(2),
-  start_at: z.string().datetime(),
-  end_at: z.string().datetime(),
-  location: z.string().optional(),
-  meeting_url: z.string().url().optional().or(z.literal('')),
-  organizer: z.string().optional(),
-  capacity: z.number().int().positive().optional().nullable(),
-  status: z.enum(['draft', 'published', 'cancelled', 'completed']),
-  registration_open_at: z.string().datetime().optional().nullable(),
-  registration_close_at: z.string().datetime().optional().nullable(),
+export const VALID_EVENT_TYPES = [
+  'WORKSHOP',
+  'WEBINAR',
+  'HACKATHON',
+  'COMPETITION',
+  'MEETUP',
+  'BOOTCAMP',
+  'SEMINAR',
+  'GUEST_LECTURE',
+  'CLUB_MEETING',
+  'OTHER',
+] as const;
+
+export const eventSchema = z
+  .object({
+    title: z.string().trim().min(2, 'Title must be at least 2 characters').max(255, 'Title must not exceed 255 characters'),
+    description: z.string().trim().min(2, 'Description must be at least 2 characters').max(5000, 'Description must not exceed 5000 characters'),
+    event_type: z
+      .string()
+      .trim()
+      .transform((val) => val.toUpperCase())
+      .refine(
+        (val) => VALID_EVENT_TYPES.includes(val as any),
+        { message: `Invalid event type. Must be one of: ${VALID_EVENT_TYPES.join(', ')}` }
+      ),
+    start_at: z.string().datetime({ message: 'Start date must be a valid ISO datetime' }),
+    end_at: z.string().datetime({ message: 'End date must be a valid ISO datetime' }),
+    location: z.string().max(255).optional().nullable(),
+    meeting_url: z.string().url('Meeting URL must be a valid URL').optional().or(z.literal('')).nullable(),
+    organizer: z.string().max(255).optional().nullable(),
+    capacity: z.coerce.number().int('Capacity must be an integer').min(1, 'Capacity must be at least 1').optional().nullable(),
+    status: z.enum(['draft', 'published', 'cancelled', 'completed']).default('draft'),
+    registration_open_at: z.string().datetime({ message: 'Registration open must be a valid ISO datetime' }).optional().nullable(),
+    registration_close_at: z.string().datetime({ message: 'Registration close must be a valid ISO datetime' }).optional().nullable(),
+    cancellation_reason: z.string().max(500).optional().nullable(),
+  })
+  .superRefine((data, ctx) => {
+    const start = new Date(data.start_at).getTime();
+    const end = new Date(data.end_at).getTime();
+
+    if (start >= end) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Start date/time must be strictly before end date/time',
+        path: ['end_at'],
+      });
+    }
+
+    if (data.registration_open_at && data.registration_close_at) {
+      const regOpen = new Date(data.registration_open_at).getTime();
+      const regClose = new Date(data.registration_close_at).getTime();
+      if (regOpen >= regClose) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Registration open time must be strictly before registration close time',
+          path: ['registration_close_at'],
+        });
+      }
+    }
+
+    if (data.registration_close_at) {
+      const regClose = new Date(data.registration_close_at).getTime();
+      if (regClose > start) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Registration close time cannot be after event starts',
+          path: ['registration_close_at'],
+        });
+      }
+    }
+
+    // Require location or meeting URL
+    const hasLocation = data.location && data.location.trim().length > 0;
+    const hasMeetingUrl = data.meeting_url && data.meeting_url.trim().length > 0;
+    if (!hasLocation && !hasMeetingUrl) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Either location (for physical events) or meeting URL (for online events) is required',
+        path: ['location'],
+      });
+    }
+  });
+
+export const eventCancelSchema = z.object({
+  reason: z.string().trim().min(2, 'Cancellation reason is required and must be at least 2 characters').max(500),
 });
+
+export const eventCompleteSchema = z.object({
+  force: z.boolean().optional(),
+});
+
+export const attendanceRecordItemSchema = z.object({
+  memberId: z.string().uuid('Invalid member ID'),
+  status: z.enum(['PRESENT', 'ABSENT', 'LATE', 'present', 'absent', 'late']).transform(s => s.toUpperCase() as 'PRESENT' | 'ABSENT' | 'LATE'),
+});
+
+export const markAttendanceSchema = z.object({
+  records: z.array(attendanceRecordItemSchema).min(1, 'At least one attendance record is required'),
+});
+
+export const bulkAttendanceSchema = z.object({
+  memberIds: z.array(z.string().uuid('Invalid member ID')).min(1, 'At least one student must be selected'),
+  status: z.enum(['PRESENT', 'ABSENT', 'LATE', 'present', 'absent', 'late']).default('PRESENT').transform(s => s.toUpperCase() as 'PRESENT' | 'ABSENT' | 'LATE'),
+});
+
+export const checkInSchema = z.object({
+  memberId: z.string().uuid('Invalid member ID'),
+  status: z.enum(['PRESENT', 'ABSENT', 'LATE', 'present', 'absent', 'late']).default('PRESENT').transform(s => s.toUpperCase() as 'PRESENT' | 'ABSENT' | 'LATE'),
+});
+

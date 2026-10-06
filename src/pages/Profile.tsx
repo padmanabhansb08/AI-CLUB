@@ -320,6 +320,10 @@ export const Profile: React.FC = () => {
                   <span className="text-gray-500">Status</span>
                   <span className="text-green-400 font-medium">{profile.status}</span>
                 </div>
+                <div className="flex justify-between pt-1">
+                  <span className="text-gray-500">Events Attended</span>
+                  <span className="text-emerald-400 font-semibold font-mono">{profile.eventsAttended ?? 0}</span>
+                </div>
               </div>
 
               {/* Social Links */}

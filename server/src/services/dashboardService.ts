@@ -29,6 +29,7 @@ export interface DashboardData {
   recentProjects: any[];
   recentAchievements: any[];
   recentActivity: ActivityItem[];
+  upcomingEvents?: any[];
 }
 
 export const dashboardService = {
@@ -50,6 +51,7 @@ export const dashboardService = {
       announcementsRes,
       recentProjectsRes,
       recentAchievementsRes,
+      upcomingEventsRes,
     ] = await Promise.all([
       // Student's projects
       query('SELECT COUNT(*) as count FROM project_interests WHERE member_id = $1', [memberId]),
@@ -107,6 +109,34 @@ export const dashboardService = {
         FROM achievements a
         ORDER BY a.date DESC NULLS LAST
         LIMIT 3
+      `, [memberId]),
+      // Upcoming Events with student registration status
+      query(`
+        SELECT 
+          e.id, 
+          e.title, 
+          e.event_type as "eventType", 
+          e.start_at as "startAt", 
+          e.end_at as "endAt", 
+          e.location,
+          e.meeting_url as "meetingUrl",
+          e.capacity,
+          (
+            SELECT COUNT(*)::int 
+            FROM event_registrations er 
+            WHERE er.event_id = e.id 
+              AND er.status IN ('REGISTERED', 'registered', 'ATTENDED', 'attended')
+          ) as "registrationCount",
+          EXISTS(
+            SELECT 1 FROM event_registrations er 
+            WHERE er.event_id = e.id 
+              AND er.member_id = $1 
+              AND er.status IN ('REGISTERED', 'registered', 'ATTENDED', 'attended')
+          ) as "isRegistered"
+        FROM events e
+        WHERE e.status = 'published' AND e.start_at > CURRENT_TIMESTAMP
+        ORDER BY e.start_at ASC
+        LIMIT 4
       `, [memberId]),
     ]);
 
@@ -239,6 +269,7 @@ export const dashboardService = {
       recentProjects: recentProjectsRes.rows,
       recentAchievements: recentAchievementsRes.rows,
       recentActivity: activityList.slice(0, 5),
+      upcomingEvents: upcomingEventsRes.rows,
     };
   },
 };

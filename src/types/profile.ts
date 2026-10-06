@@ -44,6 +44,7 @@ export interface MemberProfile {
   createdAt: string;
   updatedAt: string;
   profileCompletion: ProfileCompletion;
+  eventsAttended?: number;
 }
 
 export interface ProfileUpdatePayload {

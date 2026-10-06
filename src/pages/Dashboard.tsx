@@ -38,7 +38,16 @@ export const Dashboard: React.FC = () => {
     );
   }
 
-  const { profile, profileCompletion, stats, announcements, recentProjects, recentAchievements, recentActivity } = data;
+  const { 
+    profile, 
+    profileCompletion, 
+    stats, 
+    announcements, 
+    recentProjects, 
+    recentAchievements, 
+    recentActivity,
+    upcomingEvents = [] 
+  } = data;
 
   // Determine time-of-day greeting
   const hour = new Date().getHours();
@@ -366,6 +375,52 @@ export const Dashboard: React.FC = () => {
                       <span className="text-[11px] text-gray-500">{ach.studentName}</span>
                     </div>
                   ))}
+                </div>
+              )}
+            </div>
+
+            {/* Upcoming Events Card */}
+            <div className="p-5 rounded-xl border border-gray-800 bg-gray-900/40 space-y-3">
+              <div className="flex items-center justify-between border-b border-gray-800 pb-3">
+                <span className="text-xs font-semibold text-gray-300 flex items-center gap-1.5">
+                  <Calendar size={14} className="text-emerald-400" /> Upcoming Events
+                </span>
+                <Link to="/events" className="text-xs text-accent hover:underline">
+                  All
+                </Link>
+              </div>
+
+              {upcomingEvents.length === 0 ? (
+                <EmptyState title="No Events" message="No upcoming events scheduled right now." />
+              ) : (
+                <div className="space-y-2">
+                  {upcomingEvents.map((ev: any) => {
+                    const evDate = new Date(ev.startAt).toLocaleDateString('en-IN', {
+                      day: 'numeric',
+                      month: 'short',
+                    });
+                    return (
+                      <div
+                        key={ev.id}
+                        onClick={() => navigate(`/events/${ev.id}`)}
+                        className="p-2.5 rounded-lg bg-gray-800/40 hover:bg-gray-800 border border-gray-800 hover:border-gray-700 cursor-pointer transition-colors flex items-center justify-between gap-2"
+                      >
+                        <div className="min-w-0 flex-1">
+                          <h5 className="text-xs font-semibold text-gray-200 truncate">{ev.title}</h5>
+                          <span className="text-[11px] text-gray-400 font-mono">{evDate} • {ev.eventType}</span>
+                        </div>
+                        {ev.isRegistered ? (
+                          <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold bg-emerald-950/80 text-emerald-300 border border-emerald-700/60 shrink-0">
+                            Registered
+                          </span>
+                        ) : (
+                          <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold bg-gray-700 text-gray-300 hover:bg-emerald-600 hover:text-black shrink-0 transition-colors">
+                            Register
+                          </span>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </div>

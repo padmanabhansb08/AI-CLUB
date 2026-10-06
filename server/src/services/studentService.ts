@@ -28,6 +28,7 @@ export interface StudentProfileData {
   createdAt: string;
   updatedAt: string;
   profileCompletion: ProfileCompletionResult;
+  eventsAttended?: number;
   member?: any;
 }
 
@@ -75,13 +76,18 @@ export const studentService = {
     const memberId = member.id;
 
     // Fetch normalized skills & interests in parallel
-    const [normalizedSkills, normalizedInterests] = await Promise.all([
+    const [normalizedSkills, normalizedInterests, attendanceRes] = await Promise.all([
       skillRepository.getMemberSkills(memberId),
       interestRepository.getMemberInterests(memberId),
+      query(
+        `SELECT COUNT(*)::int as count FROM event_attendance WHERE member_id = $1 AND status IN ('PRESENT', 'present', 'LATE', 'late')`,
+        [memberId]
+      ),
     ]);
 
     member.normalizedSkills = normalizedSkills;
     member.normalizedInterests = normalizedInterests;
+    member.eventsAttended = parseInt(attendanceRes.rows[0]?.count || '0', 10);
 
     // Use normalized names if available, or fall back to array
     if (normalizedSkills.length > 0) {

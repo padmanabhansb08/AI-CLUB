@@ -1,69 +1,91 @@
-import { apiClient } from '../../api/client';
+import { eventsApi } from '../../api/events.api';
+import type { EventItem, StudentRegistrationItem } from '../../types/events';
 
-export interface EventType {
-  id: string;
-  title: string;
-  description: string;
-  event_type: string;
-  start_at: string;
-  end_at: string;
-  location?: string;
-  meeting_url?: string;
-  organizer?: string;
-  capacity?: number;
-  status: 'draft' | 'published' | 'cancelled' | 'completed';
-  registration_open_at?: string;
-  registration_close_at?: string;
-  created_at: string;
-  updated_at: string;
-  registration_count?: string | number;
-  currentStudentRegistrationStatus?: 'registered' | 'unregistered';
-}
+export type EventType = EventItem;
 
 export const eventService = {
   // Public / Student
   async getEvents(page = 1, limit = 10, filters: any = {}) {
-    return apiClient.get<any>('/events', { params: { page, limit, ...filters } });
+    return eventsApi.getEvents({ page, limit, ...filters });
   },
 
-  async getEventById(id: string): Promise<EventType> {
-    return apiClient.get<EventType>(`/events/${id}`);
+  async getEventById(id: string): Promise<EventItem> {
+    return eventsApi.getEventById(id);
   },
 
   async register(id: string) {
-    return apiClient.post(`/me/events/${id}/register`);
+    return eventsApi.register(id);
+  },
+
+  async cancelRegistration(id: string, reason?: string) {
+    return eventsApi.cancelRegistration(id, reason);
   },
 
   async unregister(id: string) {
-    return apiClient.post(`/me/events/${id}/unregister`);
+    return eventsApi.cancelRegistration(id);
   },
 
-  async getMyRegistrations() {
-    return apiClient.get<any>('/me/events/registrations');
+  async getMyRegistrations(): Promise<StudentRegistrationItem[]> {
+    return eventsApi.getMyRegistrations();
   },
 
   // Admin
   async getAdminEvents(page = 1, limit = 10, filters: any = {}) {
-    return apiClient.get<any>('/admin/events', { params: { page, limit, ...filters } });
+    return eventsApi.getAdminEvents({ page, limit, ...filters });
   },
 
-  async getAdminEventById(id: string): Promise<EventType> {
-    return apiClient.get<EventType>(`/admin/events/${id}`);
+  async getAdminEventById(id: string): Promise<EventItem> {
+    return eventsApi.getAdminEventById(id);
   },
 
-  async createEvent(data: Partial<EventType>) {
-    return apiClient.post<any>('/admin/events', data);
+  async createEvent(data: Partial<EventItem>) {
+    return eventsApi.createEvent(data);
   },
 
-  async updateEvent(id: string, data: Partial<EventType>) {
-    return apiClient.patch<any>(`/admin/events/${id}`, data);
+  async updateEvent(id: string, data: Partial<EventItem>) {
+    return eventsApi.updateEvent(id, data);
+  },
+
+  async publishEvent(id: string) {
+    return eventsApi.publishEvent(id);
+  },
+
+  async cancelEvent(id: string, reason: string) {
+    return eventsApi.cancelEvent(id, reason);
+  },
+
+  async completeEvent(id: string, force = false) {
+    return eventsApi.completeEvent(id, force);
   },
 
   async deleteEvent(id: string) {
-    return apiClient.delete(`/admin/events/${id}`);
+    return eventsApi.deleteEvent(id);
   },
 
-  async getRegistrations(id: string) {
-    return apiClient.get<any>(`/admin/events/${id}/registrations`);
+  async getRegistrations(id: string, search?: string) {
+    return eventsApi.getRegistrations(id, search);
+  },
+
+  async getAttendance(id: string) {
+    return eventsApi.getAttendance(id);
+  },
+
+  async markAttendance(
+    id: string,
+    records: Array<{ memberId: string; status: 'PRESENT' | 'ABSENT' | 'LATE' }>
+  ) {
+    return eventsApi.markAttendance(id, records);
+  },
+
+  async bulkMarkAttendance(
+    id: string,
+    memberIds: string[],
+    status: 'PRESENT' | 'ABSENT' | 'LATE'
+  ) {
+    return eventsApi.bulkMarkAttendance(id, memberIds, status);
+  },
+
+  async checkIn(id: string, memberId: string, status: 'PRESENT' | 'ABSENT' | 'LATE' = 'PRESENT') {
+    return eventsApi.checkIn(id, memberId, status);
   },
 };

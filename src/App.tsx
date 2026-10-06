@@ -23,6 +23,7 @@ import { Members } from './pages/Members';
 import { MemberDetail } from './pages/MemberDetail';
 import Events from './pages/Events';
 import EventDetail from './pages/EventDetail';
+import MyEvents from './pages/MyEvents';
 import { Announcements } from './pages/Announcements';
 import { AnnouncementDetail } from './pages/AnnouncementDetail';
 
@@ -73,6 +74,7 @@ function App() {
               <Route path="/members" element={<RoleGuard allowedRole="student"><Members /></RoleGuard>} />
               <Route path="/members/:id" element={<RoleGuard allowedRole="student"><MemberDetail /></RoleGuard>} />
               <Route path="/events" element={<RoleGuard allowedRole="student"><Events /></RoleGuard>} />
+              <Route path="/events/my" element={<RoleGuard allowedRole="student"><MyEvents /></RoleGuard>} />
               <Route path="/events/:id" element={<RoleGuard allowedRole="student"><EventDetail /></RoleGuard>} />
               <Route path="/announcements" element={<RoleGuard allowedRole="student"><Announcements /></RoleGuard>} />
               <Route path="/announcements/:id" element={<RoleGuard allowedRole="student"><AnnouncementDetail /></RoleGuard>} />

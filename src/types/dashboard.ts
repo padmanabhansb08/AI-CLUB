@@ -28,4 +28,5 @@ export interface DashboardData {
   recentProjects: any[];
   recentAchievements: any[];
   recentActivity: ActivityItem[];
+  upcomingEvents?: any[];
 }

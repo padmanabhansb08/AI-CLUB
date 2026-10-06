@@ -29,7 +29,9 @@ router.get('/courses/progress', courseController.getProgress);
 // Events
 router.get('/events/registrations', studentEventController.getMyRegistrations);
 router.get('/me/events/registrations', studentEventController.getMyRegistrations); // alias for backwards compatibility
+router.get('/events/:id/registration', studentEventController.getRegistration);
 router.post('/events/:id/register', studentEventController.register);
+router.delete('/events/:id/register', studentEventController.cancelRegistration);
 router.post('/events/:id/unregister', studentEventController.unregister);
 
 // Team routes

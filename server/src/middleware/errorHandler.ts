@@ -48,7 +48,17 @@ export const errorHandler = (
   // 3. PostgreSQL Unique Constraint Violation
   if (err.code === '23505') {
     let message = 'Resource already exists';
-    if (err.detail?.includes('email')) {
+    let code = 'CONFLICT';
+
+    if (
+      err.table === 'event_registrations' ||
+      err.constraint?.includes('event_registrations') ||
+      err.detail?.includes('event_registrations') ||
+      (err.detail?.includes('event_id') && err.detail?.includes('member_id'))
+    ) {
+      code = 'ALREADY_REGISTERED';
+      message = 'You are already registered for this event';
+    } else if (err.detail?.includes('email')) {
       message = 'An account with this email already exists';
     } else if (err.detail?.includes('register_number')) {
       message = 'An account with this register number already exists';
@@ -59,7 +69,7 @@ export const errorHandler = (
     return res.status(409).json({
       success: false,
       error: {
-        code: 'CONFLICT',
+        code,
         message,
         details: {},
       },
