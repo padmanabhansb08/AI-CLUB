@@ -16,6 +16,7 @@ import {
   Users
 } from 'lucide-react';
 import { announcementService } from '../../services/content/announcementService';
+import { useAuth } from '../../context/AuthContext';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -24,10 +25,12 @@ interface DashboardLayoutProps {
 
 export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, pageTitle = 'Dashboard' }) => {
   const navigate = useNavigate();
+  const { logout } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    await logout();
     navigate('/');
   };
 
@@ -50,6 +53,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, page
 
   const navItems = [
     { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
+    { name: 'Members', path: '/members', icon: Users },
     { name: 'Announcements', path: '/announcements', icon: Megaphone },
     { name: 'Achievements', path: '/achievements', icon: Trophy },
     { name: 'AI & Tech', path: '/updates', icon: Rss },

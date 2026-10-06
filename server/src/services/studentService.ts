@@ -1,38 +1,48 @@
-import { pool } from '../db';
-import { ApiError } from '../middleware/errorHandler';
+import { pool, query } from '../db';
+import { NotFoundError } from '../errors/AppError';
+import { calculateProfileCompletion, ProfileCompletionResult } from '../utils/profileCompletion';
+import { skillRepository, SkillRow } from '../repositories/skillRepository';
+import { interestRepository, InterestRow } from '../repositories/interestRepository';
 
-function calculateCompletion(member: any) {
-  let required = 0;
-  let requiredTotal = 7; // name, reg_no, dept, class, year, email, phone
-  
-  if (member.fullName) required++;
-  if (member.registerNumber) required++;
-  if (member.department) required++;
-  if (member.classSection) required++;
-  if (member.year) required++;
-  if (member.collegeEmail) required++;
-  if (member.phone) required++;
-
-  let optional = 0;
-  let optionalTotal = 5; // bio, github, linkedin, skills, interests (portfolio merged into linkedin basically or +1)
-  optionalTotal = 6; // bio, github, linkedin, portfolio, skills, interests
-
-  if (member.bio) optional++;
-  if (member.githubUrl) optional++;
-  if (member.linkedinUrl) optional++;
-  if (member.portfolioUrl) optional++;
-  if (member.skills && member.skills.length > 0) optional++;
-  if (member.technicalInterests && member.technicalInterests.length > 0) optional++;
-
-  const totalFields = requiredTotal + optionalTotal;
-  const completedFields = required + optional;
-
-  return Math.round((completedFields / totalFields) * 100);
+export interface StudentProfileData {
+  id: string;
+  userId: string;
+  fullName: string;
+  registerNumber: string;
+  department: string;
+  classSection: string;
+  year: number;
+  collegeEmail: string;
+  phone?: string;
+  bio?: string;
+  profilePhotoUrl?: string;
+  githubUrl?: string;
+  linkedinUrl?: string;
+  portfolioUrl?: string;
+  skills: string[];
+  normalizedSkills?: SkillRow[];
+  technicalInterests: string[];
+  normalizedInterests?: InterestRow[];
+  status: string;
+  joinedAt: string;
+  createdAt: string;
+  updatedAt: string;
+  profileCompletion: ProfileCompletionResult;
+  eventsAttended?: number;
+  member?: any;
 }
 
 export const studentService = {
-  getProfile: async (userId: string) => {
-    const res = await pool.query(`
+  getMemberByUserId: async (userId: string) => {
+    const res = await query('SELECT * FROM members WHERE user_id = $1', [userId]);
+    if (res.rowCount === 0) {
+      throw new NotFoundError('Student member profile not found');
+    }
+    return res.rows[0];
+  },
+
+  getProfile: async (userId: string): Promise<StudentProfileData> => {
+    const res = await query(`
       SELECT 
         m.id, 
         m.user_id as "userId", 
@@ -44,11 +54,14 @@ export const studentService = {
         m.college_email as "collegeEmail", 
         m.phone, 
         m.bio, 
+        m.profile_photo_url as "profilePhotoUrl",
         m.github_url as "githubUrl", 
         m.linkedin_url as "linkedinUrl", 
         m.portfolio_url as "portfolioUrl", 
         m.technical_interests as "technicalInterests", 
         m.skills,
+        m.status,
+        m.joined_at as "joinedAt",
         m.created_at as "createdAt",
         m.updated_at as "updatedAt"
       FROM members m
@@ -56,20 +69,59 @@ export const studentService = {
     `, [userId]);
 
     if (res.rowCount === 0) {
-      throw new ApiError('NOT_FOUND', 'Member profile not found');
+      throw new NotFoundError('Member profile not found');
     }
 
     const member = res.rows[0];
-    member.profileCompletion = calculateCompletion(member);
-    return member;
+    const memberId = member.id;
+
+    // Fetch normalized skills & interests in parallel
+    const [normalizedSkills, normalizedInterests, attendanceRes] = await Promise.all([
+      skillRepository.getMemberSkills(memberId),
+      interestRepository.getMemberInterests(memberId),
+      query(
+        `SELECT COUNT(*)::int as count FROM event_attendance WHERE member_id = $1 AND status IN ('PRESENT', 'present', 'LATE', 'late')`,
+        [memberId]
+      ),
+    ]);
+
+    member.normalizedSkills = normalizedSkills;
+    member.normalizedInterests = normalizedInterests;
+    member.eventsAttended = parseInt(attendanceRes.rows[0]?.count || '0', 10);
+
+    // Use normalized names if available, or fall back to array
+    if (normalizedSkills.length > 0) {
+      member.skills = normalizedSkills.map(s => s.name);
+    } else {
+      member.skills = member.skills || [];
+    }
+
+    if (normalizedInterests.length > 0) {
+      member.technicalInterests = normalizedInterests.map(i => i.name);
+    } else {
+      member.technicalInterests = member.technicalInterests || [];
+    }
+
+    const completion = calculateProfileCompletion(member);
+
+    return {
+      ...member,
+      profileCompletion: completion,
+      member: {
+        ...member,
+        profileCompletion: completion.percentage,
+      },
+    };
   },
 
-  updateProfile: async (userId: string, data: any) => {
-    const fields = [];
-    const values = [];
+  updateProfile: async (userId: string, data: any): Promise<StudentProfileData> => {
+    const member = await studentService.getMemberByUserId(userId);
+    const memberId = member.id;
+
+    const fields: string[] = [];
+    const values: any[] = [];
     let i = 1;
-    
-    // We only map allowed fields
+
     const allowed = [
       { key: 'fullName', col: 'full_name' },
       { key: 'department', col: 'department' },
@@ -77,11 +129,10 @@ export const studentService = {
       { key: 'year', col: 'year' },
       { key: 'phone', col: 'phone' },
       { key: 'bio', col: 'bio' },
+      { key: 'profilePhotoUrl', col: 'profile_photo_url' },
       { key: 'githubUrl', col: 'github_url' },
       { key: 'linkedinUrl', col: 'linkedin_url' },
       { key: 'portfolioUrl', col: 'portfolio_url' },
-      { key: 'skills', col: 'skills' },
-      { key: 'technicalInterests', col: 'technical_interests' }
     ];
 
     for (const field of allowed) {
@@ -92,26 +143,48 @@ export const studentService = {
       }
     }
 
-    if (fields.length === 0) {
-      return studentService.getProfile(userId);
+    // Update skills if provided
+    if (data.skills !== undefined && Array.isArray(data.skills)) {
+      await skillRepository.setMemberSkills(memberId, data.skills);
     }
 
-    fields.push(`updated_at = CURRENT_TIMESTAMP`);
+    // Update technical interests if provided
+    const interestsList = data.interests || data.technicalInterests;
+    if (interestsList !== undefined && Array.isArray(interestsList)) {
+      await interestRepository.setMemberInterests(memberId, interestsList);
+    }
 
-    values.push(userId);
-    const query = `
-      UPDATE members
-      SET ${fields.join(', ')}
-      WHERE user_id = $${i}
-      RETURNING *
-    `;
-
-    const res = await pool.query(query, values);
-    
-    if (res.rowCount === 0) {
-      throw new ApiError('NOT_FOUND', 'Member profile not found');
+    if (fields.length > 0) {
+      fields.push(`updated_at = CURRENT_TIMESTAMP`);
+      values.push(userId);
+      const queryText = `
+        UPDATE members
+        SET ${fields.join(', ')}
+        WHERE user_id = $${i}
+      `;
+      await pool.query(queryText, values);
     }
 
     return studentService.getProfile(userId);
-  }
+  },
+
+  getSkills: async (userId: string): Promise<SkillRow[]> => {
+    const member = await studentService.getMemberByUserId(userId);
+    return skillRepository.getMemberSkills(member.id);
+  },
+
+  updateSkills: async (userId: string, skills: any[]): Promise<SkillRow[]> => {
+    const member = await studentService.getMemberByUserId(userId);
+    return skillRepository.setMemberSkills(member.id, skills);
+  },
+
+  getInterests: async (userId: string): Promise<InterestRow[]> => {
+    const member = await studentService.getMemberByUserId(userId);
+    return interestRepository.getMemberInterests(member.id);
+  },
+
+  updateInterests: async (userId: string, interests: any[]): Promise<InterestRow[]> => {
+    const member = await studentService.getMemberByUserId(userId);
+    return interestRepository.setMemberInterests(member.id, interests);
+  },
 };

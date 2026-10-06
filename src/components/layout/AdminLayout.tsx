@@ -4,7 +4,7 @@ import {
   Users, Trophy, Zap, BookOpen, BarChart3, Settings, LogOut, 
   Menu, X, Bell, Search, LayoutDashboard
 } from 'lucide-react';
-import { authService } from '../../services/authService';
+import { useAuth } from '../../context/AuthContext';
 
 interface AdminLayoutProps {
   pageTitle: string;
@@ -14,10 +14,11 @@ interface AdminLayoutProps {
 export const AdminLayout: React.FC<AdminLayoutProps> = ({ pageTitle, children }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
+  const { logout } = useAuth();
 
-  const handleLogout = () => {
-    authService.logout();
-    navigate('/admin');
+  const handleLogout = async () => {
+    await logout();
+    navigate('/admin/login');
   };
 
   const navItems = [

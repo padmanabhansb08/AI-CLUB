@@ -1,87 +1,63 @@
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+import { authApi } from '../api/auth.api';
+import type { RegisterData, User } from '../api/auth.api';
 
 export const authService = {
-  login: async (email: string, password: string): Promise<any> => {
+  login: async (email: string, password: string): Promise<{ success: boolean; user?: User; error?: string }> => {
     try {
-      const res = await fetch(`${API_URL}/api/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error?.message || 'Login failed');
-      
-      localStorage.setItem('token', data.data.token);
-      localStorage.setItem('user', JSON.stringify(data.data.user));
-      return { success: true, user: data.data.user };
+      const res = await authApi.login({ email, password });
+      localStorage.setItem('token', res.token);
+      localStorage.setItem('user', JSON.stringify(res.user));
+      return { success: true, user: res.user };
     } catch (error: any) {
-      return { success: false, error: error.message };
+      return { success: false, error: error.message || 'Login failed' };
     }
   },
 
-  loginAsDemo: (role: 'student' | 'admin' = 'student') => {
-    const isStudent = role === 'student';
-    const demoUser = isStudent ? {
-      id: 'm1',
-      fullName: 'Rahul Sharma',
-      registerNumber: '21BCE1001',
-      department: 'CSE',
-      classSection: 'A',
-      year: 3,
-      collegeEmail: 'student@college.edu',
-      phone: '+91 9876543210',
-      role: 'student',
-      status: 'Active'
-    } : {
-      id: 'admin1',
-      fullName: 'Dr. A. Ramanujan',
-      email: 'admin@college.edu',
-      role: 'admin',
-      department: 'Faculty Advisor'
-    };
-
-    const token = `demo-token-${role}-${Date.now()}`;
-    localStorage.setItem('token', token);
-    localStorage.setItem('user', JSON.stringify(demoUser));
-    return { success: true, user: demoUser };
-  },
-
-  registerStudent: async (formData: any): Promise<any> => {
+  registerStudent: async (formData: any): Promise<{ success: boolean; user?: User; error?: string }> => {
     try {
-      const res = await fetch(`${API_URL}/api/auth/register`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...formData, role: 'student' })
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error?.message || 'Registration failed');
-      return { success: true };
+      const payload: RegisterData = {
+        email: formData.email,
+        password: formData.password,
+        fullName: formData.fullName,
+        registerNumber: formData.registerNumber,
+        department: formData.department,
+        classSection: formData.classSection,
+        year: parseInt(formData.year, 10),
+        collegeEmail: formData.collegeEmail || formData.email,
+        phone: formData.phone,
+      };
+
+      const res = await authApi.register(payload);
+      return { success: true, user: res.user };
     } catch (error: any) {
-      // If network fails (e.g. backend / DB offline), still simulate successful registration in demo mode
-      if (error.name === 'TypeError' || error.message.includes('fetch')) {
-        console.warn('Backend unavailable, simulating successful registration in demo mode');
-        return { success: true, isDemo: true };
-      }
-      return { success: false, error: error.message };
+      return { success: false, error: error.message || 'Registration failed' };
     }
   },
 
-  getCurrentUser: () => {
-    const userStr = localStorage.getItem('user');
-    return userStr ? JSON.parse(userStr) : null;
+  getCurrentUser: (): User | null => {
+    try {
+      const userStr = localStorage.getItem('user');
+      return userStr ? JSON.parse(userStr) : null;
+    } catch {
+      return null;
+    }
   },
 
-  logout: () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+  logout: async (): Promise<void> => {
+    try {
+      await authApi.logout();
+    } finally {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+    }
   },
 
-  isAuthenticated: () => {
+  isAuthenticated: (): boolean => {
     return !!localStorage.getItem('token');
   },
 
-  hasRole: (role: string) => {
+  hasRole: (role: string): boolean => {
     const user = authService.getCurrentUser();
-    return user?.role === role;
-  }
+    return user?.role?.toLowerCase() === role.toLowerCase();
+  },
 };

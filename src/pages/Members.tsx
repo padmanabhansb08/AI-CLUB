@@ -1,190 +1,208 @@
-import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { StateView } from '../components/common/StateView';
-import { memberService } from '../services/content/memberService';
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { DashboardLayout } from '../components/layout/DashboardLayout';
+import { useMembers } from '../hooks/useMembers';
+import { LoadingState } from '../components/common/LoadingState';
+import { ErrorState } from '../components/common/ErrorState';
+import { EmptyState } from '../components/common/EmptyState';
+import { Button } from '../components/ui/Button';
+import { DEPARTMENT_OPTIONS } from '../constants/academicOptions';
+import { 
+  Users, 
+  Search, 
+  Filter, 
+  ExternalLink, 
+  ChevronLeft, 
+  ChevronRight
+} from 'lucide-react';
 
-export const Members = () => {
-  const [members, setMembers] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<any>(null);
-  
-  const [search, setSearch] = useState('');
-  const [department, setDepartment] = useState('');
-  const [year, setYear] = useState('');
-  const [skill, setSkill] = useState('');
-  const [interest, setInterest] = useState('');
-  
-  const [pagination, setPagination] = useState({ page: 1, limit: 12, total: 0, totalPages: 0 });
-
-  useEffect(() => {
-    fetchMembers();
-  }, [pagination.page, department, year, skill, interest]);
-
-  const fetchMembers = async () => {
-    try {
-      setLoading(true);
-      const res = await memberService.getPublicMembers(
-        pagination.page, 
-        pagination.limit, 
-        search, 
-        department, 
-        year, 
-        skill, 
-        interest
-      );
-      setMembers(res.data || []);
-      setPagination(res.pagination || { page: 1, limit: 12, total: 0, totalPages: 0 });
-      setError(null);
-    } catch (err: any) {
-      setError(err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setPagination({ ...pagination, page: 1 });
-    fetchMembers();
-  };
+export const Members: React.FC = () => {
+  const navigate = useNavigate();
+  const {
+    members,
+    pagination,
+    loading,
+    error,
+    search,
+    setSearch,
+    department,
+    setDepartment,
+    page,
+    setPage,
+    retry,
+  } = useMembers();
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6">
-      <div className="border-b border-gray-800 pb-4">
-        <h1 className="text-3xl font-bold tracking-tight text-gray-100">Member Directory</h1>
-        <p className="text-gray-400 mt-2">Discover and connect with AI CLUB members.</p>
-      </div>
-
-      <div className="bg-gray-900 border border-gray-800 rounded-lg p-6">
-        <form onSubmit={handleSearchSubmit} className="space-y-4">
-          <div className="flex gap-4">
-            <div className="flex-1">
-              <input
-                type="text"
-                placeholder="Search by name, bio, skills..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-gray-100 placeholder-gray-500 focus:outline-none focus:border-blue-500"
-              />
-            </div>
-            <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors font-medium">
-              Search
-            </button>
+    <DashboardLayout pageTitle="Member Directory">
+      <div className="space-y-6 max-w-6xl mx-auto pb-12">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-100 flex items-center gap-2">
+              <Users size={24} className="text-accent" /> Student Member Directory
+            </h1>
+            <p className="text-sm text-gray-400 mt-1">
+              Connect with peer AI Club members, discover shared skills, and find research collaborators.
+            </p>
           </div>
-          
-          <div className="flex gap-4 flex-wrap">
-            <select
-              value={department}
-              onChange={(e) => { setDepartment(e.target.value); setPagination({...pagination, page: 1}); }}
-              className="bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-sm text-gray-300 focus:outline-none focus:border-blue-500"
-            >
-              <option value="">All Departments</option>
-              <option value="CSE">CSE</option>
-              <option value="IT">IT</option>
-              <option value="ECE">ECE</option>
-              <option value="AI&DS">AI&DS</option>
-            </select>
-
-            <select
-              value={year}
-              onChange={(e) => { setYear(e.target.value); setPagination({...pagination, page: 1}); }}
-              className="bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-sm text-gray-300 focus:outline-none focus:border-blue-500"
-            >
-              <option value="">All Years</option>
-              <option value="1">1st Year</option>
-              <option value="2">2nd Year</option>
-              <option value="3">3rd Year</option>
-              <option value="4">4th Year</option>
-            </select>
-
-            <input
-              type="text"
-              placeholder="Filter by Skill"
-              value={skill}
-              onChange={(e) => { setSkill(e.target.value); }}
-              onBlur={() => { setPagination({...pagination, page: 1}); fetchMembers(); }}
-              className="bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-sm text-gray-100 placeholder-gray-500 focus:outline-none focus:border-blue-500"
-            />
-            
-            <input
-              type="text"
-              placeholder="Filter by Interest"
-              value={interest}
-              onChange={(e) => { setInterest(e.target.value); }}
-              onBlur={() => { setPagination({...pagination, page: 1}); fetchMembers(); }}
-              className="bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 text-sm text-gray-100 placeholder-gray-500 focus:outline-none focus:border-blue-500"
-            />
+          <div className="text-xs font-mono text-gray-400 bg-gray-900 border border-gray-800 px-3 py-1.5 rounded-lg">
+            {pagination.total} Registered Members
           </div>
-        </form>
-      </div>
-
-      <StateView loading={loading} error={error} empty={members.length === 0} emptyMessage="No members match your search criteria.">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {members.map(member => (
-            <Link key={member.id} to={`/members/${member.id}`} className="block bg-gray-900 border border-gray-800 rounded-lg p-6 hover:border-gray-700 transition-colors">
-              <div className="flex justify-between items-start mb-4">
-                <div>
-                  <h3 className="text-xl font-bold text-gray-100">{member.full_name}</h3>
-                  <div className="text-sm font-mono text-blue-400 mt-1">
-                    {member.department} • Year {member.year}
-                  </div>
-                </div>
-              </div>
-              
-              <p className="text-gray-400 text-sm line-clamp-2 mb-4">
-                {member.bio || 'No bio provided.'}
-              </p>
-              
-              <div className="space-y-2">
-                {member.skills && member.skills.length > 0 && (
-                  <div className="flex flex-wrap gap-1">
-                    {member.skills.slice(0, 3).map((s: string, i: number) => (
-                      <span key={i} className="px-2 py-0.5 bg-gray-800 border border-gray-700 text-gray-300 text-xs rounded uppercase tracking-wider">
-                        {s}
-                      </span>
-                    ))}
-                    {member.skills.length > 3 && (
-                      <span className="px-2 py-0.5 bg-gray-800 border border-gray-700 text-gray-500 text-xs rounded uppercase tracking-wider">
-                        +{member.skills.length - 3}
-                      </span>
-                    )}
-                  </div>
-                )}
-                
-                {member.technical_interests && member.technical_interests.length > 0 && (
-                  <div className="text-xs text-gray-500 pt-2 border-t border-gray-800">
-                    Interests: {member.technical_interests.slice(0, 3).join(', ')}
-                    {member.technical_interests.length > 3 ? '...' : ''}
-                  </div>
-                )}
-              </div>
-            </Link>
-          ))}
         </div>
 
-        {/* Pagination */}
-        {pagination.totalPages > 1 && (
-          <div className="flex justify-center items-center gap-4 pt-8">
-            <button 
-              onClick={() => setPagination({...pagination, page: Math.max(1, pagination.page - 1)})}
-              disabled={pagination.page === 1}
-              className="px-4 py-2 border border-gray-700 rounded bg-gray-800 text-gray-300 disabled:opacity-50 hover:bg-gray-700 transition-colors"
-            >
-              Previous
-            </button>
-            <span className="text-gray-400 font-mono text-sm">
-              Page {pagination.page} of {pagination.totalPages}
-            </span>
-            <button 
-              onClick={() => setPagination({...pagination, page: Math.min(pagination.totalPages, pagination.page + 1)})}
-              disabled={pagination.page === pagination.totalPages}
-              className="px-4 py-2 border border-gray-700 rounded bg-gray-800 text-gray-300 disabled:opacity-50 hover:bg-gray-700 transition-colors"
-            >
-              Next
-            </button>
+        {/* Filter and Search Bar */}
+        <div className="p-4 rounded-xl border border-gray-800 bg-gray-900/60 flex flex-col md:flex-row gap-3">
+          {/* Search Input */}
+          <div className="relative flex-1">
+            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search by student name, register number, or skill (e.g. PyTorch, React)..."
+              className="w-full bg-dark-bg border border-gray-700/80 rounded-lg pl-9 pr-4 py-2 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-accent"
+            />
           </div>
+
+          {/* Department Filter */}
+          <div className="flex items-center gap-2">
+            <Filter size={16} className="text-gray-500" />
+            <select
+              value={department}
+              onChange={(e) => setDepartment(e.target.value)}
+              className="bg-dark-bg border border-gray-700/80 rounded-lg px-3 py-2 text-sm text-gray-200 focus:outline-none focus:border-accent"
+            >
+              <option value="All">All Departments</option>
+              {DEPARTMENT_OPTIONS.map((dept) => (
+                <option key={dept.value} value={dept.value}>
+                  {dept.label}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        {/* Content View */}
+        {loading ? (
+          <LoadingState message="Searching member directory..." fullScreen={false} />
+        ) : error ? (
+          <ErrorState message={error} onRetry={retry} />
+        ) : members.length === 0 ? (
+          <EmptyState
+            title="No Members Found"
+            message={`No students found matching '${search || department}'. Try searching for another skill or department.`}
+            actionText="Reset Search"
+            onAction={() => {
+              setSearch('');
+              setDepartment('All');
+            }}
+          />
+        ) : (
+          <>
+            {/* Member Cards Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+              {members.map((member) => (
+                <div
+                  key={member.id}
+                  onClick={() => navigate(`/members/${member.id}`)}
+                  className="rounded-xl border border-gray-800 bg-gray-900/40 hover:bg-gray-900/80 hover:border-gray-700 p-5 cursor-pointer transition-all duration-200 flex flex-col justify-between group"
+                >
+                  <div>
+                    {/* Top Row: Avatar & Identity */}
+                    <div className="flex items-start gap-3.5 mb-3">
+                      {member.profilePhotoUrl ? (
+                        <img
+                          src={member.profilePhotoUrl}
+                          alt={member.fullName}
+                          className="w-12 h-12 rounded-full object-cover border border-accent flex-shrink-0"
+                          onError={(e) => {
+                            (e.target as HTMLElement).style.display = 'none';
+                          }}
+                        />
+                      ) : (
+                        <div className="w-12 h-12 rounded-full bg-accent/10 border border-accent text-accent font-bold font-mono flex items-center justify-center flex-shrink-0">
+                          {member.fullName.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase()}
+                        </div>
+                      )}
+                      <div className="min-w-0 flex-1">
+                        <h3 className="text-base font-bold text-gray-100 group-hover:text-accent transition-colors truncate">
+                          {member.fullName}
+                        </h3>
+                        <p className="text-xs text-gray-400 mt-0.5">
+                          {member.department} &bull; Year {member.year}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Bio Snippet */}
+                    {member.bio && (
+                      <p className="text-xs text-gray-400 line-clamp-2 mb-3.5 leading-relaxed">
+                        {member.bio}
+                      </p>
+                    )}
+
+                    {/* Skills Tags */}
+                    {member.skills && member.skills.length > 0 && (
+                      <div className="mb-4">
+                        <div className="flex flex-wrap gap-1">
+                          {member.skills.slice(0, 4).map((s) => (
+                            <span
+                              key={s}
+                              className="text-[10px] px-2 py-0.5 rounded bg-gray-800 border border-gray-700 text-gray-300"
+                            >
+                              {s}
+                            </span>
+                          ))}
+                          {member.skills.length > 4 && (
+                            <span className="text-[10px] px-1.5 py-0.5 text-gray-500">
+                              +{member.skills.length - 4} more
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Card Bottom CTA */}
+                  <div className="pt-3 border-t border-gray-800/80 flex items-center justify-between text-xs text-gray-400">
+                    <span className="text-[11px] font-mono text-gray-500">{member.registerNumber}</span>
+                    <span className="text-accent group-hover:underline flex items-center gap-1">
+                      View Profile <ExternalLink size={12} />
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Pagination Controls */}
+            {pagination.totalPages > 1 && (
+              <div className="flex items-center justify-between pt-4 border-t border-gray-800">
+                <span className="text-xs text-gray-400">
+                  Page {pagination.page} of {pagination.totalPages} ({pagination.total} total members)
+                </span>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="secondary"
+                    disabled={page <= 1}
+                    onClick={() => setPage(page - 1)}
+                    className="flex items-center gap-1 text-xs py-1 px-3"
+                  >
+                    <ChevronLeft size={14} /> Previous
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    disabled={page >= pagination.totalPages}
+                    onClick={() => setPage(page + 1)}
+                    className="flex items-center gap-1 text-xs py-1 px-3"
+                  >
+                    Next <ChevronRight size={14} />
+                  </Button>
+                </div>
+              </div>
+            )}
+          </>
         )}
-      </StateView>
-    </div>
+      </div>
+    </DashboardLayout>
   );
 };

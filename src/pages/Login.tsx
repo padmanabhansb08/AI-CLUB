@@ -4,10 +4,11 @@ import { Sparkles } from 'lucide-react';
 import { AuthLayout } from '../components/layout/AuthLayout';
 import { Input } from '../components/ui/Input';
 import { Button } from '../components/ui/Button';
-import { authService } from '../services/authService';
+import { useAuth } from '../context/AuthContext';
 
 export const Login: React.FC = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -19,36 +20,31 @@ export const Login: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const response = await authService.login(email, password);
-      if (response.success) {
-        console.log('Login successful');
-        navigate('/dashboard');
-      } else {
-        setError(response.error || response.message || 'Login failed');
-      }
-    } catch {
-      setError('An error occurred during login');
+      await login(email, password);
+      navigate('/dashboard');
+    } catch (err: any) {
+      setError(err.message || 'Login failed. Please check your credentials.');
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleDemoLogin = (role: 'student' | 'admin' = 'student') => {
+  const handleDemoLogin = async () => {
     setError('');
     setIsLoading(true);
     try {
-      authService.loginAsDemo(role);
-      navigate(role === 'admin' ? '/admin' : '/dashboard');
-    } catch {
-      setError('Failed to initiate demo session');
+      await login('student@aiclub.com', 'student123');
+      navigate('/dashboard');
+    } catch (err: any) {
+      setError(err.message || 'Unable to connect to AI CLUB server for demo login.');
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleAutoFill = () => {
-    setEmail('student@college.edu');
-    setPassword('demopassword123');
+    setEmail('student@aiclub.com');
+    setPassword('student123');
   };
 
   return (
@@ -60,12 +56,12 @@ export const Login: React.FC = () => {
         <Input
           label="College Email"
           type="email"
-          placeholder="student@college.edu"
+          placeholder="student@aiclub.com"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
         />
-        
+
         <Input
           label="Password"
           type="password"
@@ -99,12 +95,12 @@ export const Login: React.FC = () => {
           type="button"
           variant="secondary"
           className="demo-btn mb-3"
-          onClick={() => handleDemoLogin('student')}
+          onClick={handleDemoLogin}
           disabled={isLoading}
           id="demo-login-btn"
         >
           <Sparkles size={16} style={{ color: 'var(--accent-color)' }} />
-          <span>Demo Login</span>
+          <span>Demo Student Login</span>
         </Button>
 
         <div className="flex-between mb-6" style={{ fontSize: '0.8rem', color: 'var(--text-tertiary)' }}>
@@ -117,7 +113,7 @@ export const Login: React.FC = () => {
               color: 'var(--accent-color)',
               cursor: 'pointer',
               fontSize: '0.8rem',
-              padding: 0
+              padding: 0,
             }}
           >
             Auto-fill demo credentials

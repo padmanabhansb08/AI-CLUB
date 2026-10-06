@@ -1,121 +1,91 @@
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3005';
+import { eventsApi } from '../../api/events.api';
+import type { EventItem, StudentRegistrationItem } from '../../types/events';
 
-export interface EventType {
-  id: string;
-  title: string;
-  description: string;
-  event_type: string;
-  start_at: string;
-  end_at: string;
-  location?: string;
-  meeting_url?: string;
-  organizer?: string;
-  capacity?: number;
-  status: 'draft' | 'published' | 'cancelled' | 'completed';
-  registration_open_at?: string;
-  registration_close_at?: string;
-  created_at: string;
-  updated_at: string;
-  registration_count?: string | number;
-  currentStudentRegistrationStatus?: 'registered' | 'unregistered';
-}
-
-function getHeaders() {
-  const token = localStorage.getItem('token');
-  return {
-    'Content-Type': 'application/json',
-    ...(token ? { 'Authorization': `Bearer ${token}` } : {})
-  };
-}
+export type EventType = EventItem;
 
 export const eventService = {
   // Public / Student
   async getEvents(page = 1, limit = 10, filters: any = {}) {
-    const query = new URLSearchParams({ page: page.toString(), limit: limit.toString(), ...filters }).toString();
-    const res = await fetch(`${API_URL}/api/events?${query}`, { headers: getHeaders() });
-    if (!res.ok) throw new Error('Failed to fetch events');
-    return res.json();
+    return eventsApi.getEvents({ page, limit, ...filters });
   },
 
-  async getEventById(id: string) {
-    const res = await fetch(`${API_URL}/api/events/${id}`, { headers: getHeaders() });
-    if (!res.ok) throw new Error('Failed to fetch event');
-    const data = await res.json();
-    return data.data as EventType;
+  async getEventById(id: string): Promise<EventItem> {
+    return eventsApi.getEventById(id);
   },
 
   async register(id: string) {
-    const res = await fetch(`${API_URL}/api/me/events/${id}/register`, {
-      method: 'POST',
-      headers: getHeaders()
-    });
-    if (!res.ok) throw new Error('Failed to register');
-    return res.json();
+    return eventsApi.register(id);
+  },
+
+  async cancelRegistration(id: string, reason?: string) {
+    return eventsApi.cancelRegistration(id, reason);
   },
 
   async unregister(id: string) {
-    const res = await fetch(`${API_URL}/api/me/events/${id}/unregister`, {
-      method: 'POST',
-      headers: getHeaders()
-    });
-    if (!res.ok) throw new Error('Failed to unregister');
-    return res.json();
+    return eventsApi.cancelRegistration(id);
   },
 
-  async getMyRegistrations() {
-    const res = await fetch(`${API_URL}/api/me/events/registrations`, { headers: getHeaders() });
-    if (!res.ok) throw new Error('Failed to fetch registrations');
-    return res.json();
+  async getMyRegistrations(): Promise<StudentRegistrationItem[]> {
+    return eventsApi.getMyRegistrations();
   },
 
   // Admin
   async getAdminEvents(page = 1, limit = 10, filters: any = {}) {
-    const query = new URLSearchParams({ page: page.toString(), limit: limit.toString(), ...filters }).toString();
-    const res = await fetch(`${API_URL}/api/admin/events?${query}`, { headers: getHeaders() });
-    if (!res.ok) throw new Error('Failed to fetch admin events');
-    return res.json();
+    return eventsApi.getAdminEvents({ page, limit, ...filters });
   },
 
-  async getAdminEventById(id: string) {
-    const res = await fetch(`${API_URL}/api/admin/events/${id}`, { headers: getHeaders() });
-    if (!res.ok) throw new Error('Failed to fetch event');
-    const data = await res.json();
-    return data.data as EventType;
+  async getAdminEventById(id: string): Promise<EventItem> {
+    return eventsApi.getAdminEventById(id);
   },
 
-  async createEvent(data: Partial<EventType>) {
-    const res = await fetch(`${API_URL}/api/admin/events`, {
-      method: 'POST',
-      headers: getHeaders(),
-      body: JSON.stringify(data)
-    });
-    if (!res.ok) throw new Error('Failed to create event');
-    return res.json();
+  async createEvent(data: Partial<EventItem>) {
+    return eventsApi.createEvent(data);
   },
 
-  async updateEvent(id: string, data: Partial<EventType>) {
-    const res = await fetch(`${API_URL}/api/admin/events/${id}`, {
-      method: 'PATCH',
-      headers: getHeaders(),
-      body: JSON.stringify(data)
-    });
-    if (!res.ok) throw new Error('Failed to update event');
-    return res.json();
+  async updateEvent(id: string, data: Partial<EventItem>) {
+    return eventsApi.updateEvent(id, data);
+  },
+
+  async publishEvent(id: string) {
+    return eventsApi.publishEvent(id);
+  },
+
+  async cancelEvent(id: string, reason: string) {
+    return eventsApi.cancelEvent(id, reason);
+  },
+
+  async completeEvent(id: string, force = false) {
+    return eventsApi.completeEvent(id, force);
   },
 
   async deleteEvent(id: string) {
-    const res = await fetch(`${API_URL}/api/admin/events/${id}`, {
-      method: 'DELETE',
-      headers: getHeaders()
-    });
-    if (!res.ok) throw new Error('Failed to delete event');
-    return true;
+    return eventsApi.deleteEvent(id);
   },
 
-  async getRegistrations(id: string) {
-    const res = await fetch(`${API_URL}/api/admin/events/${id}/registrations`, { headers: getHeaders() });
-    if (!res.ok) throw new Error('Failed to fetch registrations');
-    const data = await res.json();
-    return data.data;
-  }
+  async getRegistrations(id: string, search?: string) {
+    return eventsApi.getRegistrations(id, search);
+  },
+
+  async getAttendance(id: string) {
+    return eventsApi.getAttendance(id);
+  },
+
+  async markAttendance(
+    id: string,
+    records: Array<{ memberId: string; status: 'PRESENT' | 'ABSENT' | 'LATE' }>
+  ) {
+    return eventsApi.markAttendance(id, records);
+  },
+
+  async bulkMarkAttendance(
+    id: string,
+    memberIds: string[],
+    status: 'PRESENT' | 'ABSENT' | 'LATE'
+  ) {
+    return eventsApi.bulkMarkAttendance(id, memberIds, status);
+  },
+
+  async checkIn(id: string, memberId: string, status: 'PRESENT' | 'ABSENT' | 'LATE' = 'PRESENT') {
+    return eventsApi.checkIn(id, memberId, status);
+  },
 };

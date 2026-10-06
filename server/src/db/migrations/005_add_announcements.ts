@@ -1,9 +1,9 @@
-import { Pool } from 'pg';
+import { PoolClient } from 'pg';
 
-export async function up(pool: Pool) {
+export async function up(client: PoolClient) {
   // Announcements Table
-  await pool.query(`
-    CREATE TABLE announcements (
+  await client.query(`
+    CREATE TABLE IF NOT EXISTS announcements (
       id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
       title VARCHAR(200) NOT NULL,
       body TEXT NOT NULL,
@@ -17,24 +17,24 @@ export async function up(pool: Pool) {
       updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
 
-    CREATE INDEX idx_announcements_status_published ON announcements(status, published_at);
-    CREATE INDEX idx_announcements_category ON announcements(category);
-    CREATE INDEX idx_announcements_expires_at ON announcements(expires_at);
+    CREATE INDEX IF NOT EXISTS idx_announcements_status_published ON announcements(status, published_at);
+    CREATE INDEX IF NOT EXISTS idx_announcements_category ON announcements(category);
+    CREATE INDEX IF NOT EXISTS idx_announcements_expires_at ON announcements(expires_at);
 
     -- Member Read State
-    CREATE TABLE announcement_reads (
+    CREATE TABLE IF NOT EXISTS announcement_reads (
       announcement_id UUID NOT NULL REFERENCES announcements(id) ON DELETE CASCADE,
       member_id UUID NOT NULL REFERENCES members(id) ON DELETE CASCADE,
       read_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
       PRIMARY KEY (announcement_id, member_id)
     );
 
-    CREATE INDEX idx_announcement_reads_member_id_read_at ON announcement_reads(member_id, read_at);
+    CREATE INDEX IF NOT EXISTS idx_announcement_reads_member_id_read_at ON announcement_reads(member_id, read_at);
   `);
 }
 
-export async function down(pool: Pool) {
-  await pool.query(`
+export async function down(client: PoolClient) {
+  await client.query(`
     DROP TABLE IF EXISTS announcement_reads CASCADE;
     DROP TABLE IF EXISTS announcements CASCADE;
   `);

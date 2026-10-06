@@ -1,75 +1,50 @@
-import { Repository } from './repository';
 import type { Member } from '../../data/members';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
-
-const repository = new Repository<Member>('/admin/members', true);
+import { apiClient } from '../../api/client';
+import { membersApi } from '../../api/members.api';
 
 export const memberService = {
   getMembers: async (page = 1, limit = 20, search?: string, department?: string) => {
     try {
-      const token = localStorage.getItem('token');
-      const url = new URL(`${API_URL}/api/admin/members`);
-      url.searchParams.append('page', page.toString());
-      url.searchParams.append('limit', limit.toString());
-      if (search) url.searchParams.append('search', search);
-      if (department) url.searchParams.append('department', department);
-
-      const res = await fetch(url.toString(), {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      if (!res.ok) throw new Error('Failed to fetch members');
-      return await res.json();
+      const params: Record<string, string | number | undefined> = {
+        page,
+        limit,
+        search,
+        department,
+      };
+      return await apiClient.get<any>('/admin/members', { params });
     } catch (e) {
-      console.error(e);
+      console.error('Failed to fetch members:', e);
       return { data: [], pagination: { page, limit, total: 0, totalPages: 0 } };
     }
   },
 
-  getMemberById: async (id: string) => {
-    return repository.getById(id);
+  getMemberById: async (id: string): Promise<Member> => {
+    return apiClient.get<Member>(`/admin/members/${id}`);
   },
-  
-  getPublicMembers: async (page = 1, limit = 20, search?: string, department?: string, year?: string, skill?: string, interest?: string) => {
-    try {
-      const token = localStorage.getItem('token');
-      const url = new URL(`${API_URL}/api/members`);
-      url.searchParams.append('page', page.toString());
-      url.searchParams.append('limit', limit.toString());
-      if (search) url.searchParams.append('search', search);
-      if (department) url.searchParams.append('department', department);
-      if (year) url.searchParams.append('year', year);
-      if (skill) url.searchParams.append('skill', skill);
-      if (interest) url.searchParams.append('interest', interest);
 
-      const res = await fetch(url.toString(), {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      if (!res.ok) throw new Error('Failed to fetch members');
-      return await res.json();
+  getPublicMembers: async (
+    page = 1,
+    limit = 20,
+    search?: string,
+    department?: string,
+    _year?: string,
+    skill?: string,
+    _interest?: string
+  ) => {
+    try {
+      return await membersApi.getPublicMembers(page, limit, search, department, skill);
     } catch (e) {
-      console.error(e);
+      console.error('Failed to fetch public members:', e);
       return { data: [], pagination: { page, limit, total: 0, totalPages: 0 } };
     }
   },
 
   getPublicMemberById: async (id: string) => {
     try {
-      const token = localStorage.getItem('token');
-      const res = await fetch(`${API_URL}/api/members/${id}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      if (!res.ok) throw new Error('Failed to fetch member details');
-      return await res.json();
+      return await membersApi.getPublicMemberById(id);
     } catch (e) {
-      console.error(e);
+      console.error('Failed to fetch public member details:', e);
       throw e;
     }
-  }
+  },
 };

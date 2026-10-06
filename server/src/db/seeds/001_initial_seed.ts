@@ -1,102 +1,302 @@
 import { pool } from '../index';
 import bcrypt from 'bcrypt';
 
-async function seed() {
+export async function seed() {
   if (process.env.NODE_ENV === 'production') {
-    console.log('Skipping development seed in production environment.');
-    process.exit(0);
+    console.log('[seed] Skipping development seed in production environment.');
+    return;
   }
-  
+
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
-    
-    // Check if admin exists
-    const adminRes = await client.query('SELECT id FROM users WHERE email = $1', ['admin@college.edu']);
-    let adminId;
-    if (adminRes.rowCount === 0) {
-      const hash = await bcrypt.hash('admin123', 10);
-      const res = await client.query(`
-        INSERT INTO users (email, password_hash, role)
-        VALUES ('admin@college.edu', $1, 'admin') RETURNING id
-      `, [hash]);
-      adminId = res.rows[0].id;
-    } else {
-      adminId = adminRes.rows[0].id;
-    }
 
-    // Add student
-    const studentRes = await client.query('SELECT id FROM users WHERE email = $1', ['student@college.edu']);
-    let studentId, memberId;
-    if (studentRes.rowCount === 0) {
-      const hash = await bcrypt.hash('student123', 10);
-      const res = await client.query(`
-        INSERT INTO users (email, password_hash, role)
-        VALUES ('student@college.edu', $1, 'student') RETURNING id
-      `, [hash]);
-      studentId = res.rows[0].id;
-
-      const memRes = await client.query(`
-        INSERT INTO members (user_id, full_name, register_number, department, class_section, year, college_email, phone, status)
-        VALUES ($1, 'John Doe', 'REG12345', 'Computer Science', 'A', 2026, 'student@college.edu', '1234567890', 'Active') RETURNING id
-      `, [studentId]);
-      memberId = memRes.rows[0].id;
-    }
-
-    // Achievements
-    const achRes = await client.query(`
-      INSERT INTO achievements (title, description, category, student_name, event_name, date, featured)
-      VALUES ('First Place Hackathon', 'Won first place in the national hackathon', 'Hackathons', 'John Doe', 'National Hack', '2026-05-15', true)
+    // 1. Admin User (admin@aiclub.com)
+    const adminPasswordHash = await bcrypt.hash('admin123', 10);
+    const adminRes = await client.query(`
+      INSERT INTO users (email, password_hash, role)
+      VALUES ('admin@aiclub.com', $1, 'admin')
+      ON CONFLICT (email) DO UPDATE SET password_hash = EXCLUDED.password_hash, role = 'admin'
       RETURNING id
-    `);
-    
-    // Updates
+    `, [adminPasswordHash]);
+    const adminId = adminRes.rows[0].id;
+
+    // Optional legacy alias
     await client.query(`
-      INSERT INTO updates (title, summary, category, source, published_at, read_time, content, featured)
-      VALUES ('AI Breakthrough', 'A new AI model was released', 'AI News', 'TechBlog', '2026-06-01', '5 min read', '<p>Full content here</p>', true)
-    `);
+      INSERT INTO users (email, password_hash, role)
+      VALUES ('admin@college.edu', $1, 'admin')
+      ON CONFLICT (email) DO UPDATE SET password_hash = EXCLUDED.password_hash, role = 'admin'
+    `, [adminPasswordHash]);
 
-    // Projects
+    // 2. Student User (student@aiclub.com)
+    const studentPasswordHash = await bcrypt.hash('student123', 10);
+    const studentRes = await client.query(`
+      INSERT INTO users (email, password_hash, role)
+      VALUES ('student@aiclub.com', $1, 'student')
+      ON CONFLICT (email) DO UPDATE SET password_hash = EXCLUDED.password_hash, role = 'student'
+      RETURNING id
+    `, [studentPasswordHash]);
+    const studentId = studentRes.rows[0].id;
+
+    // Optional legacy alias
+    await client.query(`
+      INSERT INTO users (email, password_hash, role)
+      VALUES ('student@college.edu', $1, 'student')
+      ON CONFLICT (email) DO UPDATE SET password_hash = EXCLUDED.password_hash, role = 'student'
+    `, [studentPasswordHash]);
+
+    // 3. Member Profile for student@aiclub.com
+    const memberRes = await client.query(`
+      INSERT INTO members (
+        user_id, full_name, register_number, department, class_section, year, 
+        college_email, phone, status, bio, profile_photo_url, github_url, linkedin_url, portfolio_url, skills, technical_interests
+      )
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
+      ON CONFLICT (register_number) DO UPDATE SET 
+        full_name = EXCLUDED.full_name,
+        department = EXCLUDED.department,
+        class_section = EXCLUDED.class_section,
+        year = EXCLUDED.year,
+        college_email = EXCLUDED.college_email,
+        phone = EXCLUDED.phone,
+        bio = EXCLUDED.bio,
+        profile_photo_url = EXCLUDED.profile_photo_url,
+        github_url = EXCLUDED.github_url,
+        linkedin_url = EXCLUDED.linkedin_url,
+        portfolio_url = EXCLUDED.portfolio_url,
+        skills = EXCLUDED.skills,
+        technical_interests = EXCLUDED.technical_interests
+      RETURNING id
+    `, [
+      studentId,
+      'Rahul Sharma',
+      '21BCE1001',
+      'CSE',
+      'A',
+      3,
+      'student@aiclub.com',
+      '+91 9876543210',
+      'Active',
+      'AI enthusiast & Full Stack Developer passionate about Machine Learning, NLP, and modern web systems.',
+      'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80',
+      'https://github.com/rahulsharma',
+      'https://linkedin.com/in/rahulsharma',
+      'https://rahulsharma.dev',
+      ['Python', 'PyTorch', 'TypeScript', 'React', 'PostgreSQL'],
+      ['Deep Learning', 'Computer Vision', 'Generative AI']
+    ]);
+    const memberId = memberRes.rows[0].id;
+
+    // Helper to sync normalized skills for a member
+    const syncSkills = async (mId: string, skillNames: string[]) => {
+      for (const name of skillNames) {
+        const sRes = await client.query(
+          `INSERT INTO skills (name, category) VALUES ($1, 'General') ON CONFLICT (name) DO UPDATE SET name = EXCLUDED.name RETURNING id`,
+          [name]
+        );
+        await client.query(
+          `INSERT INTO member_skills (member_id, skill_id, proficiency) VALUES ($1, $2, 'ADVANCED') ON CONFLICT DO NOTHING`,
+          [mId, sRes.rows[0].id]
+        );
+      }
+    };
+
+    // Helper to sync normalized interests for a member
+    const syncInterests = async (mId: string, interestNames: string[]) => {
+      for (const name of interestNames) {
+        const iRes = await client.query(
+          `INSERT INTO interests (name, category) VALUES ($1, 'Technical') ON CONFLICT (name) DO UPDATE SET name = EXCLUDED.name RETURNING id`,
+          [name]
+        );
+        await client.query(
+          `INSERT INTO member_interests (member_id, interest_id) VALUES ($1, $2) ON CONFLICT DO NOTHING`,
+          [mId, iRes.rows[0].id]
+        );
+      }
+    };
+
+    await syncSkills(memberId, ['Python', 'PyTorch', 'TypeScript', 'React', 'PostgreSQL']);
+    await syncInterests(memberId, ['Deep Learning', 'Computer Vision', 'Generative AI']);
+
+    // 4. Additional Sample Student: Ananya Patel (AI & Data Science)
+    const ananyaPass = await bcrypt.hash('student123', 10);
+    const ananyaUserRes = await client.query(`
+      INSERT INTO users (email, password_hash, role)
+      VALUES ('ananya@aiclub.com', $1, 'student')
+      ON CONFLICT (email) DO UPDATE SET password_hash = EXCLUDED.password_hash, role = 'student'
+      RETURNING id
+    `, [ananyaPass]);
+    const ananyaId = ananyaUserRes.rows[0].id;
+
+    const ananyaMemberRes = await client.query(`
+      INSERT INTO members (
+        user_id, full_name, register_number, department, class_section, year,
+        college_email, phone, status, bio, profile_photo_url, github_url, linkedin_url, skills, technical_interests
+      )
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+      ON CONFLICT (register_number) DO UPDATE SET
+        full_name = EXCLUDED.full_name,
+        department = EXCLUDED.department,
+        class_section = EXCLUDED.class_section,
+        year = EXCLUDED.year,
+        college_email = EXCLUDED.college_email,
+        phone = EXCLUDED.phone,
+        bio = EXCLUDED.bio,
+        profile_photo_url = EXCLUDED.profile_photo_url,
+        github_url = EXCLUDED.github_url,
+        linkedin_url = EXCLUDED.linkedin_url,
+        skills = EXCLUDED.skills,
+        technical_interests = EXCLUDED.technical_interests
+      RETURNING id
+    `, [
+      ananyaId,
+      'Ananya Patel',
+      '22BAI2045',
+      'AIDS',
+      'B',
+      2,
+      'ananya@aiclub.com',
+      '+91 9876543211',
+      'Active',
+      'Data Science & NLP researcher. Working on Edge AI and quantized Transformer architectures.',
+      'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=300&q=80',
+      'https://github.com/ananyapatel',
+      'https://linkedin.com/in/ananyapatel',
+      ['Python', 'TensorFlow', 'Scikit-Learn', 'FastAPI'],
+      ['Natural Language Processing', 'Data Science', 'Research']
+    ]);
+    const ananyaMemberId = ananyaMemberRes.rows[0].id;
+    await syncSkills(ananyaMemberId, ['Python', 'TensorFlow', 'Scikit-Learn', 'FastAPI']);
+    await syncInterests(ananyaMemberId, ['Natural Language Processing', 'Data Science', 'Research']);
+
+    // 5. Sample Achievements
+    const achCount = await client.query('SELECT COUNT(*) as cnt FROM achievements');
+    if (parseInt(achCount.rows[0].cnt) === 0) {
+      const ach1 = await client.query(`
+        INSERT INTO achievements (title, description, category, student_name, event_name, date, year, featured)
+        VALUES ('First Place — National AI Hackathon', 'Won first place for developing an automated medical imaging diagnostic tool.', 'Hackathons', 'Rahul Sharma', 'National AI Challenge 2026', '2026-03-15', 3, true)
+        RETURNING id
+      `);
+      const ach2 = await client.query(`
+        INSERT INTO achievements (title, description, category, student_name, event_name, date, year, featured)
+        VALUES ('Best Research Paper Award', 'Published a novel benchmark on small language models on edge devices.', 'Research', 'Ananya Patel', 'IEEE Student Symposium', '2026-02-10', 4, true)
+        RETURNING id
+      `);
+
+      // Link to achievement_members
+      await client.query(`
+        INSERT INTO achievement_members (achievement_id, member_id)
+        VALUES ($1, $2), ($3, $4)
+        ON CONFLICT DO NOTHING
+      `, [ach1.rows[0].id, memberId, ach2.rows[0].id, ananyaMemberId]);
+    }
+
+    // 6. Sample Tech Updates
+    const updCount = await client.query('SELECT COUNT(*) as cnt FROM updates');
+    if (parseInt(updCount.rows[0].cnt) === 0) {
+      await client.query(`
+        INSERT INTO updates (title, summary, category, source, published_at, read_time, content, featured)
+        VALUES 
+          ('Gemini & Reasoning Models Deep Dive', 'Exploring multi-turn chain-of-thought architecture in modern production workloads.', 'AI News', 'AI Club Tech Team', '2026-09-20', '6 min read', '<p>A comprehensive review of modern reasoning benchmarks.</p>', true),
+          ('Open-Source LLMs for Real-time Edge Deployment', 'How quantization techniques allow 8B models to run on mobile hardware with minimal degradation.', 'Engineering', 'AI Club Research Lab', '2026-09-28', '4 min read', '<p>Quantization techniques overview and implementation.</p>', false)
+      `);
+    }
+
+    // 7. Sample Projects
     const projRes = await client.query(`
-      INSERT INTO projects (title, short_description, category, difficulty, status, featured)
-      VALUES ('AI Chatbot', 'A smart chatbot', 'NLP', 'Intermediate', 'Open', true)
+      INSERT INTO projects (title, short_description, overview, problem, approach, category, difficulty, status, expected_outcome, featured)
+      VALUES (
+        'Autonomous Quadcopter Vision Pipeline',
+        'Real-time obstacle avoidance and path planning using onboard cameras and edge neural networks.',
+        'This project creates a lightweight vision-based navigation system for autonomous drones in indoor environments without GPS.',
+        'Indoor navigation suffers when GPS signals are unavailable.',
+        'We employ lightweight YOLOv8 models quantized for TensorRT running on NVIDIA Jetson.',
+        'Computer Vision',
+        'Advanced',
+        'Active',
+        'A working drone prototype navigating a 50-meter indoor obstacle course autonomously.',
+        true
+      )
+      ON CONFLICT DO NOTHING
       RETURNING id
     `);
-    const projectId = projRes.rows[0].id;
 
-    if (memberId) {
-        // Project Interests
-        await client.query(`
+    if (projRes.rowCount && projRes.rowCount > 0) {
+      const projectId = projRes.rows[0].id;
+      await client.query(`
         INSERT INTO project_interests (member_id, project_id)
         VALUES ($1, $2) ON CONFLICT DO NOTHING
-        `, [memberId, projectId]);
+      `, [memberId, projectId]);
     }
 
-    // Courses
+    // 8. Sample Courses
     const courseRes = await client.query(`
-      INSERT INTO courses (title, provider, description, category, difficulty, tracking_method, tracking_status, featured)
-      VALUES ('Intro to Machine Learning', 'Coursera', 'Learn ML basics', 'Machine Learning', 'Beginner', 'api', 'Integration Available', true)
+      INSERT INTO courses (title, provider, description, category, difficulty, duration, course_url, tracking_method, tracking_status, featured)
+      VALUES (
+        'Deep Learning Specialization',
+        'DeepLearning.AI',
+        'Master the fundamentals of neural networks, CNNs, RNNs, Transformers, and modern training dynamics.',
+        'Deep Learning',
+        'Intermediate',
+        '3 months',
+        'https://coursera.org',
+        'manual',
+        'Active',
+        true
+      )
+      ON CONFLICT DO NOTHING
       RETURNING id
     `);
-    const courseId = courseRes.rows[0].id;
 
-    if (memberId) {
-        // Course Progress (with NULL progressPercent)
-        await client.query(`
+    if (courseRes.rowCount && courseRes.rowCount > 0) {
+      const courseId = courseRes.rows[0].id;
+      await client.query(`
         INSERT INTO course_progress (course_id, member_id, status, progress_percent, tracking_method)
-        VALUES ($1, $2, 'Enrolled', NULL, 'api') ON CONFLICT DO NOTHING
-        `, [courseId, memberId]);
+        VALUES ($1, $2, 'In Progress', 45, 'manual')
+        ON CONFLICT DO NOTHING
+      `, [courseId, memberId]);
     }
 
-    console.log('Seed completed successfully');
+    // 9. Sample Announcements
+    const annCount = await client.query('SELECT COUNT(*) as cnt FROM announcements');
+    if (parseInt(annCount.rows[0].cnt) === 0) {
+      await client.query(`
+        INSERT INTO announcements (title, body, category, priority, status, published_at, created_by)
+        VALUES (
+          'Welcome to AI CLUB 2026-2027!',
+          'We are excited to kick off Sprint 2 of our community platform. Check out ongoing projects, explore courses, and collaborate with peer members.',
+          'general',
+          'important',
+          'published',
+          NOW(),
+          $1
+        )
+      `, [adminId]);
+    }
+
     await client.query('COMMIT');
+    console.log('[seed] ✓ Seed completed successfully with development accounts.');
+    console.log('[seed]   - Admin:   admin@aiclub.com   (password: admin123)');
+    console.log('[seed]   - Student: student@aiclub.com (password: student123)');
+    console.log('[seed]   - Student: ananya@aiclub.com  (password: student123)');
   } catch (error) {
     await client.query('ROLLBACK');
-    console.error('Seed failed:', error);
+    console.error('[seed] ✗ Seed failed:', error);
+    throw error;
   } finally {
     client.release();
-    pool.end();
   }
 }
 
-seed();
+if (require.main === module || process.argv[1]?.endsWith('001_initial_seed.ts')) {
+  seed()
+    .then(async () => {
+      await pool.end();
+      process.exit(0);
+    })
+    .catch(async (err) => {
+      console.error('[seed] Failed:', err);
+      await pool.end();
+      process.exit(1);
+    });
+}

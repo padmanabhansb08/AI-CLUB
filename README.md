@@ -1,32 +1,192 @@
-# React + TypeScript + Vite
+# AI CLUB — Technical Foundation & Community Platform
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+AI CLUB is a student-centered artificial intelligence community platform designed to foster peer learning, collaborative AI projects, achievements, and research initiatives.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## 1. Technology Stack
 
-## React Compiler
+### Frontend
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **Framework**: React 19 + TypeScript + Vite 8
+- **Routing**: React Router 7
+- **Icons & Styling**: Lucide React + Tailored Vanilla CSS Design Tokens (Dark Theme, Glassmorphism)
+- **State Management**: React Context (`AuthProvider`) with centralized session synchronization
+- **HTTP Client**: Centralized `apiClient` with automatic token injection and typed errors
 
-## Expanding the Oxlint configuration
+### Backend
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
+- **Runtime**: Node.js + Express 5 + TypeScript (`tsx` / `tsc`)
+- **Database**: PostgreSQL 15 via `pg.Pool`
+- **Authentication**: JWT (`jsonwebtoken`) + Secure Password Hashing (`bcrypt`)
+- **Validation**: Schema-driven validation with `zod`
+- **Security**: `helmet`, `cors`, and `express-rate-limit`
 
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+---
+
+## 2. Architecture Overview
+
+The system strictly adheres to a layered architecture:
+
+```text
+React Frontend
+  └── Context (AuthProvider)
+      └── Central API Client (src/api/client.ts)
+          └── HTTP / JSON
+              └── Express Routers & Middlewares (auth, rate limiting, error handling)
+                  └── Controllers (src/controllers/)
+                      └── Services (src/services/)
+                          └── Repositories (src/repositories/)
+                              └── PostgreSQL 15 Pool
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+Detailed architectural blueprints are available in [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
+
+---
+
+## 3. Prerequisites
+
+- **Node.js**: v18.0.0+ (Tested on v24)
+- **npm**: v9.0.0+
+- **PostgreSQL**: v14+ (Local installation or Docker)
+
+---
+
+## 4. Environment Setup
+
+### Frontend Environment
+
+Create `.env` in the project root:
+
+```bash
+cp .env.example .env
+```
+
+Default contents:
+
+```ini
+VITE_API_URL=http://localhost:5000/api
+```
+
+### Backend Environment
+
+Create `server/.env`:
+
+```bash
+cp server/.env.example server/.env
+```
+
+Default contents:
+
+```ini
+NODE_ENV=development
+PORT=5000
+DATABASE_URL=postgresql://aiclub:aiclub_password@localhost:5432/aiclub_db
+JWT_SECRET=replace_with_secure_secret
+JWT_EXPIRES_IN=7d
+CORS_ORIGIN=http://localhost:5173
+```
+
+---
+
+## 5. Database Setup & Initialization
+
+### Option A: Using Docker Compose
+
+```bash
+docker compose up -d
+```
+
+### Option B: Using Local PostgreSQL
+
+Ensure a PostgreSQL instance is running on port `5432` with user `aiclub`, password `aiclub_password`, and database `aiclub_db`.
+
+### Run Migrations & Seeds
+
+```bash
+# Apply all tracked database migrations
+npm run db:migrate
+
+# Seed development accounts and sample data
+npm run db:seed
+```
+
+#### Pre-seeded Development Accounts
+
+| Role | Email | Password | Details |
+| :--- | :--- | :--- | :--- |
+| **Administrator** | `admin@aiclub.com` | `admin123` | Operations & Admin Portal |
+| **Student** | `student@aiclub.com` | `student123` | Rahul Sharma (`21BCE1001`, CSE, Year 3, Sec A) |
+
+---
+
+## 6. Running the Application
+
+### Start Backend API Server (Port 5000)
+
+```bash
+cd server
+npm run dev
+```
+
+Verify backend health:
+
+```bash
+curl http://localhost:5000/api/health
+```
+
+### Start Frontend Application (Port 5173)
+
+From project root:
+
+```bash
+npm run dev
+```
+
+---
+
+## 7. Running Tests & Quality Verification
+
+### Run Automated Integration & Auth Tests
+
+```bash
+npm run test
+```
+
+The test suite validates (33 tests across 10 suites):
+
+- API health and database connectivity
+- Zod request validation (email format, password min length, missing fields)
+- User registration and atomic profile transactions
+- Duplicate email & register number conflict rejection (`409 Conflict`)
+- Valid and invalid login attempts
+- Authenticated and unauthenticated `GET /api/auth/me`
+- Logout flow
+- Role-based authorization (`admin` vs `student` access control)
+- Student Profile & weighted Profile Completion calculation
+- Normalized skills catalog & member proficiencies (`BEGINNER` to `EXPERT`)
+- Structured technical interests catalog & member selection
+- Personalized student dashboard with real database stats & chronological activity feed
+- Member directory search by skill/name, filtering, pagination, and sanitized public profiles
+- Server-enforced profile ownership (students cannot tamper with another member profile)
+
+### Run Type Checking
+
+```bash
+npm run typecheck
+```
+
+### Build for Production
+
+```bash
+npm run build
+```
+
+---
+
+## 8. Documentation
+
+- [System Architecture](docs/ARCHITECTURE.md): Comprehensive system design and layer breakdown.
+- [API Specification](docs/API.md): Standard response envelopes, auth endpoints, and error codes.
+- [Database Guide](docs/DATABASE.md): Schema, relationships, migrations, and indexing strategy.
+- [Sprint 1 Audit Report](docs/SPRINT_1_AUDIT.md): Initial audit findings, security remediation, and changes.
