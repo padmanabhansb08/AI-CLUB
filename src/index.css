@@ -5,6 +5,15 @@
 @import url('./projects.css');
 @import url('./courses.css');
 @import url('./admin.css');
+@import "tailwindcss";
+
+@theme {
+  --color-accent: #0066ff;
+  --color-accent-hover: #005ce6;
+  --color-bg-primary: #0a0a0a;
+  --color-bg-secondary: #121212;
+  --color-bg-tertiary: #1c1c1c;
+}
 
 :root {
   /* Color Palette - Neutral base with one accent color (Electric Blue) */
@@ -48,6 +57,22 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+}
+
+/* Custom sleek dark scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-primary, #0a0a0a);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-color, #262626);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--border-hover, #404040);
 }
 
 body {
@@ -353,13 +378,19 @@ button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 100%;
-  padding: 0.625rem 1rem;
+  width: auto;
+  padding: 0.625rem 1.25rem;
   font-size: 0.875rem;
   font-weight: 500;
   border-radius: var(--radius-md);
-  border: none;
+  border: 1px solid transparent;
   transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.auth-layout form .btn,
+.btn-block {
+  width: 100%;
 }
 
 .btn:disabled {

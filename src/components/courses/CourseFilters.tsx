@@ -37,7 +37,7 @@ export const CourseFilters: React.FC<Props> = ({
         {/* Search Input */}
         <div className="relative flex-1">
           <Search
-            className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--text-muted,#94a3b8)]"
+            className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--text-muted,#94a3b8)] pointer-events-none"
             size={18}
           />
           <input
@@ -45,7 +45,7 @@ export const CourseFilters: React.FC<Props> = ({
             value={searchTerm}
             onChange={(e) => onSearchChange(e.target.value)}
             placeholder="Search courses by title, topic, or keyword..."
-            className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-[var(--border-color,rgba(255,255,255,0.08))] bg-[var(--surface-color,rgba(15,23,42,0.6))] text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[var(--accent-color,#6366f1)] focus:ring-1 focus:ring-[var(--accent-color,#6366f1)] transition-all"
+            className="w-full pl-11 pr-4 py-2.5 rounded-xl border border-[var(--border-color,rgba(255,255,255,0.08))] bg-[var(--surface-color,rgba(15,23,42,0.6))] text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[var(--accent-color,#6366f1)] focus:ring-1 focus:ring-[var(--accent-color,#6366f1)] transition-all"
           />
           {searchTerm && (
             <button

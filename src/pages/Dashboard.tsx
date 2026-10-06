@@ -89,8 +89,16 @@ export const Dashboard: React.FC = () => {
             <h1 className="text-2xl sm:text-3xl font-bold text-gray-100">
               Good {greetingTime}, {firstName}!
             </h1>
-            <p className="text-sm text-gray-400 mt-1">
-              {profile?.department ? `${profile.department} &bull; Year ${profile.year} &bull; ` : ''}Learn. Build. Research. Innovate.
+            <p className="text-sm text-gray-400 mt-1 flex items-center flex-wrap gap-2">
+              {profile?.department && <span>{profile.department}</span>}
+              {profile?.year && (
+                <>
+                  <span className="text-gray-600">•</span>
+                  <span>Year {profile.year}</span>
+                </>
+              )}
+              <span className="text-gray-600">•</span>
+              <span>Learn. Build. Research. Innovate.</span>
             </p>
           </div>
 

@@ -28,9 +28,15 @@ interface DashboardLayoutProps {
 
 export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, pageTitle = 'Dashboard' }) => {
   const navigate = useNavigate();
-  const { logout } = useAuth();
+  const { user, logout } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
+
+  const initials = user?.fullName
+    ? user.fullName.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase()
+    : (user?.email?.slice(0, 2).toUpperCase() || 'ST');
+
+  const displayName = user?.fullName || user?.email?.split('@')[0] || 'Member';
 
   const handleLogout = async () => {
     await logout();
@@ -125,8 +131,8 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, page
                 className="profile-btn" 
                 onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
               >
-                <div className="avatar">JD</div>
-                <span className="profile-name">John Doe</span>
+                <div className="avatar">{initials}</div>
+                <span className="profile-name">{displayName}</span>
               </button>
               
               {profileDropdownOpen && (
