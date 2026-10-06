@@ -21,8 +21,11 @@ import {
   Sparkles,
   Camera,
   Layers,
-  Award
+  Award,
+  BookOpen
 } from 'lucide-react';
+import { coursesApi } from '../api/courses.api';
+import type { CourseEnrollmentItem } from '../types/courses';
 
 export const Profile: React.FC = () => {
   const {
@@ -61,6 +64,15 @@ export const Profile: React.FC = () => {
   // Interests State
   const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
   const [newInterestName, setNewInterestName] = useState('');
+
+  // Course Enrollments State (Sprint 5)
+  const [myEnrollments, setMyEnrollments] = useState<CourseEnrollmentItem[]>([]);
+
+  useEffect(() => {
+    coursesApi.getMyCourses()
+      .then(data => setMyEnrollments(data || []))
+      .catch(() => {});
+  }, []);
 
   // Sync form with profile when loaded or toggling edit
   useEffect(() => {
@@ -437,6 +449,68 @@ export const Profile: React.FC = () => {
                   </div>
                 ) : (
                   <p className="text-sm text-gray-500 italic">No technical interests specified.</p>
+                )}
+              </div>
+
+              {/* Learning & Courses (Sprint 5) */}
+              <div className="rounded-xl border border-gray-800 bg-gray-900/40 p-6 space-y-4">
+                <div className="flex items-center justify-between border-b border-gray-800 pb-3">
+                  <h3 className="text-base font-semibold text-gray-200 flex items-center gap-2 m-0">
+                    <BookOpen size={18} className="text-indigo-400" /> Learning & Courses
+                  </h3>
+                  <a
+                    href="/my-learning"
+                    className="text-xs text-accent hover:underline flex items-center gap-1"
+                  >
+                    View All &rarr;
+                  </a>
+                </div>
+
+                {myEnrollments.length === 0 ? (
+                  <p className="text-sm text-gray-500 italic">No enrolled courses yet. Discover courses in the catalog!</p>
+                ) : (
+                  <div className="space-y-3">
+                    {myEnrollments.slice(0, 4).map((enr) => {
+                      const course = enr.course;
+                      const isComplete = enr.status === 'COMPLETED' || (enr.progress_percentage || 0) === 100;
+                      return (
+                        <div
+                          key={enr.id}
+                          className="p-3 rounded-lg bg-gray-800/40 border border-gray-800 flex items-center justify-between gap-3"
+                        >
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="text-xs font-semibold text-gray-200 truncate">
+                                {course?.title || 'Course'}
+                              </span>
+                              <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium uppercase ${
+                                isComplete
+                                  ? 'bg-emerald-500/15 text-emerald-400'
+                                  : 'bg-indigo-500/15 text-indigo-400'
+                              }`}>
+                                {isComplete ? 'Completed' : 'In Progress'}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-3 text-[11px] text-gray-400">
+                              <span>{course?.category?.replace(/_/g, ' ') || 'General'}</span>
+                              {enr.completed_at ? (
+                                <span>Completed: {new Date(enr.completed_at).toLocaleDateString()}</span>
+                              ) : (
+                                <span>Progress: {enr.progress_percentage || 0}%</span>
+                              )}
+                            </div>
+                          </div>
+
+                          <a
+                            href={isComplete ? `/courses/${course?.slug || course?.id}` : `/courses/${course?.slug || course?.id}/learn`}
+                            className="text-xs px-2.5 py-1 rounded bg-gray-800 hover:bg-gray-700 text-gray-200 border border-gray-700 transition"
+                          >
+                            {isComplete ? 'Review' : 'Continue'}
+                          </a>
+                        </div>
+                      );
+                    })}
+                  </div>
                 )}
               </div>
             </div>
