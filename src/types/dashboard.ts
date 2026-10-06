@@ -30,4 +30,6 @@ export interface DashboardData {
   recentActivity: ActivityItem[];
   upcomingEvents?: any[];
   myProjects?: any[];
+  myCourses?: any[];
+  continueLearning?: any;
 }

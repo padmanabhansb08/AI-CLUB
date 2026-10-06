@@ -31,6 +31,8 @@ export interface DashboardData {
   recentActivity: ActivityItem[];
   upcomingEvents?: any[];
   myProjects?: any[];
+  myCourses?: any[];
+  continueLearning?: any;
 }
 
 export const dashboardService = {
@@ -281,6 +283,37 @@ export const dashboardService = {
       LIMIT 5
     `, [memberId]);
 
+    // Student's active enrolled courses / continue learning
+    const myCoursesRes = await query(`
+      SELECT 
+        c.id,
+        c.title,
+        c.slug,
+        c.category,
+        c.difficulty,
+        c.thumbnail_url as "thumbnailUrl",
+        ce.status as "enrollmentStatus",
+        ce.last_accessed_at as "lastAccessedAt",
+        (
+          SELECT 
+            CASE 
+              WHEN COUNT(cl.id) = 0 THEN 0
+              ELSE ROUND((COUNT(lp.id) FILTER (WHERE lp.status = 'COMPLETED')::numeric / COUNT(cl.id)::numeric) * 100)::int
+            END
+          FROM course_modules cm
+          JOIN course_lessons cl ON cl.module_id = cm.id
+          LEFT JOIN lesson_progress lp ON lp.lesson_id = cl.id AND lp.member_id = $1
+          WHERE cm.course_id = c.id
+        ) as "progressPercentage"
+      FROM course_enrollments ce
+      JOIN courses c ON c.id = ce.course_id
+      WHERE ce.member_id = $1 AND ce.status != 'DROPPED'
+      ORDER BY ce.last_accessed_at DESC
+      LIMIT 4
+    `, [memberId]);
+
+    const activeCourse = myCoursesRes.rows.find(c => c.enrollmentStatus === 'ENROLLED') || myCoursesRes.rows[0] || null;
+
     return {
       profile: profileData,
       profileCompletion: profileData.profileCompletion,
@@ -291,6 +324,8 @@ export const dashboardService = {
       recentActivity: activityList.slice(0, 5),
       upcomingEvents: upcomingEventsRes.rows,
       myProjects: myProjectsRes.rows,
+      myCourses: myCoursesRes.rows,
+      continueLearning: activeCourse,
     };
   },
 };

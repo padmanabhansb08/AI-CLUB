@@ -10,6 +10,9 @@ import publicRoutes from './routes/publicRoutes';
 import eventRoutes from './routes/eventRoutes';
 import projectRoutes from './routes/projectRoutes';
 import teamRoutes from './routes/teamRoutes';
+import courseRoutes from './routes/courseRoutes';
+import moduleRoutes from './routes/moduleRoutes';
+import lessonRoutes from './routes/lessonRoutes';
 import { router as announcementRoutes } from './routes/announcementRoutes';
 import { router as directoryRoutes } from './routes/directoryRoutes';
 import { authenticate } from './middleware/auth';
@@ -98,6 +101,9 @@ app.use('/api/directory', directoryRoutes);
 app.use('/api/events', eventRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/teams', teamRoutes);
+app.use('/api/courses', courseRoutes);
+app.use('/api/modules', moduleRoutes);
+app.use('/api/lessons', lessonRoutes);
 app.use('/api', publicRoutes);
 
 // 404 handling middleware

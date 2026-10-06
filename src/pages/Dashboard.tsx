@@ -15,7 +15,8 @@ import {
   Sparkles, 
   Activity,
   Megaphone,
-  UserCheck
+  UserCheck,
+  PlayCircle
 } from 'lucide-react';
 
 export const Dashboard: React.FC = () => {
@@ -47,7 +48,9 @@ export const Dashboard: React.FC = () => {
     recentAchievements, 
     recentActivity,
     upcomingEvents = [],
-    myProjects = []
+    myProjects = [],
+    myCourses = [],
+    continueLearning = null
   } = data;
 
   // Determine time-of-day greeting
@@ -97,6 +100,44 @@ export const Dashboard: React.FC = () => {
             </div>
           )}
         </div>
+
+        {/* Continue Learning Banner (Sprint 5) */}
+        {continueLearning && (
+          <div className="p-5 rounded-2xl border border-indigo-500/30 bg-gradient-to-r from-indigo-950/40 via-slate-900 to-indigo-900/20 shadow-lg flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="space-y-1.5 flex-1">
+              <div className="flex items-center gap-2">
+                <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 uppercase tracking-wider flex items-center gap-1">
+                  <PlayCircle size={12} /> Continue Learning
+                </span>
+                <span className="text-xs text-gray-400 font-mono">
+                  {continueLearning.category?.replace(/_/g, ' ')}
+                </span>
+              </div>
+              <h3 className="text-base sm:text-lg font-bold text-white line-clamp-1">
+                {continueLearning.title}
+              </h3>
+              <div className="w-72 max-w-full">
+                <div className="flex justify-between text-[11px] text-gray-400 mb-1">
+                  <span>Curriculum Progress</span>
+                  <span className="text-indigo-400 font-semibold">{continueLearning.progressPercentage || 0}%</span>
+                </div>
+                <div className="w-full h-2 rounded-full bg-slate-800 overflow-hidden">
+                  <div
+                    className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full transition-all duration-300"
+                    style={{ width: `${continueLearning.progressPercentage || 0}%` }}
+                  />
+                </div>
+              </div>
+            </div>
+
+            <button
+              onClick={() => navigate(`/courses/${continueLearning.slug || continueLearning.id}/learn`)}
+              className="btn btn-primary flex items-center gap-2 self-start md:self-auto text-sm shrink-0"
+            >
+              <PlayCircle size={16} /> Resume Course <ArrowRight size={14} />
+            </button>
+          </div>
+        )}
 
         {/* Quick Stats Grid */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -314,6 +355,57 @@ export const Dashboard: React.FC = () => {
                   Explore Member Directory &rarr;
                 </Link>
               </div>
+            </div>
+
+            {/* Enrolled Courses / My Learning (Sprint 5) */}
+            <div className="p-5 rounded-xl border border-gray-800 bg-gray-900/40 space-y-3">
+              <div className="flex items-center justify-between border-b border-gray-800 pb-3">
+                <span className="text-xs font-semibold text-gray-300 flex items-center gap-1.5">
+                  <BookOpen size={14} className="text-indigo-400" />{' '}
+                  {myCourses.length > 0 ? 'My Courses' : 'Curated Learning'}
+                </span>
+                <Link
+                  to={myCourses.length > 0 ? '/my-learning' : '/courses'}
+                  className="text-xs text-accent hover:underline"
+                >
+                  {myCourses.length > 0 ? 'My Learning' : 'All'}
+                </Link>
+              </div>
+
+              {myCourses && myCourses.length > 0 ? (
+                <div className="space-y-2">
+                  {myCourses.map((c: any) => (
+                    <div
+                      key={c.id}
+                      onClick={() => navigate(`/courses/${c.slug || c.id}`)}
+                      className="p-2.5 rounded-lg bg-gray-800/40 hover:bg-gray-800 border border-gray-800 hover:border-gray-700 cursor-pointer transition-colors"
+                    >
+                      <div className="flex items-center justify-between mb-1">
+                        <h5 className="text-xs font-semibold text-gray-200 truncate max-w-[170px]">
+                          {c.title}
+                        </h5>
+                        <span className="text-[9px] px-1.5 py-0.5 rounded bg-indigo-500/15 text-indigo-400 font-medium uppercase">
+                          {c.enrollmentStatus || 'ENROLLED'}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between text-[11px] text-gray-400">
+                        <span>{c.category?.replace(/_/g, ' ') || c.difficulty}</span>
+                        <span className="text-indigo-400 font-medium">{c.progressPercentage || 0}% Done</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-2">
+                  <p className="text-xs text-gray-400 mb-2">No active enrollments yet.</p>
+                  <Link
+                    to="/courses"
+                    className="text-xs text-accent hover:underline inline-flex items-center gap-1"
+                  >
+                    Browse Course Catalog &rarr;
+                  </Link>
+                </div>
+              )}
             </div>
 
             {/* Projects & Pods */}

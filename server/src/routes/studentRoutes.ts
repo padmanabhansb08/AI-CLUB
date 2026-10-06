@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { authenticate } from '../middleware/auth';
 import { projectController, courseController } from '../controllers/contentController';
 import { projectController as mainProjectController } from '../controllers/projectController';
+import { courseController as mainCourseController } from '../controllers/courseController';
 import { studentController } from '../controllers/studentController';
 import { dashboardController } from '../controllers/dashboardController';
 import { studentEventController } from '../controllers/eventController';
@@ -26,7 +27,8 @@ router.get('/dashboard', dashboardController.getDashboard);
 router.get('/projects', mainProjectController.getMyProjects);
 router.post('/projects/:id/interest', projectController.addInterest);
 router.delete('/projects/:id/interest', projectController.removeInterest);
-router.get('/courses/progress', courseController.getProgress);
+router.get('/courses', mainCourseController.getMyCourses);
+router.get('/courses/progress', mainCourseController.getProgress);
 
 // Events
 router.get('/events/registrations', studentEventController.getMyRegistrations);

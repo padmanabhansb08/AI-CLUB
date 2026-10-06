@@ -12,6 +12,8 @@ import {
   Menu,
   X,
   Bell,
+  Calendar,
+  GraduationCap,
   Megaphone,
   Users
 } from 'lucide-react';
@@ -37,9 +39,6 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, page
   const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
-    // Only fetch unread count if we are a student (which DashboardLayout typically is)
-    // and we have a valid token (implied by being here).
-    // In a real app, we might use a global context, but simple fetch is fine.
     const fetchUnread = async () => {
       try {
         const count = await announcementService.getUnreadCount();
@@ -53,12 +52,13 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, page
 
   const navItems = [
     { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
-    { name: 'Members', path: '/members', icon: Users },
     { name: 'Announcements', path: '/announcements', icon: Megaphone },
+    { name: 'Events', path: '/events', icon: Calendar },
+    { name: 'Courses', path: '/courses', icon: BookOpen },
+    { name: 'My Learning', path: '/my-learning', icon: GraduationCap },
+    { name: 'Projects', path: '/projects', icon: Lightbulb },
     { name: 'Achievements', path: '/achievements', icon: Trophy },
     { name: 'AI & Tech', path: '/updates', icon: Rss },
-    { name: 'Courses', path: '/courses', icon: BookOpen },
-    { name: 'Projects', path: '/projects', icon: Lightbulb },
     { name: 'Members', path: '/members', icon: Users },
   ];
 

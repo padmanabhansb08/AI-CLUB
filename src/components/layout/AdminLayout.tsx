@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { NavLink, useNavigate, Outlet } from 'react-router-dom';
 import { 
   Users, Trophy, Zap, BookOpen, BarChart3, Settings, LogOut, 
-  Menu, X, Bell, Search, LayoutDashboard
+  Menu, X, Bell, Search, LayoutDashboard, Calendar, Megaphone, FolderGit2
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
@@ -24,10 +24,12 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ pageTitle, children })
   const navItems = [
     { name: 'Overview', path: '/admin', icon: <LayoutDashboard size={20} /> },
     { name: 'Members', path: '/admin/members', icon: <Users size={20} /> },
+    { name: 'Announcements', path: '/admin/announcements', icon: <Megaphone size={20} /> },
+    { name: 'Events', path: '/admin/events', icon: <Calendar size={20} /> },
+    { name: 'Courses', path: '/admin/courses', icon: <BookOpen size={20} /> },
+    { name: 'Projects', path: '/admin/projects', icon: <FolderGit2 size={20} /> },
     { name: 'Achievements', path: '/admin/achievements', icon: <Trophy size={20} /> },
     { name: 'AI & Tech Updates', path: '/admin/updates', icon: <Zap size={20} /> },
-    { name: 'Projects', path: '/admin/projects', icon: <BookOpen size={20} /> },
-    { name: 'Courses', path: '/admin/courses', icon: <BookOpen size={20} /> },
     { name: 'Analytics', path: '/admin/analytics', icon: <BarChart3 size={20} /> }
   ];
 

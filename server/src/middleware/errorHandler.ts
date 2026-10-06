@@ -1,6 +1,14 @@
 import { Request, Response, NextFunction } from 'express';
 import { ZodError } from 'zod';
-import { AppError, ValidationError } from '../errors/AppError';
+import {
+  AppError,
+  ValidationError,
+  BadRequestError,
+  UnauthorizedError,
+  ForbiddenError,
+  NotFoundError,
+  ConflictError,
+} from '../errors/AppError';
 import { config } from '../config';
 
 // Compatibility alias for existing codebase
@@ -26,6 +34,26 @@ export class ApiError extends AppError {
       }
     }
     super(resolvedStatus, code, message, details);
+  }
+
+  static badRequest(message = 'Bad request', details: any = {}) {
+    return new BadRequestError(message, details);
+  }
+
+  static unauthorized(message = 'Authentication required', details: any = {}) {
+    return new UnauthorizedError(message, details);
+  }
+
+  static forbidden(message = 'Access forbidden', details: any = {}) {
+    return new ForbiddenError(message, details);
+  }
+
+  static notFound(message = 'Resource not found', details: any = {}) {
+    return new NotFoundError(message, details);
+  }
+
+  static conflict(message = 'Resource conflict', details: any = {}) {
+    return new ConflictError(message, details);
   }
 }
 

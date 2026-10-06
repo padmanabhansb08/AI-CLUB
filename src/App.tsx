@@ -19,6 +19,8 @@ import { ProjectDetail } from './pages/ProjectDetail';
 import { MyProjects } from './pages/MyProjects';
 import { Courses } from './pages/Courses';
 import { CourseDetail } from './pages/CourseDetail';
+import { CourseLearning } from './pages/CourseLearning';
+import { MyLearning } from './pages/MyLearning';
 import { Profile } from './pages/Profile';
 import { Members } from './pages/Members';
 import { MemberDetail } from './pages/MemberDetail';
@@ -71,7 +73,10 @@ function App() {
               <Route path="/projects/my" element={<RoleGuard allowedRole="student"><MyProjects /></RoleGuard>} />
               <Route path="/projects/:id" element={<RoleGuard allowedRole="student"><ProjectDetail /></RoleGuard>} />
               <Route path="/courses" element={<RoleGuard allowedRole="student"><Courses /></RoleGuard>} />
+              <Route path="/courses/my" element={<RoleGuard allowedRole="student"><MyLearning /></RoleGuard>} />
+              <Route path="/my-learning" element={<RoleGuard allowedRole="student"><MyLearning /></RoleGuard>} />
               <Route path="/courses/:id" element={<RoleGuard allowedRole="student"><CourseDetail /></RoleGuard>} />
+              <Route path="/courses/:id/learn" element={<RoleGuard allowedRole="student"><CourseLearning /></RoleGuard>} />
               <Route path="/profile" element={<RoleGuard allowedRole="student"><Profile /></RoleGuard>} />
               <Route path="/members" element={<RoleGuard allowedRole="student"><Members /></RoleGuard>} />
               <Route path="/members/:id" element={<RoleGuard allowedRole="student"><MemberDetail /></RoleGuard>} />
