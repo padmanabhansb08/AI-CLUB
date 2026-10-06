@@ -2,6 +2,8 @@ import { projectRepo, ProjectSearchParams } from '../repositories/projectReposit
 import { ApiError } from '../middleware/errorHandler';
 import { ProjectItem, ProjectMembershipItem } from '../types/projects';
 import { query } from '../db';
+import { notificationService } from './notificationService';
+import { achievementService } from './achievementService';
 
 export const projectService = {
   async getProjects(params: ProjectSearchParams) {
@@ -155,6 +157,28 @@ export const projectService = {
     }
 
     const updated = await projectRepo.updateMembership(projectId, targetMemberId, data);
+    try {
+      if (data.status === 'ACTIVE') {
+        notificationService.createNotification({
+          recipient_id: targetMemberId,
+          type: 'PROJECT_JOIN_APPROVED',
+          title: 'Project Application Approved',
+          message: `Your request to join "${project.title}" has been approved!`,
+          data: { projectId: project.id, role: updated.role },
+        }).catch(() => {});
+        achievementService.evaluateMemberAchievements(targetMemberId).catch(() => {});
+      } else if (data.status === 'REJECTED') {
+        notificationService.createNotification({
+          recipient_id: targetMemberId,
+          type: 'PROJECT_JOIN_REJECTED',
+          title: 'Project Application Status',
+          message: `Your request to join "${project.title}" was not approved.`,
+          data: { projectId: project.id },
+        }).catch(() => {});
+      }
+    } catch {
+      // Non-blocking
+    }
     return updated;
   },
 
@@ -235,7 +259,18 @@ export const projectService = {
       }
     }
 
-    return projectRepo.updateMilestone(milestoneId, data);
+    const updated = await projectRepo.updateMilestone(milestoneId, data);
+    if (data.status === 'COMPLETED' && project) {
+      try {
+        const members = await projectRepo.getMembers(project.id, 'ACTIVE');
+        for (const m of members) {
+          achievementService.evaluateMemberAchievements(m.member_id).catch(() => {});
+        }
+      } catch {
+        // Non-blocking
+      }
+    }
+    return updated;
   },
 
   async deleteMilestone(milestoneId: string, callerMemberId?: string, isAdmin = false) {

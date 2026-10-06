@@ -5,6 +5,8 @@ export interface DashboardStats {
   courses: number;
   achievements: number;
   events: number;
+  totalPoints?: number;
+  unreadNotifications?: number;
   totalProjects?: number;
   totalCourses?: number;
   totalEvents?: number;

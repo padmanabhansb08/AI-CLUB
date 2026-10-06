@@ -181,13 +181,15 @@ export const Dashboard: React.FC = () => {
             className="p-4 rounded-xl border border-gray-800 bg-gray-900/60 hover:border-gray-700 cursor-pointer transition-colors"
           >
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs text-gray-400 font-medium">My Achievements</span>
+              <span className="text-xs text-gray-400 font-medium">Achievements & Points</span>
               <div className="p-2 rounded-lg bg-amber-950/40 text-amber-400 border border-amber-800/40">
                 <Trophy size={18} />
               </div>
             </div>
-            <div className="text-2xl font-bold text-gray-100 font-mono">{stats.achievements}</div>
-            <span className="text-[11px] text-gray-500 mt-1 block">Hackathons & research</span>
+            <div className="text-2xl font-bold text-gray-100 font-mono">
+              {stats.achievements} <span className="text-xs font-normal text-amber-400">({stats.totalPoints || 0} pts)</span>
+            </div>
+            <span className="text-[11px] text-gray-500 mt-1 block">Sprint 6 Recognition</span>
           </div>
 
           {/* Events Stat */}
@@ -472,27 +474,41 @@ export const Dashboard: React.FC = () => {
             {/* Achievements Highlight */}
             <div className="p-5 rounded-xl border border-gray-800 bg-gray-900/40 space-y-3">
               <div className="flex items-center justify-between border-b border-gray-800 pb-3">
-                <span className="text-xs font-semibold text-gray-300 flex items-center gap-1.5">
-                  <Trophy size={14} className="text-amber-400" /> Club Achievements
-                </span>
+                <div>
+                  <span className="text-xs font-semibold text-gray-300 flex items-center gap-1.5">
+                    <Trophy size={14} className="text-amber-400" /> Recognition & Points
+                  </span>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    <span className="text-[11px] font-bold text-amber-400 font-mono">
+                      ⭐ {stats.totalPoints || 0} PTS
+                    </span>
+                    <span className="text-[11px] text-gray-400 font-mono">
+                      • 🏆 {stats.achievements} Unlocked
+                    </span>
+                  </div>
+                </div>
                 <Link to="/achievements" className="text-xs text-accent hover:underline">
-                  All
+                  All &rarr;
                 </Link>
               </div>
 
               {recentAchievements.length === 0 ? (
-                <EmptyState title="No Achievements" message="Achievements will appear here." />
+                <EmptyState title="No Achievements Yet" message="Participate in club events or complete courses to earn recognition." />
               ) : (
                 <div className="space-y-2">
-                  {recentAchievements.map((ach: any) => (
+                  {recentAchievements.slice(0, 4).map((ach: any) => (
                     <div 
                       key={ach.id}
-                      onClick={() => navigate('/achievements')}
-                      className="p-2.5 rounded-lg bg-gray-800/40 hover:bg-gray-800 border border-gray-800 hover:border-gray-700 cursor-pointer transition-colors"
+                      onClick={() => navigate(ach.slug ? `/achievements/${ach.slug}` : '/achievements')}
+                      className="p-2.5 rounded-lg bg-gray-800/40 hover:bg-gray-800 border border-gray-800 hover:border-gray-700 cursor-pointer transition-colors flex items-center justify-between"
                     >
-                      <span className="text-[10px] text-amber-400 font-mono block">{ach.category}</span>
-                      <h5 className="text-xs font-semibold text-gray-200 truncate">{ach.title}</h5>
-                      <span className="text-[11px] text-gray-500">{ach.studentName}</span>
+                      <div className="min-w-0 pr-2">
+                        <span className="text-[10px] text-amber-400 font-mono block uppercase">{ach.category}</span>
+                        <h5 className="text-xs font-semibold text-gray-200 truncate">{ach.name || ach.title}</h5>
+                      </div>
+                      <span className="text-[11px] font-bold text-amber-300 px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/20 shrink-0">
+                        +{ach.points || 10}
+                      </span>
                     </div>
                   ))}
                 </div>

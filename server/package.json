@@ -10,7 +10,7 @@
     "typecheck": "tsc --noEmit",
     "db:migrate": "tsx src/db/migrate.ts",
     "db:seed": "tsx src/db/seeds/001_initial_seed.ts",
-    "test": "node --test --import tsx src/tests/**/*.test.ts"
+    "test": "node --test --test-concurrency=1 --import tsx src/tests/**/*.test.ts"
   },
   "keywords": [],
   "author": "",

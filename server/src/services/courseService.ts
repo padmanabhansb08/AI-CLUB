@@ -11,6 +11,8 @@ import {
   CourseProgressSummary,
   CourseAnalytics,
 } from '../types/courses';
+import { notificationService } from './notificationService';
+import { achievementService } from './achievementService';
 
 export class CourseService {
   // Helper: resolve member ID from authenticated user
@@ -435,7 +437,20 @@ export class CourseService {
     const memberId = await this.getMemberId(user);
 
     try {
-      return await courseRepo.enroll(course.id, memberId);
+      const enr = await courseRepo.enroll(course.id, memberId);
+      try {
+        notificationService.createNotification({
+          recipient_id: memberId,
+          type: 'COURSE_ENROLLED',
+          title: 'Course Enrollment Confirmed',
+          message: `You are enrolled in "${course.title}". Start your learning journey!`,
+          data: { courseId: course.id, courseSlug: course.slug },
+        }).catch(() => {});
+        achievementService.evaluateMemberAchievements(memberId).catch(() => {});
+      } catch {
+        // Non-blocking
+      }
+      return enr;
     } catch (err: any) {
       if (err.code === 'ALREADY_ENROLLED') {
         throw ApiError.conflict('ALREADY_ENROLLED: You are already enrolled in this course');
@@ -505,11 +520,28 @@ export class CourseService {
     lessonId: string,
     user: { id: string; userId?: string; role?: string }
   ): Promise<LessonProgress> {
-    const { lesson, memberId } = await this.assertLessonAccess(lessonId, user);
+    const { lesson, courseId, memberId } = await this.assertLessonAccess(lessonId, user);
     if (!memberId) {
       throw ApiError.badRequest('Student member record required');
     }
-    return courseRepo.updateProgress(lesson.id, memberId, 100, 'COMPLETED');
+    const progress = await courseRepo.updateProgress(lesson.id, memberId, 100, 'COMPLETED');
+    try {
+      const summary = await courseRepo.getCourseProgressSummary(courseId, memberId);
+      if (summary && summary.progress && summary.progress.percentage === 100) {
+        notificationService.createNotification({
+          recipient_id: memberId,
+          type: 'COURSE_COMPLETED',
+          title: 'Congratulations! Course Completed',
+          message: `You completed all lessons for "${(summary as any).title || 'Course'}".`,
+          data: { courseId: summary.courseId },
+          priority: 'HIGH',
+        }).catch(() => {});
+      }
+      achievementService.evaluateMemberAchievements(memberId).catch(() => {});
+    } catch {
+      // Non-blocking
+    }
+    return progress;
   }
 
   async getCourseProgress(

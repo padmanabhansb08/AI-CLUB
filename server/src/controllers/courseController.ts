@@ -12,6 +12,7 @@ import {
 } from '../validators/schemas';
 import { AuthRequest } from '../middleware/auth';
 import { ApiError } from '../middleware/errorHandler';
+import { auditService } from '../services/auditService';
 
 export const courseController = {
   // Discovery & listing
@@ -95,6 +96,17 @@ export const courseController = {
       if (!req.user) throw ApiError.unauthorized();
       const id = req.params.id as string;
       const course = await courseService.publishCourse(id, req.user);
+
+      auditService.logAction({
+        actorId: req.user.userId || req.user.id,
+        action: 'COURSE_PUBLISHED',
+        entityType: 'COURSE',
+        entityId: id,
+        afterData: { title: course?.title, status: 'PUBLISHED' },
+        ipAddress: req.ip,
+        userAgent: req.get('user-agent'),
+      }).catch(() => {});
+
       return sendSuccess(res, course, 'Course published successfully');
     } catch (err) {
       next(err);
@@ -106,6 +118,17 @@ export const courseController = {
       if (!req.user) throw ApiError.unauthorized();
       const id = req.params.id as string;
       const course = await courseService.unpublishCourse(id, req.user);
+
+      auditService.logAction({
+        actorId: req.user.userId || req.user.id,
+        action: 'COURSE_UNPUBLISHED',
+        entityType: 'COURSE',
+        entityId: id,
+        afterData: { title: course?.title, status: 'DRAFT' },
+        ipAddress: req.ip,
+        userAgent: req.get('user-agent'),
+      }).catch(() => {});
+
       return sendSuccess(res, course, 'Course unpublished successfully');
     } catch (err) {
       next(err);
@@ -117,6 +140,17 @@ export const courseController = {
       if (!req.user) throw ApiError.unauthorized();
       const id = req.params.id as string;
       const course = await courseService.archiveCourse(id, req.user);
+
+      auditService.logAction({
+        actorId: req.user.userId || req.user.id,
+        action: 'COURSE_ARCHIVED',
+        entityType: 'COURSE',
+        entityId: id,
+        afterData: { title: course?.title, status: 'ARCHIVED' },
+        ipAddress: req.ip,
+        userAgent: req.get('user-agent'),
+      }).catch(() => {});
+
       return sendSuccess(res, course, 'Course archived successfully');
     } catch (err) {
       next(err);

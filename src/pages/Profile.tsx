@@ -23,12 +23,16 @@ import {
   Layers,
   Award,
   BookOpen,
-  FolderGit2
+  FolderGit2,
+  Trophy
 } from 'lucide-react';
 import { coursesApi } from '../api/courses.api';
 import { projectsApi } from '../api/projects.api';
+import { achievementsApi } from '../api/achievements.api';
 import type { CourseEnrollmentItem } from '../types/courses';
 import type { ProjectItem } from '../types/projects';
+import type { MemberAchievementItem, MemberAchievementStats } from '../types/achievements';
+import { AchievementBadge } from '../components/achievements/AchievementBadge';
 
 export const Profile: React.FC = () => {
   const {
@@ -68,9 +72,11 @@ export const Profile: React.FC = () => {
   const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
   const [newInterestName, setNewInterestName] = useState('');
 
-  // Course Enrollments State (Sprint 5) & Projects State (Sprint 4)
+  // Course Enrollments State (Sprint 5) & Projects State (Sprint 4) & Achievements (Sprint 6)
   const [myEnrollments, setMyEnrollments] = useState<CourseEnrollmentItem[]>([]);
   const [myProjects, setMyProjects] = useState<ProjectItem[]>([]);
+  const [myAchievements, setMyAchievements] = useState<MemberAchievementItem[]>([]);
+  const [achievementStats, setAchievementStats] = useState<MemberAchievementStats | null>(null);
 
   useEffect(() => {
     coursesApi.getMyCourses()
@@ -78,6 +84,12 @@ export const Profile: React.FC = () => {
       .catch(() => {});
     projectsApi.getMyProjects()
       .then(data => setMyProjects(data || []))
+      .catch(() => {});
+    achievementsApi.getMyAchievements()
+      .then(data => setMyAchievements(data || []))
+      .catch(() => {});
+    achievementsApi.getMyStats()
+      .then(data => setAchievementStats(data))
       .catch(() => {});
   }, []);
 
@@ -571,6 +583,67 @@ export const Profile: React.FC = () => {
                           >
                             {isComplete ? 'Review' : 'Continue'}
                           </a>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
+              {/* Achievements & Recognition (Sprint 6) */}
+              <div className="rounded-xl border border-gray-800 bg-gray-900/40 p-6 space-y-4">
+                <div className="flex items-center justify-between border-b border-gray-800 pb-3">
+                  <div className="flex items-center gap-2">
+                    <Trophy size={18} className="text-amber-400" />
+                    <h3 className="text-base font-semibold text-gray-200 m-0">
+                      Achievements & Recognition
+                    </h3>
+                    {achievementStats && (
+                      <span className="text-xs font-bold text-amber-400 font-mono ml-2">
+                        ⭐ {achievementStats.totalPoints} PTS
+                      </span>
+                    )}
+                  </div>
+                  <a
+                    href="/achievements"
+                    className="text-xs text-accent hover:underline flex items-center gap-1"
+                  >
+                    View All &rarr;
+                  </a>
+                </div>
+
+                {myAchievements.length === 0 ? (
+                  <p className="text-sm text-gray-500 italic">No achievements unlocked yet. Attend events or complete courses to start earning recognition!</p>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {myAchievements.map((item) => {
+                      const ach = item.achievement;
+                      return (
+                        <div
+                          key={item.id}
+                          className="p-3 rounded-lg bg-gray-800/40 border border-gray-800 flex items-center gap-3"
+                        >
+                          <AchievementBadge
+                            iconName={ach?.icon}
+                            isUnlocked={true}
+                            size="md"
+                          />
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center justify-between gap-1 mb-0.5">
+                              <span className="text-xs font-bold text-white truncate">
+                                {ach?.name || 'Achievement'}
+                              </span>
+                              <span className="text-[10px] font-bold text-amber-400 font-mono">
+                                +{ach?.points || 10}
+                              </span>
+                            </div>
+                            <p className="text-[11px] text-gray-400 line-clamp-1">
+                              {ach?.description}
+                            </p>
+                            <span className="text-[10px] text-gray-500 mt-1 block">
+                              Earned {new Date(item.earned_at).toLocaleDateString()}
+                            </span>
+                          </div>
                         </div>
                       );
                     })}

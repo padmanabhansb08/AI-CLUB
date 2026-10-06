@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { NavLink, Link, useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, 
@@ -17,8 +17,8 @@ import {
   Megaphone,
   Users
 } from 'lucide-react';
-import { announcementService } from '../../services/content/announcementService';
 import { useAuth } from '../../context/AuthContext';
+import { NotificationBell } from '../notifications/NotificationBell';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -36,22 +36,9 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, page
     navigate('/');
   };
 
-  const [unreadCount, setUnreadCount] = useState(0);
-
-  useEffect(() => {
-    const fetchUnread = async () => {
-      try {
-        const count = await announcementService.getUnreadCount();
-        setUnreadCount(count);
-      } catch (err) {
-        console.error('Failed to fetch unread count', err);
-      }
-    };
-    fetchUnread();
-  }, []);
-
   const navItems = [
     { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
+    { name: 'Notifications', path: '/notifications', icon: Bell },
     { name: 'Announcements', path: '/announcements', icon: Megaphone },
     { name: 'Events', path: '/events', icon: Calendar },
     { name: 'Courses', path: '/courses', icon: BookOpen },
@@ -128,13 +115,8 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, page
             <h1 className="page-title">{pageTitle}</h1>
           </div>
           
-          <div className="topbar-right">
-            <button className="icon-btn relative" onClick={() => navigate('/announcements')} title="Announcements">
-              <Bell size={20} />
-              {unreadCount > 0 && (
-                <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full ring-2 ring-[var(--bg-card)]"></span>
-              )}
-            </button>
+          <div className="topbar-right flex items-center gap-3">
+            <NotificationBell />
             
             <div className="profile-menu-container">
               <button 

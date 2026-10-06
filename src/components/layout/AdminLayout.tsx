@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import { NavLink, useNavigate, Outlet } from 'react-router-dom';
 import { 
   Users, Trophy, Zap, BookOpen, BarChart3, Settings, LogOut, 
-  Menu, X, Bell, Search, LayoutDashboard, Calendar, Megaphone, FolderGit2
+  Menu, X, Bell, Search, LayoutDashboard, Calendar, Megaphone, FolderGit2, ShieldCheck
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { NotificationBell } from '../notifications/NotificationBell';
 
 interface AdminLayoutProps {
   pageTitle: string;
@@ -14,7 +15,7 @@ interface AdminLayoutProps {
 export const AdminLayout: React.FC<AdminLayoutProps> = ({ pageTitle, children }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
-  const { logout } = useAuth();
+  const { user, logout } = useAuth();
 
   const handleLogout = async () => {
     await logout();
@@ -29,8 +30,10 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ pageTitle, children })
     { name: 'Courses', path: '/admin/courses', icon: <BookOpen size={20} /> },
     { name: 'Projects', path: '/admin/projects', icon: <FolderGit2 size={20} /> },
     { name: 'Achievements', path: '/admin/achievements', icon: <Trophy size={20} /> },
-    { name: 'AI & Tech Updates', path: '/admin/updates', icon: <Zap size={20} /> },
-    { name: 'Analytics', path: '/admin/analytics', icon: <BarChart3 size={20} /> }
+    { name: 'Notifications', path: '/admin/notifications', icon: <Bell size={20} /> },
+    { name: 'Analytics', path: '/admin/analytics', icon: <BarChart3 size={20} /> },
+    { name: 'Audit Logs', path: '/admin/audit-logs', icon: <ShieldCheck size={20} /> },
+    { name: 'AI & Tech Updates', path: '/admin/updates', icon: <Zap size={20} /> }
   ];
 
   return (
@@ -102,14 +105,14 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ pageTitle, children })
               <Search size={18} className="search-icon" />
               <input type="text" placeholder="Search admin..." />
             </div>
-            <button className="icon-btn">
-              <Bell size={20} />
-            </button>
+            <NotificationBell />
             <div className="user-profile">
-              <div className="avatar admin-avatar">A</div>
+              <div className="avatar admin-avatar">
+                {user?.email ? user.email.charAt(0).toUpperCase() : 'A'}
+              </div>
               <div className="user-info hidden-mobile">
-                <span className="user-name">Administrator</span>
-                <span className="user-role">Operations</span>
+                <span className="user-name">{user?.email || 'Administrator'}</span>
+                <span className="user-role">{user?.role?.toUpperCase() || 'OPERATIONS'}</span>
               </div>
             </div>
           </div>
