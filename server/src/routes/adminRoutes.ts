@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { authenticate, requireAdmin } from '../middleware/auth';
 import { memberController, achievementController, updateController, courseController } from '../controllers/contentController';
 import { projectController as mainProjectController } from '../controllers/projectController';
+import { courseController as mainCourseController } from '../controllers/courseController';
 import { adminEventController } from '../controllers/eventController';
 import { projectTeamController } from '../controllers/projectTeamController';
 import { announcementController } from '../controllers/announcementController';
@@ -29,7 +30,12 @@ router.get('/projects/:id/teams', projectTeamController.getAdminProjectTeams);
 
 router.post('/courses', courseController.create);
 router.put('/courses/:id', courseController.update);
+router.patch('/courses/:id', mainCourseController.update);
 router.delete('/courses/:id', courseController.delete);
+router.post('/courses/:id/publish', mainCourseController.publish);
+router.post('/courses/:id/unpublish', mainCourseController.unpublish);
+router.post('/courses/:id/archive', mainCourseController.archive);
+router.get('/courses/:id/analytics', mainCourseController.getAnalytics);
 
 router.get('/events', adminEventController.getAll);
 router.post('/events', adminEventController.create);

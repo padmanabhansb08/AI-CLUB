@@ -357,3 +357,78 @@ export const checkInSchema = z.object({
   status: z.enum(['PRESENT', 'ABSENT', 'LATE', 'present', 'absent', 'late']).default('PRESENT').transform(s => s.toUpperCase() as 'PRESENT' | 'ABSENT' | 'LATE'),
 });
 
+// ==========================================
+// Sprint 5: LMS Schemas
+// ==========================================
+
+export const COURSE_CATEGORIES = [
+  'AI_ML',
+  'GENERATIVE_AI',
+  'DATA_SCIENCE',
+  'WEB_DEVELOPMENT',
+  'APP_DEVELOPMENT',
+  'PROGRAMMING',
+  'CLOUD',
+  'DEVOPS',
+  'CYBERSECURITY',
+  'ROBOTICS',
+  'IOT',
+  'DATA_ENGINEERING',
+  'OPEN_SOURCE',
+  'CAREER',
+  'OTHER',
+] as const;
+
+export const COURSE_DIFFICULTIES = ['BEGINNER', 'INTERMEDIATE', 'ADVANCED', 'EXPERT'] as const;
+export const COURSE_STATUSES = ['DRAFT', 'PUBLISHED', 'UNPUBLISHED', 'ARCHIVED'] as const;
+export const LESSON_CONTENT_TYPES = ['VIDEO', 'ARTICLE', 'DOCUMENT', 'LINK', 'QUIZ', 'ASSIGNMENT'] as const;
+
+export const courseCreateSchema = z.object({
+  title: z.string().trim().min(2, 'Title must be at least 2 characters').max(255),
+  slug: z.string().trim().min(2).max(255).optional(),
+  short_description: z.string().trim().max(500).optional().nullable(),
+  description: z.string().trim().min(10, 'Description must be at least 10 characters'),
+  category: z.string().trim().min(2),
+  difficulty: z.enum(COURSE_DIFFICULTIES, { message: 'Invalid difficulty' }),
+  instructor_id: z.string().uuid('Invalid instructor ID').optional().nullable(),
+  status: z.enum(COURSE_STATUSES).optional().default('DRAFT'),
+  estimated_duration_minutes: z.number().int().nonnegative().optional().default(0),
+  thumbnail_url: z.string().trim().url().optional().nullable().or(z.literal('')),
+  learning_objectives: z.array(z.string().trim()).optional().default([]),
+  prerequisites: z.array(z.string().trim()).optional().default([]),
+  technologies: z.array(z.string().trim()).optional().default([]),
+  skills: z.array(z.string().trim()).optional().default([]),
+  language: z.string().trim().optional().default('English'),
+});
+
+export const courseUpdateSchema = courseCreateSchema.partial();
+
+export const courseModuleCreateSchema = z.object({
+  title: z.string().trim().min(2, 'Module title must be at least 2 characters').max(255),
+  description: z.string().trim().max(1000).optional().nullable(),
+  position: z.number().int().nonnegative().optional(),
+});
+
+export const courseModuleUpdateSchema = courseModuleCreateSchema.partial();
+
+export const courseLessonCreateSchema = z.object({
+  title: z.string().trim().min(2, 'Lesson title must be at least 2 characters').max(255),
+  slug: z.string().trim().min(2).max(255).optional(),
+  description: z.string().trim().max(1000).optional().nullable(),
+  content_type: z.enum(LESSON_CONTENT_TYPES).default('ARTICLE'),
+  content: z.string().optional().nullable(),
+  video_url: z.string().trim().url().optional().nullable().or(z.literal('')),
+  external_url: z.string().trim().url().optional().nullable().or(z.literal('')),
+  position: z.number().int().nonnegative().optional(),
+  duration_minutes: z.number().int().nonnegative().optional().default(0),
+  is_preview: z.boolean().optional().default(false),
+});
+
+export const courseLessonUpdateSchema = courseLessonCreateSchema.partial();
+
+export const lessonProgressUpdateSchema = z.object({
+  progress_percentage: z.number().min(0).max(100),
+  status: z.enum(['NOT_STARTED', 'IN_PROGRESS', 'COMPLETED']).optional(),
+});
+
+
