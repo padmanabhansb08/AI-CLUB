@@ -46,7 +46,8 @@ export const Dashboard: React.FC = () => {
     recentProjects, 
     recentAchievements, 
     recentActivity,
-    upcomingEvents = [] 
+    upcomingEvents = [],
+    myProjects = []
   } = data;
 
   // Determine time-of-day greeting
@@ -315,18 +316,45 @@ export const Dashboard: React.FC = () => {
               </div>
             </div>
 
-            {/* Recent Active Projects */}
+            {/* Projects & Pods */}
             <div className="p-5 rounded-xl border border-gray-800 bg-gray-900/40 space-y-3">
               <div className="flex items-center justify-between border-b border-gray-800 pb-3">
                 <span className="text-xs font-semibold text-gray-300 flex items-center gap-1.5">
-                  <Lightbulb size={14} className="text-emerald-400" /> Active Projects
+                  <Lightbulb size={14} className="text-emerald-400" />{' '}
+                  {myProjects.length > 0 ? 'My Projects & Pods' : 'Active Projects'}
                 </span>
-                <Link to="/projects" className="text-xs text-accent hover:underline">
-                  All
+                <Link
+                  to={myProjects.length > 0 ? '/projects/my' : '/projects'}
+                  className="text-xs text-accent hover:underline"
+                >
+                  {myProjects.length > 0 ? 'My Pods' : 'All'}
                 </Link>
               </div>
 
-              {recentProjects.length === 0 ? (
+              {myProjects && myProjects.length > 0 ? (
+                <div className="space-y-2">
+                  {myProjects.map((p: any) => (
+                    <div
+                      key={p.id}
+                      onClick={() => navigate(`/projects/${p.slug || p.id}`)}
+                      className="p-2.5 rounded-lg bg-gray-800/40 hover:bg-gray-800 border border-gray-800 hover:border-gray-700 cursor-pointer transition-colors"
+                    >
+                      <div className="flex items-center justify-between mb-1">
+                        <h5 className="text-xs font-semibold text-gray-200 truncate max-w-[170px]">
+                          {p.title}
+                        </h5>
+                        <span className="text-[9px] px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-400 font-medium uppercase">
+                          {p.role || p.membershipStatus}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between text-[11px] text-gray-400">
+                        <span>{p.domain?.replace(/_/g, ' ') || p.difficulty}</span>
+                        <span>{p.progressPercentage || 0}% Done</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : recentProjects.length === 0 ? (
                 <EmptyState title="No Projects" message="No active projects available right now." />
               ) : (
                 <div className="space-y-2">

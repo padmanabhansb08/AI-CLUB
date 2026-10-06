@@ -16,6 +16,7 @@ import { Updates } from './pages/Updates';
 import { UpdateDetail } from './pages/UpdateDetail';
 import { Projects } from './pages/Projects';
 import { ProjectDetail } from './pages/ProjectDetail';
+import { MyProjects } from './pages/MyProjects';
 import { Courses } from './pages/Courses';
 import { CourseDetail } from './pages/CourseDetail';
 import { Profile } from './pages/Profile';
@@ -67,6 +68,7 @@ function App() {
               <Route path="/updates" element={<RoleGuard allowedRole="student"><Updates /></RoleGuard>} />
               <Route path="/updates/:id" element={<RoleGuard allowedRole="student"><UpdateDetail /></RoleGuard>} />
               <Route path="/projects" element={<RoleGuard allowedRole="student"><Projects /></RoleGuard>} />
+              <Route path="/projects/my" element={<RoleGuard allowedRole="student"><MyProjects /></RoleGuard>} />
               <Route path="/projects/:id" element={<RoleGuard allowedRole="student"><ProjectDetail /></RoleGuard>} />
               <Route path="/courses" element={<RoleGuard allowedRole="student"><Courses /></RoleGuard>} />
               <Route path="/courses/:id" element={<RoleGuard allowedRole="student"><CourseDetail /></RoleGuard>} />

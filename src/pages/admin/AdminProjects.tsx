@@ -1,267 +1,329 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AdminLayout } from '../../components/layout/AdminLayout';
-import { projectService } from '../../services/content/projectService';
-import { useRepository } from '../../services/content/useRepository';
-import { Search, Plus, Edit2, Trash2, Users } from 'lucide-react';
-import type { ProjectIdea } from '../../data/projects';
-import type { ProjectTeam } from '../../data/projectTeams';
-import { projectTeamService } from '../../services/content/projectTeamService';
-import { StateView } from '../../components/common/StateView';
+import { projectsApi } from '../../api/projects.api';
+import type { ProjectItem, TeamItem } from '../../types/projects';
+import { ProjectStatusBadge } from '../../components/projects/ProjectStatusBadge';
+import { ProjectDomainBadge } from '../../components/projects/ProjectDomainBadge';
+import { ProjectDifficultyBadge } from '../../components/projects/ProjectDifficultyBadge';
+import { ProjectFormModal } from '../../components/projects/ProjectFormModal';
+import {
+  Search,
+  Plus,
+  Edit2,
+  Trash2,
+  Users,
+  Send,
+  Layers,
+  X,
+} from 'lucide-react';
 
 export const AdminProjects: React.FC = () => {
-  const { data: projects, loading: loadingprojects, error: errorprojects, retry: retryprojects } = useRepository(projectService);
+  const [projects, setProjects] = useState<ProjectItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
   const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('ALL');
+
+  // Form Modal State
   const [isFormOpen, setIsFormOpen] = useState(false);
-  const [editingId, setEditingId] = useState<string | null>(null);
-  
-  const [inspectingTeamsFor, setInspectingTeamsFor] = useState<ProjectIdea | null>(null);
-  const [projectTeams, setProjectTeams] = useState<ProjectTeam[]>([]);
+  const [editingProject, setEditingProject] = useState<ProjectItem | null>(null);
+
+  // Inspect Teams State
+  const [inspectingProject, setInspectingProject] = useState<ProjectItem | null>(null);
+  const [projectTeams, setProjectTeams] = useState<TeamItem[]>([]);
   const [loadingTeams, setLoadingTeams] = useState(false);
-  const [teamsError, setTeamsError] = useState<string | null>(null);
 
-  const [formData, setFormData] = useState<Partial<ProjectIdea>>({
-    title: '', shortDescription: '', category: 'AI', difficulty: 'Beginner',
-    status: 'Open', interestedCount: 0,
-    description: '', problem: '', approach: '', features: [], technologies: [], expectedOutcome: '', skills: [], resources: [],
-    featured: false
-  });
+  const fetchProjects = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const res = await projectsApi.getProjects({
+        search: searchTerm.trim() || undefined,
+        status: statusFilter !== 'ALL' ? statusFilter : undefined,
+        limit: 100,
+      });
+      setProjects(res.items);
+    } catch (err: any) {
+      setError(err.message || 'Failed to load projects');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  const filtered = projects.filter(p => 
-    p.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    p.shortDescription.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  useEffect(() => {
+    fetchProjects();
+  }, [searchTerm, statusFilter]);
 
   const handleAdd = () => {
-    setFormData({
-      title: '', shortDescription: '', category: 'AI', difficulty: 'Beginner',
-      status: 'Open', interestedCount: 0,
-      description: '', problem: '', approach: '', features: [], technologies: [], expectedOutcome: '', skills: [], resources: [],
-      featured: false
-    });
-    setEditingId(null);
+    setEditingProject(null);
     setIsFormOpen(true);
   };
 
-  const handleEdit = (proj: ProjectIdea) => {
-    setFormData({ ...proj });
-    setEditingId(proj.id);
+  const handleEdit = (proj: ProjectItem) => {
+    setEditingProject(proj);
     setIsFormOpen(true);
   };
 
-  const handleInspectTeams = async (proj: ProjectIdea) => {
-    setInspectingTeamsFor(proj);
-    setLoadingTeams(true);
-    setTeamsError(null);
+  const handlePublish = async (proj: ProjectItem) => {
     try {
-      const teams = await projectTeamService.getAdminProjectTeams(proj.id);
+      await projectsApi.publishProject(proj.id);
+      await fetchProjects();
+    } catch (err: any) {
+      alert(err.message || 'Failed to publish project');
+    }
+  };
+
+  const handleDelete = async (id: string, title: string) => {
+    if (confirm(`Delete project "${title}"?\nThis will remove all associated teams, milestones, and memberships.`)) {
+      try {
+        await projectsApi.deleteProject(id);
+        await fetchProjects();
+      } catch (err: any) {
+        alert(err.message || 'Failed to delete project');
+      }
+    }
+  };
+
+  const handleInspectTeams = async (proj: ProjectItem) => {
+    setInspectingProject(proj);
+    setLoadingTeams(true);
+    try {
+      const teams = await projectsApi.getProjectTeams(proj.id);
       setProjectTeams(teams);
     } catch (err: any) {
-      setTeamsError(err.message || 'Failed to load teams');
+      alert(err.message || 'Failed to load teams');
     } finally {
       setLoadingTeams(false);
     }
   };
 
-  const handleDelete = (id: string, title: string) => {
-    if (window.confirm(`Delete this project?\nThis will remove "${title}" from the club project directory.`)) {
-      projectService.remove(id);
-    }
-  };
-
-  const handleSave = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!formData.title || !formData.shortDescription || !formData.category) return;
-    
-    if (editingId) {
-      projectService.update(editingId, formData);
-    } else {
-      projectService.create(formData as Omit<ProjectIdea, 'id'>);
-    }
-    setIsFormOpen(false);
-  };
-
   return (
-    <AdminLayout pageTitle="Project Ideas">
+    <AdminLayout pageTitle="Projects & Teams Management">
       <div className="admin-section">
-        <div className="admin-section-header">
-          <p className="text-secondary">Manage club project ideas and directory.</p>
-          <button className="btn btn-primary" onClick={handleAdd}>
-            <Plus size={16} className="mr-2" /> Add Project
+        {/* Header */}
+        <div className="admin-section-header flex justify-between items-center mb-6">
+          <div>
+            <h2 className="text-xl font-bold text-white mb-1">Club Projects Management</h2>
+            <p className="text-sm text-[var(--text-muted, #94a3b8)]">
+              Create, review, publish, and govern club projects, teams, and milestones.
+            </p>
+          </div>
+          <button type="button" className="btn btn-primary flex items-center gap-2" onClick={handleAdd}>
+            <Plus size={16} /> New Project
           </button>
         </div>
 
-        <div className="courses-filter-bar mb-6">
-          <div className="search-container">
-            <Search size={18} className="search-icon" />
-            <input 
-              type="text" 
-              placeholder="Search projects..." 
-              className="search-input"
+        {/* Filters */}
+        <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between mb-6">
+          <div className="relative flex-1">
+            <Search size={18} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--text-muted, #94a3b8)]" />
+            <input
+              type="text"
+              placeholder="Search projects by title..."
+              className="w-full pl-10 pr-4 py-2 rounded-lg bg-[var(--surface-color, #1e293b)] border border-[var(--border-color, #334155)] text-white text-sm focus:outline-none"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
+
+          <div className="flex items-center gap-3">
+            <select
+              className="text-xs px-3 py-2 rounded-lg bg-[var(--surface-color, #1e293b)] border border-[var(--border-color, #334155)] text-white focus:outline-none"
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+            >
+              <option value="ALL">All Statuses</option>
+              <option value="DRAFT">Drafts</option>
+              <option value="OPEN">Open</option>
+              <option value="IN_PROGRESS">In Progress</option>
+              <option value="COMPLETED">Completed</option>
+              <option value="ARCHIVED">Archived</option>
+            </select>
+          </div>
         </div>
 
-        <StateView loading={loadingprojects} error={errorprojects} retry={retryprojects} empty={filtered.length === 0} emptyMessage="No projects match your filters.">
-          <div className="admin-table-container">
-            <table className="admin-table">
-              <thead>
+        {/* Table of Projects */}
+        {loading ? (
+          <div className="p-12 text-center text-sm text-[var(--text-muted, #94a3b8)]">
+            Loading projects...
+          </div>
+        ) : error ? (
+          <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
+            {error}
+          </div>
+        ) : projects.length === 0 ? (
+          <div className="p-12 text-center rounded-xl border border-dashed border-[var(--border-color, #334155)] bg-[var(--surface-color, #1e293b)]">
+            <p className="text-sm text-[var(--text-muted, #94a3b8)]">No projects found.</p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto rounded-xl border border-[var(--border-color, #334155)] bg-[var(--surface-color, #1e293b)]">
+            <table className="w-full text-left text-sm text-[var(--text-muted, #94a3b8)]">
+              <thead className="bg-black/30 text-xs uppercase font-bold tracking-wider text-slate-300 border-b border-[var(--border-color, #334155)]">
                 <tr>
-                  <th>Project</th>
-                  <th>Category</th>
-                  <th>Difficulty</th>
-                  <th>Status</th>
-                  <th>Interested Students</th>
-                  <th>Updated</th>
-                  <th>Actions</th>
+                  <th className="py-3.5 px-4">Project</th>
+                  <th className="py-3.5 px-4">Domain / Difficulty</th>
+                  <th className="py-3.5 px-4">Status</th>
+                  <th className="py-3.5 px-4">Contributors / Pods</th>
+                  <th className="py-3.5 px-4">Progress</th>
+                  <th className="py-3.5 px-4 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody>
-                {filtered.map(proj => (
-                  <tr key={proj.id}>
-                    <td><strong>{proj.title}</strong></td>
-                    <td>{proj.category}</td>
-                    <td>{proj.difficulty}</td>
-                    <td>{proj.status}</td>
-                    <td>{proj.interestedCount}</td>
-                    <td>{proj.updatedAt}</td>
-                    <td>
-                      <div className="flex gap-3">
-                        <button className="icon-btn text-accent" onClick={() => handleEdit(proj)}>
-                          <Edit2 size={16} />
+              <tbody className="divide-y divide-white/5">
+                {projects.map((proj) => (
+                  <tr key={proj.id} className="hover:bg-white/[0.02] transition-colors">
+                    <td className="py-3 px-4">
+                      <div className="font-bold text-white mb-0.5 line-clamp-1">{proj.title}</div>
+                      <div className="text-xs text-[var(--text-muted, #64748b)] line-clamp-1">
+                        {proj.short_description || proj.shortDescription}
+                      </div>
+                    </td>
+
+                    <td className="py-3 px-4">
+                      <div className="flex flex-col gap-1 items-start">
+                        <ProjectDomainBadge domain={proj.domain as string || proj.category as string || 'AI_ML'} />
+                        <ProjectDifficultyBadge difficulty={proj.difficulty as string || 'BEGINNER'} />
+                      </div>
+                    </td>
+
+                    <td className="py-3 px-4">
+                      <ProjectStatusBadge status={proj.status as string} />
+                    </td>
+
+                    <td className="py-3 px-4">
+                      <div className="text-xs text-white flex items-center gap-3">
+                        <span className="flex items-center gap-1">
+                          <Users size={13} className="text-slate-400" /> {proj.members_count ?? 0}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Layers size={13} className="text-slate-400" /> {proj.teams_count ?? 0}
+                        </span>
+                      </div>
+                    </td>
+
+                    <td className="py-3 px-4">
+                      <div className="w-24">
+                        <div className="flex justify-between text-xs mb-1">
+                          <span className="font-semibold text-white">{proj.progress_percentage || 0}%</span>
+                        </div>
+                        <div className="w-full h-1.5 rounded-full bg-black/40 overflow-hidden">
+                          <div
+                            className="h-full bg-indigo-500 rounded-full"
+                            style={{ width: `${proj.progress_percentage || 0}%` }}
+                          />
+                        </div>
+                      </div>
+                    </td>
+
+                    <td className="py-3 px-4 text-right">
+                      <div className="flex items-center justify-end gap-1.5">
+                        {proj.status === 'DRAFT' && (
+                          <button
+                            type="button"
+                            className="p-1.5 rounded bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20"
+                            onClick={() => handlePublish(proj)}
+                            title="Publish Project to OPEN"
+                          >
+                            <Send size={15} />
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          className="p-1.5 rounded text-[var(--text-muted, #94a3b8)] hover:text-white hover:bg-white/5"
+                          onClick={() => handleInspectTeams(proj)}
+                          title="Inspect Squads / Pods"
+                        >
+                          <Layers size={15} />
                         </button>
-                        <button className="icon-btn text-blue-400" onClick={() => handleInspectTeams(proj)} title="Inspect Teams">
-                          <Users size={16} />
+                        <button
+                          type="button"
+                          className="p-1.5 rounded text-[var(--text-muted, #94a3b8)] hover:text-white hover:bg-white/5"
+                          onClick={() => handleEdit(proj)}
+                          title="Edit Project"
+                        >
+                          <Edit2 size={15} />
                         </button>
-                        <button className="icon-btn" style={{color: 'var(--danger-color, #ef4444)'}} onClick={() => handleDelete(proj.id, proj.title)}>
-                          <Trash2 size={16} />
+                        <button
+                          type="button"
+                          className="p-1.5 rounded text-[var(--text-muted, #94a3b8)] hover:text-red-400 hover:bg-red-500/10"
+                          onClick={() => handleDelete(proj.id, proj.title)}
+                          title="Delete Project"
+                        >
+                          <Trash2 size={15} />
                         </button>
                       </div>
                     </td>
                   </tr>
                 ))}
-                </tbody>
+              </tbody>
             </table>
           </div>
-        </StateView>
-      </div>
+        )}
 
-      {isFormOpen && (
-        <div className="modal-overlay">
-          <div className="modal-content" style={{maxWidth: '800px', textAlign: 'left', maxHeight: '90vh', overflowY: 'auto'}}>
-            <h3 className="mb-4">{editingId ? 'Edit' : 'Create'} Project</h3>
-            <form onSubmit={handleSave} className="flex flex-col gap-4">
-              <div>
-                <label className="info-label">Title *</label>
-                <input type="text" className="search-input w-full mt-1" required value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})} />
-              </div>
-              <div>
-                <label className="info-label">Short Description *</label>
-                <textarea className="search-input w-full mt-1" rows={2} required value={formData.shortDescription} onChange={e => setFormData({...formData, shortDescription: e.target.value})} />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
+        {/* Project Form Modal (Create / Edit) */}
+        {isFormOpen && (
+          <ProjectFormModal
+            project={editingProject}
+            onClose={() => setIsFormOpen(false)}
+            onSaved={() => {
+              setIsFormOpen(false);
+              fetchProjects();
+            }}
+          />
+        )}
+
+        {/* Inspect Project Squads Modal */}
+        {inspectingProject && (
+          <div className="modal-backdrop fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50">
+            <div className="modal-content w-full max-w-xl bg-[var(--surface-color, #1e293b)] border border-[var(--border-color, #334155)] rounded-2xl p-6 max-h-[85vh] flex flex-col">
+              <div className="flex justify-between items-center mb-4 pb-3 border-b border-white/10">
                 <div>
-                  <label className="info-label">Category *</label>
-                  <select className="filter-select w-full mt-1" required value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})}>
-                    <option value="AI">AI</option>
-                    <option value="Machine Learning">Machine Learning</option>
-                    <option value="Generative AI">Generative AI</option>
-                    <option value="Computer Vision">Computer Vision</option>
-                  </select>
+                  <h3 className="text-lg font-bold text-white">
+                    Team Squads: {inspectingProject.title}
+                  </h3>
+                  <p className="text-xs text-[var(--text-muted, #94a3b8)]">
+                    {projectTeams.length} teams formed for this project.
+                  </p>
                 </div>
-                <div>
-                  <label className="info-label">Difficulty *</label>
-                  <select className="filter-select w-full mt-1" required value={formData.difficulty} onChange={e => setFormData({...formData, difficulty: e.target.value as any})}>
-                    <option value="Beginner">Beginner</option>
-                    <option value="Intermediate">Intermediate</option>
-                    <option value="Advanced">Advanced</option>
-                  </select>
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="info-label">Status *</label>
-                  <select className="filter-select w-full mt-1" required value={formData.status} onChange={e => setFormData({...formData, status: e.target.value as any})}>
-                    <option value="Open">Open</option>
-                    <option value="Planned">Planned</option>
-                    <option value="In Progress">In Progress</option>
-                    <option value="Completed">Completed</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="info-label">Updated At *</label>
-                  <input type="date" className="search-input w-full mt-1" required value={formData.updatedAt || ''} onChange={e => setFormData({...formData, updatedAt: e.target.value})} />
-                </div>
-              </div>
-              
-              <div>
-                <label className="info-label">Description</label>
-                <textarea className="search-input w-full mt-1" rows={3} value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} />
+                <button
+                  type="button"
+                  className="text-slate-400 hover:text-white p-1 rounded"
+                  onClick={() => setInspectingProject(null)}
+                >
+                  <X size={18} />
+                </button>
               </div>
 
-              <div className="flex items-center gap-2 mt-2">
-                <input type="checkbox" id="featured" checked={!!formData.featured} onChange={e => setFormData({...formData, featured: e.target.checked})} />
-                <label htmlFor="featured">Featured Project</label>
-              </div>
-              
-              <div className="flex justify-end gap-3 mt-6">
-                <button type="button" className="btn btn-secondary" onClick={() => setIsFormOpen(false)}>Cancel</button>
-                <button type="submit" className="btn btn-primary">Save Project</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {inspectingTeamsFor && (
-        <div className="modal-overlay">
-          <div className="modal-content" style={{maxWidth: '800px', textAlign: 'left', maxHeight: '90vh', overflowY: 'auto'}}>
-            <div className="flex-between mb-4">
-              <h3 className="text-xl">Teams: {inspectingTeamsFor.title}</h3>
-              <button className="btn btn-outline py-1" onClick={() => setInspectingTeamsFor(null)}>Close</button>
-            </div>
-            
-            {loadingTeams ? (
-              <p>Loading teams...</p>
-            ) : teamsError ? (
-              <p className="text-red-500">{teamsError}</p>
-            ) : projectTeams.length === 0 ? (
-              <p>No teams have been formed yet.</p>
-            ) : (
-              <div className="space-y-4">
-                {projectTeams.map(team => (
-                  <div key={team.id} className="border border-[var(--border-color)] p-4 rounded-lg bg-[var(--surface-color)]">
-                    <div className="flex justify-between items-center mb-2">
-                      <h4 className="font-bold">{team.name}</h4>
-                      <span className={`status-badge status-${team.status.toLowerCase()}`}>{team.status}</span>
-                    </div>
-                    <div className="text-sm text-[var(--text-muted)] mb-3">
-                      Created: {new Date(team.created_at).toLocaleDateString()} &middot; Capacity: {team.member_count} / {team.max_members || '∞'}
-                    </div>
-                    
-                    <div className="mt-2 border-t border-[var(--border-color)] pt-2">
-                      <h5 className="text-xs font-bold text-[var(--text-muted)] uppercase mb-2">Members</h5>
-                      {team.members && team.members.length > 0 ? (
-                        <div className="space-y-1">
-                          {team.members.map(m => (
-                            <div key={m.member_id} className="flex justify-between text-sm">
-                              <span>{m.full_name} <span className="text-xs text-[var(--text-muted)]">({m.register_number})</span></span>
-                              <span className={m.role === 'leader' ? 'text-[var(--accent-color)] font-bold' : ''}>{m.role}</span>
-                            </div>
-                          ))}
+              <div className="flex-1 overflow-y-auto space-y-3 pr-1">
+                {loadingTeams ? (
+                  <p className="text-xs text-center py-6 text-slate-400">Loading squads...</p>
+                ) : projectTeams.length === 0 ? (
+                  <p className="text-xs text-center py-6 text-slate-400">No teams formed yet.</p>
+                ) : (
+                  projectTeams.map((t) => (
+                    <div
+                      key={t.id}
+                      className="p-4 rounded-xl border border-white/10 bg-black/20 flex justify-between items-center"
+                    >
+                      <div>
+                        <h4 className="text-sm font-bold text-white">{t.name}</h4>
+                        {t.description && <p className="text-xs text-slate-400 mt-0.5">{t.description}</p>}
+                        <div className="text-[11px] text-slate-500 mt-2">
+                          Lead: {t.team_lead_name || 'Assigned Lead'} &middot;{' '}
+                          {t.member_count} / {t.max_members || 5} members
                         </div>
-                      ) : (
-                        <p className="text-sm">No members details available.</p>
-                      )}
+                      </div>
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400">
+                        {t.status}
+                      </span>
                     </div>
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
-            )}
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </AdminLayout>
   );
 };
