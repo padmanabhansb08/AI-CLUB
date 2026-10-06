@@ -21,6 +21,8 @@ export async function up(client: PoolClient) {
       ADD COLUMN IF NOT EXISTS learning_outcomes JSONB DEFAULT '[]'::jsonb,
       ADD COLUMN IF NOT EXISTS progress_percentage INT DEFAULT 0;
 
+    ALTER TABLE projects ALTER COLUMN category DROP NOT NULL;
+
     -- Backfill description and domain if existing
     UPDATE projects
     SET 

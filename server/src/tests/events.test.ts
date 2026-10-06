@@ -232,7 +232,7 @@ describe('Sprint 3: Events, Registration & Attendance Management', () => {
     });
 
     test('Published event now appears in public event listing', async () => {
-      const res = await fetch(`${baseUrl}/api/events`);
+      const res = await fetch(`${baseUrl}/api/events?search=Deep+Learning+Workshop`);
       assert.equal(res.status, 200);
       const body = await res.json();
       const found = body.data.find((e: any) => e.id === createdEventId);

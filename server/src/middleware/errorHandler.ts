@@ -5,8 +5,27 @@ import { config } from '../config';
 
 // Compatibility alias for existing codebase
 export class ApiError extends AppError {
-  constructor(code: string, message: string, status = 400, details: any = {}) {
-    super(status, code, message, details);
+  constructor(code: string, message: string, status?: number, details: any = {}) {
+    let resolvedStatus = status;
+    if (!resolvedStatus) {
+      switch (code) {
+        case 'NOT_FOUND':
+          resolvedStatus = 404;
+          break;
+        case 'FORBIDDEN':
+          resolvedStatus = 403;
+          break;
+        case 'UNAUTHORIZED':
+          resolvedStatus = 401;
+          break;
+        case 'CONFLICT':
+          resolvedStatus = 409;
+          break;
+        default:
+          resolvedStatus = 400;
+      }
+    }
+    super(resolvedStatus, code, message, details);
   }
 }
 

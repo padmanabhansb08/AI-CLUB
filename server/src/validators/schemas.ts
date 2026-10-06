@@ -51,17 +51,154 @@ export const updateSchema = z.object({
   featured: z.boolean().optional(),
 });
 
+export const VALID_PROJECT_DOMAINS = [
+  'AI_ML',
+  'GENERATIVE_AI',
+  'DATA_SCIENCE',
+  'COMPUTER_VISION',
+  'NLP',
+  'WEB_DEVELOPMENT',
+  'APP_DEVELOPMENT',
+  'DEVOPS',
+  'CLOUD',
+  'CYBERSECURITY',
+  'ROBOTICS',
+  'IOT',
+  'BLOCKCHAIN',
+  'OPEN_SOURCE',
+  'OTHER',
+] as const;
+
+export const VALID_PROJECT_DIFFICULTIES = ['BEGINNER', 'INTERMEDIATE', 'ADVANCED', 'EXPERT'] as const;
+
+export const VALID_PROJECT_STATUSES = [
+  'DRAFT',
+  'OPEN',
+  'IN_PROGRESS',
+  'COMPLETED',
+  'ARCHIVED',
+  'CANCELLED',
+] as const;
+
+export const VALID_PROJECT_MEMBERSHIP_ROLES = [
+  'OWNER',
+  'LEAD',
+  'MENTOR',
+  'CONTRIBUTOR',
+  'MEMBER',
+] as const;
+
+export const VALID_TEAM_ROLES = [
+  'TEAM_LEAD',
+  'TECH_LEAD',
+  'DEVELOPER',
+  'ML_ENGINEER',
+  'DESIGNER',
+  'RESEARCHER',
+  'DOCUMENTATION',
+  'CONTRIBUTOR',
+  'MEMBER',
+] as const;
+
 export const projectSchema = z.object({
-  title: z.string().min(2),
-  short_description: z.string(),
+  title: z.string().trim().min(2, 'Title must be at least 2 characters').max(255),
+  slug: z.string().trim().max(255).optional(),
+  short_description: z.string().trim().min(5, 'Short description must be at least 5 characters').max(500),
+  description: z.string().trim().min(10, 'Description must be at least 10 characters').optional().or(z.literal('')),
+  domain: z
+    .string()
+    .trim()
+    .transform((val) => val.toUpperCase().replace(/\s+/g, '_'))
+    .refine((val) => (VALID_PROJECT_DOMAINS as readonly string[]).includes(val) || val.length > 0, {
+      message: 'Invalid domain',
+    })
+    .default('AI_ML'),
+  difficulty: z
+    .string()
+    .trim()
+    .transform((val) => val.toUpperCase())
+    .refine((val) => (VALID_PROJECT_DIFFICULTIES as readonly string[]).includes(val), {
+      message: 'Invalid difficulty',
+    })
+    .default('BEGINNER'),
+  status: z
+    .string()
+    .trim()
+    .transform((val) => val.toUpperCase().replace(/\s+/g, '_'))
+    .refine((val) => (VALID_PROJECT_STATUSES as readonly string[]).includes(val), {
+      message: 'Invalid status',
+    })
+    .default('DRAFT'),
+  max_team_size: z.coerce.number().int().min(1).max(50).default(5),
+  start_date: z.string().datetime({ message: 'Invalid start date' }).optional().nullable(),
+  target_end_date: z.string().datetime({ message: 'Invalid target end date' }).optional().nullable(),
+  github_url: z.string().url('Invalid GitHub URL').optional().or(z.literal('')).nullable(),
+  demo_url: z.string().url('Invalid Demo URL').optional().or(z.literal('')).nullable(),
+  documentation_url: z.string().url('Invalid Documentation URL').optional().or(z.literal('')).nullable(),
+  cover_image: z.string().url('Invalid Cover Image URL').optional().or(z.literal('')).nullable(),
+  technologies: z.array(z.string().trim().min(1)).max(30).optional().default([]),
+  requirements: z.array(z.string().trim().min(1)).max(30).optional().default([]),
+  objectives: z.array(z.string().trim().min(1)).max(30).optional().default([]),
+  learning_outcomes: z.array(z.string().trim().min(1)).max(30).optional().default([]),
+  progress_percentage: z.coerce.number().int().min(0).max(100).optional().default(0),
+  featured: z.boolean().optional().default(false),
+  // Backward compatibility with legacy schema fields:
   overview: z.string().optional(),
   problem: z.string().optional(),
   approach: z.string().optional(),
-  category: z.string(),
-  difficulty: z.string(),
-  status: z.string(),
+  category: z.string().optional(),
   expected_outcome: z.string().optional(),
-  featured: z.boolean().optional(),
+});
+
+export const projectUpdateSchema = projectSchema.partial();
+
+export const projectMembershipRequestSchema = z.object({
+  role: z.enum(VALID_PROJECT_MEMBERSHIP_ROLES).default('MEMBER'),
+  message: z.string().max(500).optional(),
+});
+
+export const projectMembershipUpdateSchema = z.object({
+  role: z.enum(VALID_PROJECT_MEMBERSHIP_ROLES).optional(),
+  status: z.enum(['PENDING', 'ACTIVE', 'REJECTED', 'LEFT', 'REMOVED']),
+});
+
+export const teamCreateSchema = z.object({
+  name: z.string().trim().min(2, 'Team name must be at least 2 characters').max(100),
+  description: z.string().trim().max(500).optional().nullable(),
+  max_members: z.coerce.number().int().min(2).max(50).optional().default(5),
+});
+
+export const teamUpdateSchema = z.object({
+  name: z.string().trim().min(2).max(100).optional(),
+  description: z.string().trim().max(500).optional().nullable(),
+  status: z.enum(['ACTIVE', 'FULL', 'COMPLETED', 'ARCHIVED']).optional(),
+  max_members: z.coerce.number().int().min(2).max(50).optional(),
+});
+
+export const teamMemberRoleSchema = z.object({
+  role: z.enum(VALID_TEAM_ROLES),
+});
+
+export const teamInvitationCreateSchema = z.object({
+  invited_member_id: z.string().uuid('Invalid invited member ID'),
+});
+
+export const teamInvitationRespondSchema = z.object({
+  action: z.enum(['ACCEPT', 'DECLINE', 'accept', 'decline']).transform((a) => a.toUpperCase() as 'ACCEPT' | 'DECLINE'),
+});
+
+export const milestoneCreateSchema = z.object({
+  title: z.string().trim().min(2, 'Title must be at least 2 characters').max(255),
+  description: z.string().trim().max(1000).optional().nullable(),
+  due_date: z.string().datetime({ message: 'Invalid due date' }).optional().nullable(),
+  status: z.enum(['TODO', 'IN_PROGRESS', 'COMPLETED']).default('TODO'),
+});
+
+export const milestoneUpdateSchema = z.object({
+  title: z.string().trim().min(2).max(255).optional(),
+  description: z.string().trim().max(1000).optional().nullable(),
+  due_date: z.string().datetime({ message: 'Invalid due date' }).optional().nullable(),
+  status: z.enum(['TODO', 'IN_PROGRESS', 'COMPLETED']).optional(),
 });
 
 export const courseSchema = z.object({

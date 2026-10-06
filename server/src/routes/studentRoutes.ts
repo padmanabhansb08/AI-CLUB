@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { authenticate } from '../middleware/auth';
 import { projectController, courseController } from '../controllers/contentController';
+import { projectController as mainProjectController } from '../controllers/projectController';
 import { studentController } from '../controllers/studentController';
 import { dashboardController } from '../controllers/dashboardController';
 import { studentEventController } from '../controllers/eventController';
@@ -22,6 +23,7 @@ router.put('/profile/interests', studentController.updateInterests);
 router.get('/dashboard', dashboardController.getDashboard);
 
 // Projects and Courses
+router.get('/projects', mainProjectController.getMyProjects);
 router.post('/projects/:id/interest', projectController.addInterest);
 router.delete('/projects/:id/interest', projectController.removeInterest);
 router.get('/courses/progress', courseController.getProgress);
@@ -36,6 +38,7 @@ router.post('/events/:id/unregister', studentEventController.unregister);
 
 // Team routes
 router.get('/project-teams', projectTeamController.getMyTeams);
+router.get('/team-invitations', projectTeamController.getMyInvitations);
 router.post('/projects/:id/teams', projectTeamController.createTeam);
 router.post('/teams/:id/join', projectTeamController.joinTeam);
 router.post('/teams/:id/leave', projectTeamController.leaveTeam);

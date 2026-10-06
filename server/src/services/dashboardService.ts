@@ -30,6 +30,7 @@ export interface DashboardData {
   recentAchievements: any[];
   recentActivity: ActivityItem[];
   upcomingEvents?: any[];
+  myProjects?: any[];
 }
 
 export const dashboardService = {
@@ -261,6 +262,25 @@ export const dashboardService = {
     // Sort all real activities by timestamp descending
     activityList.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
 
+    // Student's active / pending projects
+    const myProjectsRes = await query(`
+      SELECT 
+        p.id, 
+        p.title, 
+        p.slug,
+        p.domain,
+        p.difficulty,
+        p.status,
+        p.progress_percentage as "progressPercentage",
+        pm.role,
+        pm.status as "membershipStatus"
+      FROM project_memberships pm
+      JOIN projects p ON p.id = pm.project_id
+      WHERE pm.member_id = $1 AND pm.status IN ('ACTIVE', 'PENDING')
+      ORDER BY pm.updated_at DESC
+      LIMIT 5
+    `, [memberId]);
+
     return {
       profile: profileData,
       profileCompletion: profileData.profileCompletion,
@@ -270,6 +290,7 @@ export const dashboardService = {
       recentAchievements: recentAchievementsRes.rows,
       recentActivity: activityList.slice(0, 5),
       upcomingEvents: upcomingEventsRes.rows,
+      myProjects: myProjectsRes.rows,
     };
   },
 };
