@@ -71,7 +71,9 @@ function App() {
               <Route path="/updates/:id" element={<RoleGuard allowedRole="student"><UpdateDetail /></RoleGuard>} />
               <Route path="/projects" element={<RoleGuard allowedRole="student"><Projects /></RoleGuard>} />
               <Route path="/projects/my" element={<RoleGuard allowedRole="student"><MyProjects /></RoleGuard>} />
+              <Route path="/my-projects" element={<RoleGuard allowedRole="student"><MyProjects /></RoleGuard>} />
               <Route path="/projects/:id" element={<RoleGuard allowedRole="student"><ProjectDetail /></RoleGuard>} />
+              <Route path="/projects/:id/workspace" element={<RoleGuard allowedRole="student"><ProjectDetail /></RoleGuard>} />
               <Route path="/courses" element={<RoleGuard allowedRole="student"><Courses /></RoleGuard>} />
               <Route path="/courses/my" element={<RoleGuard allowedRole="student"><MyLearning /></RoleGuard>} />
               <Route path="/my-learning" element={<RoleGuard allowedRole="student"><MyLearning /></RoleGuard>} />
