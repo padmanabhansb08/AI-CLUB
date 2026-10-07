@@ -28,6 +28,7 @@
 
     html {
       -webkit-text-size-adjust: 100%;
+      text-size-adjust: 100%;
     }
 
     body {
@@ -241,7 +242,12 @@
       line-height: .98;
       letter-spacing: -.036em;
       max-width: 15ch;
-      text-wrap: balance;
+    }
+
+    @supports (text-wrap: balance) {
+      h1 {
+        text-wrap: balance;
+      }
     }
 
     .sub {
@@ -251,7 +257,12 @@
       letter-spacing: -.008em;
       color: var(--fg-soft);
       max-width: min(46ch, 100%);
-      text-wrap: pretty;
+    }
+
+    @supports (text-wrap: pretty) {
+      .sub {
+        text-wrap: pretty;
+      }
     }
 
     .cta {
@@ -363,7 +374,7 @@
 
   <!-- 2. Fixed Stage (Video, Veil & Grain) -->
   <div class="stage">
-    <video id="clip" muted playsinline preload="auto" disablepictureinpicture></video>
+    <video id="clip" muted playsinline webkit-playsinline preload="auto" disablepictureinpicture></video>
     <div class="veil"></div>
     <div class="grain"></div>
   </div>

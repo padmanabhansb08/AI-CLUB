@@ -50,6 +50,10 @@
   scrollbar-width: thin;
 }
 
+.sidebar-nav::-webkit-scrollbar {
+  width: 4px;
+}
+
 .nav-section {
   display: flex;
   flex-direction: column;
@@ -142,8 +146,8 @@
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.35);
-  backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
   z-index: 90;
   animation: fadeIn 0.2s ease;
 }
@@ -169,8 +173,8 @@
   height: 68px;
   padding: 0 clamp(16px, 3vw, 40px);
   background-color: rgba(245, 244, 240, 0.94);
-  backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--border-color);
   display: flex;
   align-items: center;

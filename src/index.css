@@ -83,6 +83,7 @@
 
 html {
   -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
   scroll-behavior: smooth;
 }
 
@@ -468,6 +469,7 @@ button {
   border: 1px solid transparent;
   transition: all 0.25s var(--ease);
   white-space: nowrap;
+  -webkit-user-select: none;
   user-select: none;
 }
 

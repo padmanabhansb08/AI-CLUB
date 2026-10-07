@@ -77,7 +77,6 @@
   gap: var(--spacing-2);
   overflow-x: auto;
   padding-bottom: var(--spacing-2);
-  -webkit-overflow-scrolling: touch;
 }
 
 .filter-pill {
