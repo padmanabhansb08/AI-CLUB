@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import http from 'node:http';
 import app from '../app';
 import { pool } from '../db';
+import { seedQuestionsAndApplicants } from '../db/seeds/002_assessment_questions';
 
 let server: http.Server;
 let baseUrl: string;
@@ -47,6 +48,12 @@ describe('AI CLUB Membership Selection Workflow (End-to-End)', () => {
     const adminBody = await adminRes.json();
     adminToken = adminBody.data.token;
     assert.ok(adminToken, 'Admin token obtained');
+
+    // 2. Guarantee question bank has at least 25 questions for assessment tests
+    const countRes = await pool.query('SELECT COUNT(*) as cnt FROM assessment_questions WHERE is_active = true');
+    if (parseInt(countRes.rows[0].cnt) < 25) {
+      await seedQuestionsAndApplicants();
+    }
   });
 
   // STEP 1: Student Registration

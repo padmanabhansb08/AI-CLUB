@@ -136,3 +136,4 @@ jobs:
           ! grep -ri "AI_API_KEY=" dist/
           ! grep -ri "DATABASE_URL=" dist/
           ! grep -ri "JWT_SECRET=" dist/
+          ! grep -ri "SUPABASE_SERVICE_ROLE_KEY" dist/
