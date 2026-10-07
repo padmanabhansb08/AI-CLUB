@@ -1,4 +1,4 @@
-import { forwardRef } from 'react';
+import { forwardRef, useId } from 'react';
 import type { SelectHTMLAttributes } from 'react';
 import { ChevronDown } from 'lucide-react';
 
@@ -16,17 +16,21 @@ interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
 
 export const Select = forwardRef<HTMLSelectElement, SelectProps>(
   ({ label, error, options, placeholder, className = '', id, required, ...props }, ref) => {
+    const generatedId = useId();
+    const selectId = id || generatedId;
     return (
       <div className="form-group">
         {label && (
-          <label htmlFor={id} className="form-label">
+          <label htmlFor={selectId} className="form-label">
             {label} {required && <span style={{ color: 'var(--accent-color)' }}>*</span>}
           </label>
         )}
         <div className="form-input-wrapper select-wrapper">
           <select
             ref={ref}
-            id={id}
+            id={selectId}
+            aria-invalid={!!error}
+            aria-describedby={error ? `${selectId}-error` : props['aria-describedby']}
             required={required}
             className={`form-input form-select ${error ? 'has-error' : ''} ${className}`}
             {...props}
@@ -50,7 +54,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
             <ChevronDown size={16} />
           </div>
         </div>
-        {error && <div className="form-error">{error}</div>}
+        {error && <div id={`${selectId}-error`} className="form-error" role="alert">{error}</div>}
       </div>
     );
   }

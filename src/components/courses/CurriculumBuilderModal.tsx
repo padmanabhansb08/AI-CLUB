@@ -1,3 +1,5 @@
+import { confirmAction } from '../../services/confirmation';
+import { useDialog } from '../../hooks/useDialog';
 import React, { useState, useEffect } from 'react';
 import {
   X,
@@ -48,6 +50,9 @@ export const CurriculumBuilderModal: React.FC<Props> = ({
 
   // Lesson creation/edit state
   const [isLessonModalOpen, setIsLessonModalOpen] = useState(false);
+  const dialogRef = useDialog(true, onClose);
+  const moduleRef = useDialog(isModuleModalOpen, () => setIsModuleModalOpen(false));
+  const lessonRef = useDialog(isLessonModalOpen, () => setIsLessonModalOpen(false));
   const [targetModuleId, setTargetModuleId] = useState<string | null>(null);
   const [editingLesson, setEditingLesson] = useState<CourseLessonItem | null>(null);
   const [lessonData, setLessonData] = useState({
@@ -130,7 +135,7 @@ export const CurriculumBuilderModal: React.FC<Props> = ({
   };
 
   const handleDeleteModule = async (moduleId: string) => {
-    if (!window.confirm('Delete this module and all contained lessons?')) return;
+    if (!await confirmAction('Delete this module and all contained lessons?')) return;
     try {
       await coursesApi.deleteModule(moduleId);
       await fetchCurriculum();
@@ -205,7 +210,7 @@ export const CurriculumBuilderModal: React.FC<Props> = ({
   };
 
   const handleDeleteLesson = async (lessonId: string) => {
-    if (!window.confirm('Delete this lesson?')) return;
+    if (!await confirmAction('Delete this lesson?')) return;
     try {
       await coursesApi.deleteLesson(lessonId);
       await fetchCurriculum();
@@ -217,7 +222,7 @@ export const CurriculumBuilderModal: React.FC<Props> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm overflow-y-auto">
-      <div className="relative w-full max-w-4xl rounded-2xl border border-[var(--border-color,rgba(255,255,255,0.08))] bg-slate-900 shadow-2xl p-6 my-8 flex flex-col max-h-[85vh]">
+      <div ref={dialogRef} role="dialog" aria-modal="true" aria-label="Course curriculum" tabIndex={-1} className="relative w-full max-w-4xl rounded-2xl border border-[var(--border-color,rgba(255,255,255,0.08))] bg-slate-900 shadow-2xl p-6 my-8 flex flex-col max-h-[85vh]">
         {/* Header */}
         <div className="flex items-center justify-between pb-4 border-b border-white/5 shrink-0">
           <div>
@@ -238,7 +243,7 @@ export const CurriculumBuilderModal: React.FC<Props> = ({
             </button>
             <button
               type="button"
-              onClick={onClose}
+              aria-label="Close dialog" onClick={onClose}
               className="p-1 rounded-lg text-gray-400 hover:text-white hover:bg-white/5"
             >
               <X size={20} />
@@ -394,13 +399,14 @@ export const CurriculumBuilderModal: React.FC<Props> = ({
         {/* Submodal: Add / Edit Module */}
         {isModuleModalOpen && (
           <div className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-            <div className="w-full max-w-md rounded-2xl border border-white/10 bg-slate-900 p-5 shadow-2xl">
+            <div ref={moduleRef} role="dialog" aria-modal="true" aria-label="Module editor" tabIndex={-1} className="w-full max-w-md rounded-2xl border border-white/10 bg-slate-900 p-5 shadow-2xl">
               <div className="flex items-center justify-between pb-3 border-b border-white/5 mb-4">
                 <h4 className="text-base font-bold text-white">
                   {editingModule ? 'Edit Module' : 'Add New Module'}
                 </h4>
                 <button
                   type="button"
+                  aria-label="Close module editor"
                   onClick={() => setIsModuleModalOpen(false)}
                   className="text-gray-400 hover:text-white"
                 >
@@ -410,10 +416,10 @@ export const CurriculumBuilderModal: React.FC<Props> = ({
 
               <form onSubmit={handleSaveModule} className="flex flex-col gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-gray-300 uppercase mb-1">
+                  <label className="block text-xs font-semibold text-gray-300 uppercase mb-1" htmlFor="curriculumbuildermodal-field-1">
                     Module Title *
                   </label>
-                  <input
+                  <input id="curriculumbuildermodal-field-1"
                     type="text"
                     required
                     value={moduleTitle}
@@ -424,10 +430,10 @@ export const CurriculumBuilderModal: React.FC<Props> = ({
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-gray-300 uppercase mb-1">
+                  <label className="block text-xs font-semibold text-gray-300 uppercase mb-1" htmlFor="curriculumbuildermodal-field-2">
                     Description (optional)
                   </label>
-                  <input
+                  <input id="curriculumbuildermodal-field-2"
                     type="text"
                     value={moduleDesc}
                     onChange={(e) => setModuleDesc(e.target.value)}
@@ -459,13 +465,14 @@ export const CurriculumBuilderModal: React.FC<Props> = ({
         {/* Submodal: Add / Edit Lesson */}
         {isLessonModalOpen && (
           <div className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm overflow-y-auto">
-            <div className="w-full max-w-lg rounded-2xl border border-white/10 bg-slate-900 p-5 shadow-2xl my-8">
+            <div ref={lessonRef} role="dialog" aria-modal="true" aria-label="Lesson editor" tabIndex={-1} className="w-full max-w-lg rounded-2xl border border-white/10 bg-slate-900 p-5 shadow-2xl my-8">
               <div className="flex items-center justify-between pb-3 border-b border-white/5 mb-4">
                 <h4 className="text-base font-bold text-white">
                   {editingLesson ? 'Edit Lesson' : 'Add New Lesson'}
                 </h4>
                 <button
                   type="button"
+                  aria-label="Close lesson editor"
                   onClick={() => setIsLessonModalOpen(false)}
                   className="text-gray-400 hover:text-white"
                 >
@@ -475,10 +482,10 @@ export const CurriculumBuilderModal: React.FC<Props> = ({
 
               <form onSubmit={handleSaveLesson} className="flex flex-col gap-3 max-h-[70vh] overflow-y-auto pr-1">
                 <div>
-                  <label className="block text-xs font-semibold text-gray-300 uppercase mb-1">
+                  <label className="block text-xs font-semibold text-gray-300 uppercase mb-1" htmlFor="curriculumbuildermodal-field-3">
                     Lesson Title *
                   </label>
-                  <input
+                  <input id="curriculumbuildermodal-field-3"
                     type="text"
                     required
                     value={lessonData.title}
@@ -490,10 +497,10 @@ export const CurriculumBuilderModal: React.FC<Props> = ({
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-semibold text-gray-300 uppercase mb-1">
+                    <label className="block text-xs font-semibold text-gray-300 uppercase mb-1" htmlFor="curriculumbuildermodal-field-4">
                       Content Type
                     </label>
-                    <select
+                    <select id="curriculumbuildermodal-field-4"
                       value={lessonData.content_type}
                       onChange={(e) =>
                         setLessonData({ ...lessonData, content_type: e.target.value as any })
@@ -510,10 +517,10 @@ export const CurriculumBuilderModal: React.FC<Props> = ({
                   </div>
 
                   <div>
-                    <label className="block text-xs font-semibold text-gray-300 uppercase mb-1">
+                    <label className="block text-xs font-semibold text-gray-300 uppercase mb-1" htmlFor="curriculumbuildermodal-field-5">
                       Duration (Minutes)
                     </label>
-                    <input
+                    <input id="curriculumbuildermodal-field-5"
                       type="number"
                       min={1}
                       value={lessonData.duration_minutes}
@@ -527,10 +534,10 @@ export const CurriculumBuilderModal: React.FC<Props> = ({
 
                 {lessonData.content_type === 'VIDEO' && (
                   <div>
-                    <label className="block text-xs font-semibold text-gray-300 uppercase mb-1">
+                    <label className="block text-xs font-semibold text-gray-300 uppercase mb-1" htmlFor="curriculumbuildermodal-field-6">
                       Video URL (YouTube or direct stream)
                     </label>
-                    <input
+                    <input id="curriculumbuildermodal-field-6"
                       type="url"
                       value={lessonData.video_url}
                       onChange={(e) => setLessonData({ ...lessonData, video_url: e.target.value })}
@@ -542,10 +549,10 @@ export const CurriculumBuilderModal: React.FC<Props> = ({
 
                 {lessonData.content_type === 'LINK' && (
                   <div>
-                    <label className="block text-xs font-semibold text-gray-300 uppercase mb-1">
+                    <label className="block text-xs font-semibold text-gray-300 uppercase mb-1" htmlFor="curriculumbuildermodal-field-7">
                       External Resource URL
                     </label>
-                    <input
+                    <input id="curriculumbuildermodal-field-7"
                       type="url"
                       value={lessonData.external_url}
                       onChange={(e) => setLessonData({ ...lessonData, external_url: e.target.value })}
@@ -556,10 +563,10 @@ export const CurriculumBuilderModal: React.FC<Props> = ({
                 )}
 
                 <div>
-                  <label className="block text-xs font-semibold text-gray-300 uppercase mb-1">
+                  <label className="block text-xs font-semibold text-gray-300 uppercase mb-1" htmlFor="curriculumbuildermodal-field-8">
                     Lesson Content / Article Notes
                   </label>
-                  <textarea
+                  <textarea id="curriculumbuildermodal-field-8"
                     rows={5}
                     value={lessonData.content}
                     onChange={(e) => setLessonData({ ...lessonData, content: e.target.value })}

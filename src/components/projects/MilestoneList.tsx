@@ -1,3 +1,6 @@
+import { confirmAction } from '../../services/confirmation';
+import { useDialog } from '../../hooks/useDialog';
+import { notifyError } from '../../services/actionFeedback';
 import React, { useState } from 'react';
 import { CheckCircle2, Circle, Clock, Plus, Trash2, Edit3, Calendar } from 'lucide-react';
 import type { ProjectMilestoneItem } from '../../types/projects';
@@ -17,6 +20,7 @@ export const MilestoneList: React.FC<Props> = ({
   onMilestonesUpdated,
 }) => {
   const [showAddModal, setShowAddModal] = useState(false);
+  const dialogRef = useDialog(showAddModal, () => setShowAddModal(false));
   const [editingMilestone, setEditingMilestone] = useState<ProjectMilestoneItem | null>(null);
   const [formData, setFormData] = useState({
     title: '',
@@ -68,19 +72,19 @@ export const MilestoneList: React.FC<Props> = ({
       setShowAddModal(false);
       onMilestonesUpdated();
     } catch (err: any) {
-      alert(err.message || 'Failed to save milestone');
+      notifyError(err.message || 'Failed to save milestone');
     } finally {
       setSubmitting(false);
     }
   };
 
   const handleDelete = async (id: string, title: string) => {
-    if (!confirm(`Are you sure you want to delete milestone: "${title}"?`)) return;
+    if (!await confirmAction(`Are you sure you want to delete milestone: "${title}"?`)) return;
     try {
       await projectsApi.deleteMilestone(id);
       onMilestonesUpdated();
     } catch (err: any) {
-      alert(err.message || 'Failed to delete milestone');
+      notifyError(err.message || 'Failed to delete milestone');
     }
   };
 
@@ -91,7 +95,7 @@ export const MilestoneList: React.FC<Props> = ({
       await projectsApi.updateMilestone(m.id, { status: nextStatus });
       onMilestonesUpdated();
     } catch (err: any) {
-      alert(err.message || 'Failed to toggle status');
+      notifyError(err.message || 'Failed to toggle status');
     }
   };
 
@@ -228,17 +232,17 @@ export const MilestoneList: React.FC<Props> = ({
       {/* Add / Edit Milestone Modal */}
       {showAddModal && (
         <div className="modal-backdrop fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50">
-          <div className="modal-content w-full max-w-md bg-[var(--surface-color, #1e293b)] border border-[var(--border-color, #334155)] rounded-2xl p-6">
+          <div ref={dialogRef} role="dialog" aria-modal="true" aria-label="Milestone editor" tabIndex={-1} className="modal-content w-full max-w-md bg-[var(--surface-color, #1e293b)] border border-[var(--border-color, #334155)] rounded-2xl p-6">
             <h3 className="text-lg font-bold text-white mb-4">
               {editingMilestone ? 'Edit Milestone' : 'Add Project Milestone'}
             </h3>
 
             <form onSubmit={handleSave} className="space-y-4">
               <div>
-                <label className="block text-xs font-medium text-[var(--text-muted, #94a3b8)] mb-1">
+                <label className="block text-xs font-medium text-[var(--text-muted, #94a3b8)] mb-1" htmlFor="milestonelist-field-1">
                   Title *
                 </label>
-                <input
+                <input id="milestonelist-field-1"
                   type="text"
                   required
                   className="form-input w-full px-3 py-2 rounded-lg bg-[var(--bg-color, #0f172a)] border border-[var(--border-color, #334155)] text-white text-sm focus:outline-none focus:border-[var(--accent-color, #6366f1)]"
@@ -249,10 +253,10 @@ export const MilestoneList: React.FC<Props> = ({
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-[var(--text-muted, #94a3b8)] mb-1">
+                <label className="block text-xs font-medium text-[var(--text-muted, #94a3b8)] mb-1" htmlFor="milestonelist-field-2">
                   Description
                 </label>
-                <textarea
+                <textarea id="milestonelist-field-2"
                   rows={3}
                   className="form-input w-full px-3 py-2 rounded-lg bg-[var(--bg-color, #0f172a)] border border-[var(--border-color, #334155)] text-white text-sm focus:outline-none focus:border-[var(--accent-color, #6366f1)]"
                   placeholder="Key acceptance criteria or deliverables..."
@@ -263,10 +267,10 @@ export const MilestoneList: React.FC<Props> = ({
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-medium text-[var(--text-muted, #94a3b8)] mb-1">
+                  <label className="block text-xs font-medium text-[var(--text-muted, #94a3b8)] mb-1" htmlFor="milestonelist-field-3">
                     Due Date
                   </label>
-                  <input
+                  <input id="milestonelist-field-3"
                     type="date"
                     className="form-input w-full px-3 py-2 rounded-lg bg-[var(--bg-color, #0f172a)] border border-[var(--border-color, #334155)] text-white text-sm focus:outline-none focus:border-[var(--accent-color, #6366f1)]"
                     value={formData.due_date}
@@ -275,10 +279,10 @@ export const MilestoneList: React.FC<Props> = ({
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-[var(--text-muted, #94a3b8)] mb-1">
+                  <label className="block text-xs font-medium text-[var(--text-muted, #94a3b8)] mb-1" htmlFor="milestonelist-field-4">
                     Status
                   </label>
-                  <select
+                  <select id="milestonelist-field-4"
                     className="form-input w-full px-3 py-2 rounded-lg bg-[var(--bg-color, #0f172a)] border border-[var(--border-color, #334155)] text-white text-sm focus:outline-none focus:border-[var(--accent-color, #6366f1)]"
                     value={formData.status}
                     onChange={(e) => setFormData({ ...formData, status: e.target.value as any })}

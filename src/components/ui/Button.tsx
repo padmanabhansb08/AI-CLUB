@@ -4,10 +4,11 @@ import type { ButtonHTMLAttributes } from 'react';
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'ghost';
   isLoading?: boolean;
+  loadingLabel?: string;
 }
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ children, variant = 'primary', isLoading, className = '', disabled, ...props }, ref) => {
+  ({ children, variant = 'primary', isLoading, loadingLabel = 'Loading…', className = '', disabled, ...props }, ref) => {
     return (
       <button
         ref={ref}
@@ -15,7 +16,12 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         disabled={disabled || isLoading}
         {...props}
       >
-        {isLoading ? 'Loading...' : children}
+        {isLoading ? (
+          <>
+            <span className="btn-spinner" aria-hidden="true" />
+            <span>{loadingLabel}</span>
+          </>
+        ) : children}
       </button>
     );
   }

@@ -1,9 +1,9 @@
+import { DashboardLayout } from '../components/layout/DashboardLayout';
 import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { StateView } from '../components/common/StateView';
 import { announcementService } from '../services/content/announcementService';
 import type { Announcement } from '../services/content/announcementService';
-import { DashboardLayout } from '../components/layout/DashboardLayout';
 import { ArrowLeft } from 'lucide-react';
 
 export const AnnouncementDetail = () => {
@@ -19,9 +19,10 @@ export const AnnouncementDetail = () => {
     }
   }, [id]);
 
-  const loadAnnouncement = async (announcementId: string) => {
+  async function loadAnnouncement(announcementId: string) {
     try {
       setLoading(true);
+      setError(null);
       const data = await announcementService.getById(announcementId);
       setAnnouncement(data);
       
@@ -35,9 +36,9 @@ export const AnnouncementDetail = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }
 
-  if (!loading && !announcement) {
+  if (!loading && !announcement && !error) {
     return (
       <DashboardLayout pageTitle="Announcement Not Found">
         <div className="text-center py-16 space-y-4">
@@ -65,7 +66,7 @@ export const AnnouncementDetail = () => {
           <ArrowLeft size={14} /> Back to announcements
         </Link>
 
-        <StateView loading={loading} error={error as any}>
+        <StateView loading={loading} error={error as any} retry={() => id && loadAnnouncement(id)}>
           {announcement && (
             <div className="bg-[#FFFFFF] border border-[rgba(17,17,17,0.08)] rounded-3xl p-8 shadow-sm">
               <div className="flex flex-wrap items-center gap-3 mb-6 border-b border-[rgba(17,17,17,0.08)] pb-6">

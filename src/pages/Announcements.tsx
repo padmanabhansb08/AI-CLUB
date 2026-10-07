@@ -1,9 +1,9 @@
+import { DashboardLayout } from '../components/layout/DashboardLayout';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { StateView } from '../components/common/StateView';
 import { announcementService } from '../services/content/announcementService';
 import type { Announcement } from '../services/content/announcementService';
-import { DashboardLayout } from '../components/layout/DashboardLayout';
 import { Megaphone } from 'lucide-react';
 
 export const Announcements = () => {
@@ -15,9 +15,10 @@ export const Announcements = () => {
     fetchAnnouncements();
   }, []);
 
-  const fetchAnnouncements = async () => {
+  async function fetchAnnouncements() {
     try {
       setLoading(true);
+      setError(null);
       const res = await announcementService.getVisibleAnnouncements();
       setAnnouncements(res.data);
     } catch (err: any) {
@@ -25,7 +26,7 @@ export const Announcements = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
@@ -47,7 +48,7 @@ export const Announcements = () => {
           </div>
         </div>
 
-        <StateView loading={loading} error={error as any} empty={announcements.length === 0} emptyMessage="No announcements at this time.">
+        <StateView loading={loading} error={error as any} retry={fetchAnnouncements} empty={announcements.length === 0} emptyMessage="No announcements at this time.">
           <div className="space-y-4">
             {announcements.map((item) => (
               <Link 

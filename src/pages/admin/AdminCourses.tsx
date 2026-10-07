@@ -1,3 +1,4 @@
+import { confirmAction } from '../../services/confirmation';
 import React, { useState, useEffect, useCallback } from 'react';
 import { AdminLayout } from '../../components/layout/AdminLayout';
 import { coursesApi, type CourseSearchParams } from '../../api/courses.api';
@@ -115,7 +116,7 @@ export const AdminCourses: React.FC = () => {
   };
 
   const handleArchive = async (course: CourseItem) => {
-    if (!window.confirm(`Are you sure you want to archive "${course.title}"? It will be hidden from the catalog while preserving all student records.`)) {
+    if (!await confirmAction(`Are you sure you want to archive "${course.title}"? It will be hidden from the catalog while preserving all student records.`)) {
       return;
     }
     try {
@@ -131,7 +132,7 @@ export const AdminCourses: React.FC = () => {
   };
 
   const handleDelete = async (course: CourseItem) => {
-    if (!window.confirm(`Are you sure you want to delete course "${course.title}"? This cannot be undone.`)) {
+    if (!await confirmAction(`Are you sure you want to delete course "${course.title}"? This cannot be undone.`)) {
       return;
     }
     try {
@@ -197,6 +198,7 @@ export const AdminCourses: React.FC = () => {
             />
             <input
               type="text"
+              aria-label="Search courses"
               placeholder="Search by title, description or category..."
               className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-[var(--border-color, #334155)] bg-[var(--surface-color, #1e293b)] text-white text-sm focus:outline-none focus:border-indigo-500 transition"
               value={searchTerm}
@@ -209,7 +211,7 @@ export const AdminCourses: React.FC = () => {
 
           <div className="flex items-center gap-2">
             <Filter size={16} className="text-[var(--text-muted, #94a3b8)]" />
-            <select
+            <select aria-label="Course publication status"
               className="px-3 py-2.5 rounded-xl border border-[var(--border-color, #334155)] bg-[var(--surface-color, #1e293b)] text-white text-sm focus:outline-none focus:border-indigo-500"
               value={selectedStatus}
               onChange={(e) => {

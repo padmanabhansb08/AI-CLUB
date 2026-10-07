@@ -19,8 +19,8 @@ export const AdminLogin: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const user = await login(email, password);
-      if (user.role?.toLowerCase() === 'admin') {
+      const user = await login(email.trim().toLowerCase(), password);
+      if (['admin', 'super_admin'].includes(user.role?.toLowerCase())) {
         navigate('/admin');
       } else {
         setError('Access denied: Admin privileges required for this portal.');
@@ -69,7 +69,7 @@ export const AdminLogin: React.FC = () => {
           required
         />
 
-        {error && <div className="form-error mb-4">{error}</div>}
+        {error && <div className="form-error mb-4" role="alert">{error}</div>}
 
         <Button
           type="submit"
@@ -80,6 +80,7 @@ export const AdminLogin: React.FC = () => {
           Sign In as Admin
         </Button>
 
+        {import.meta.env.DEV && <>
         <div className="auth-divider">
           <span>OR</span>
         </div>
@@ -93,9 +94,10 @@ export const AdminLogin: React.FC = () => {
         >
           Demo Admin Access
         </Button>
+        </>}
 
         <div className="text-sm" style={{ textAlign: 'center', color: 'var(--text-secondary)' }}>
-          <Link to="/" className="text-accent" style={{ fontWeight: 500 }}>
+          <Link to="/login" className="text-accent" style={{ fontWeight: 500 }}>
             Return to Student Login
           </Link>
         </div>

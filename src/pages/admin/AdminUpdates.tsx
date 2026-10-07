@@ -1,3 +1,5 @@
+import { confirmAction } from '../../services/confirmation';
+import { notifyError } from '../../services/actionFeedback';
 import React, { useState } from 'react';
 import { AdminLayout } from '../../components/layout/AdminLayout';
 import { updateService } from '../../services/content/updateService';
@@ -9,6 +11,7 @@ import { StateView } from '../../components/common/StateView';
 export const AdminUpdates: React.FC = () => {
   const { data: updates, loading: loadingupdates, error: errorupdates, retry: retryupdates } = useRepository(updateService);
   const [searchTerm, setSearchTerm] = useState('');
+  const [saving, setSaving] = useState(false);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
 
@@ -37,22 +40,26 @@ export const AdminUpdates: React.FC = () => {
     setIsFormOpen(true);
   };
 
-  const handleDelete = (id: string, title: string) => {
-    if (window.confirm(`Delete this update?\nThis will remove "${title}".`)) {
-      updateService.remove(id);
+  const handleDelete = async (id: string, title: string) => {
+    if (await confirmAction(`Delete this update?\nThis will remove "${title}".`)) {
+      try { await updateService.remove(id); } catch (error) { notifyError(error instanceof Error ? error.message : 'Deletion failed.'); }
     }
   };
 
-  const handleSave = (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (saving) return;
     if (!formData.title || !formData.summary || !formData.category) return;
     
+    setSaving(true);
+    try {
     if (editingId) {
-      updateService.update(editingId, formData);
+      await updateService.update(editingId, formData);
     } else {
-      updateService.create(formData as Omit<Update, 'id'>);
+      await updateService.create(formData as Omit<Update, 'id'>);
     }
     setIsFormOpen(false);
+    } catch (error) { notifyError(error instanceof Error ? error.message : 'Saving failed.'); } finally { setSaving(false); }
   };
 
   return (
@@ -101,10 +108,10 @@ export const AdminUpdates: React.FC = () => {
                     <td>{upd.featured ? 'Yes' : 'No'}</td>
                     <td>
                       <div className="flex gap-3">
-                        <button className="icon-btn text-accent" onClick={() => handleEdit(upd)}>
+                        <button aria-label="Edit content" title="Edit" className="icon-btn text-accent" onClick={() => handleEdit(upd)}>
                           <Edit2 size={16} />
                         </button>
-                        <button className="icon-btn" style={{color: 'var(--danger-color, #ef4444)'}} onClick={() => handleDelete(upd.id, upd.title)}>
+                        <button aria-label="Delete content" className="icon-btn" style={{color: 'var(--danger-color, #ef4444)'}} onClick={() => handleDelete(upd.id, upd.title)}>
                           <Trash2 size={16} />
                         </button>
                       </div>
@@ -165,7 +172,7 @@ export const AdminUpdates: React.FC = () => {
               
               <div className="flex justify-end gap-3 mt-6">
                 <button type="button" className="btn btn-secondary" onClick={() => setIsFormOpen(false)}>Cancel</button>
-                <button type="submit" className="btn btn-primary">Save Update</button>
+                <button type="submit" disabled={saving} className="btn btn-primary">Save Update</button>
               </div>
             </form>
           </div>

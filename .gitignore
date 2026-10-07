@@ -30,3 +30,13 @@ server/dist
 *.njsproj
 *.sln
 *.sw?
+
+# Local configuration and verification artifacts
+.env
+.env.*
+!.env.example
+server/.env
+server/.env.*
+!server/.env.example
+scratch/home-*.png
+.neon

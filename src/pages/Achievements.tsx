@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { DashboardLayout } from '../components/layout/DashboardLayout';
+import { ErrorState } from '../components/common/ErrorState';
 import { achievementsApi } from '../api/achievements.api';
 import { AchievementCard } from '../components/achievements/AchievementCard';
 import {
@@ -37,6 +38,7 @@ export const Achievements: React.FC = () => {
     inProgressCount: 0,
   });
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [evaluating, setEvaluating] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('ALL');
@@ -46,6 +48,7 @@ export const Achievements: React.FC = () => {
   const loadData = async () => {
     try {
       setLoading(true);
+      setError(null);
       const [achievementsRes, statsRes] = await Promise.all([
         achievementsApi.getAchievements({ limit: 100 }),
         achievementsApi.getMyStats(),
@@ -54,6 +57,7 @@ export const Achievements: React.FC = () => {
       setStats(statsRes);
     } catch (err) {
       console.error('Failed to load achievements data', err);
+      setError(err instanceof Error ? err.message : 'Achievements could not be loaded.');
     } finally {
       setLoading(false);
     }
@@ -109,6 +113,7 @@ export const Achievements: React.FC = () => {
     });
   }, [achievements, activeTab, selectedCategory, searchTerm]);
 
+  if (error && !loading) return <DashboardLayout pageTitle="Achievements"><ErrorState message={error} onRetry={loadData} /></DashboardLayout>;
   return (
     <DashboardLayout pageTitle="Achievements">
       <div className="max-w-7xl mx-auto space-y-6 pb-12">

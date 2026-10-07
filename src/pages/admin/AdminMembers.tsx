@@ -1,3 +1,4 @@
+import { notifyError } from '../../services/actionFeedback';
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { 
@@ -70,7 +71,7 @@ export const AdminMembers: React.FC = () => {
       setActionSuccess('Members data exported successfully to CSV.');
       setTimeout(() => setActionSuccess(null), 4000);
     } catch (err: any) {
-      alert(`Export failed: ${err.message}`);
+      notifyError(`Export failed: ${err.message}`);
     } finally {
       setExporting(false);
     }
@@ -86,7 +87,7 @@ export const AdminMembers: React.FC = () => {
       fetchMembers();
       setTimeout(() => setActionSuccess(null), 4000);
     } catch (err: any) {
-      alert(`Role change failed: ${err.message}`);
+      notifyError(`Role change failed: ${err.message}`);
     } finally {
       setModalLoading(false);
     }
@@ -102,7 +103,7 @@ export const AdminMembers: React.FC = () => {
       fetchMembers();
       setTimeout(() => setActionSuccess(null), 4000);
     } catch (err: any) {
-      alert(`Status change failed: ${err.message}`);
+      notifyError(`Status change failed: ${err.message}`);
     } finally {
       setModalLoading(false);
     }

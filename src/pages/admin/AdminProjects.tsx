@@ -1,3 +1,5 @@
+import { confirmAction } from '../../services/confirmation';
+import { notifyError } from '../../services/actionFeedback';
 import React, { useState, useEffect } from 'react';
 import { AdminLayout } from '../../components/layout/AdminLayout';
 import { projectsApi } from '../../api/projects.api';
@@ -70,17 +72,17 @@ export const AdminProjects: React.FC = () => {
       await projectsApi.publishProject(proj.id);
       await fetchProjects();
     } catch (err: any) {
-      alert(err.message || 'Failed to publish project');
+      notifyError(err.message || 'Failed to publish project');
     }
   };
 
   const handleDelete = async (id: string, title: string) => {
-    if (confirm(`Delete project "${title}"?\nThis will remove all associated teams, milestones, and memberships.`)) {
+    if (await confirmAction(`Delete project "${title}"?\nThis will remove all associated teams, milestones, and memberships.`)) {
       try {
         await projectsApi.deleteProject(id);
         await fetchProjects();
       } catch (err: any) {
-        alert(err.message || 'Failed to delete project');
+        notifyError(err.message || 'Failed to delete project');
       }
     }
   };
@@ -92,7 +94,7 @@ export const AdminProjects: React.FC = () => {
       const teams = await projectsApi.getProjectTeams(proj.id);
       setProjectTeams(teams);
     } catch (err: any) {
-      alert(err.message || 'Failed to load teams');
+      notifyError(err.message || 'Failed to load teams');
     } finally {
       setLoadingTeams(false);
     }

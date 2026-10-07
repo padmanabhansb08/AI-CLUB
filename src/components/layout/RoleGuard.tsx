@@ -39,9 +39,9 @@ export const RoleGuard: React.FC<RoleGuardProps> = ({ children, allowedRole, red
   }
 
   if (userRole !== targetRole) {
-    // If admin attempts to access student route, allow
+    // Admin accounts do not have member enrollment/profile records.
     if (isAdminRole) {
-      return <>{children}</>;
+      return <Navigate to="/admin" replace />;
     }
     return <Navigate to={redirectTo || '/'} replace />;
   }

@@ -217,7 +217,7 @@ export const Profile: React.FC = () => {
   const missingItems = profile.profileCompletion?.missing || [];
 
   return (
-    <DashboardLayout pageTitle="Member Profile">
+    <DashboardLayout pageTitle="Profile">
       <div className="page-container max-w-5xl mx-auto pb-12">
         {/* Header Bar */}
         <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
@@ -291,7 +291,7 @@ export const Profile: React.FC = () => {
                   onClick={() => setIsEditing(true)}
                   className="text-xs px-2.5 py-1 rounded-full bg-[#FAF9F6] hover:bg-[#EBE9E3] text-[#111111] transition-colors flex items-center gap-1 border border-[rgba(17,17,17,0.1)]"
                 >
-                  <Plus size={12} /> {item}
+                  <Plus size={12} /> {({ profilePhoto: 'Profile photo', bio: 'About you', skills: 'Skills', interests: 'Interests', github: 'GitHub', linkedin: 'LinkedIn', portfolio: 'Portfolio' } as Record<string,string>)[item] || item}
                 </button>
               ))}
             </div>
@@ -671,7 +671,7 @@ export const Profile: React.FC = () => {
                   required
                 />
                 <Input
-                  label="Register Number (Immutable)"
+                  label="Register number"
                   value={profile.registerNumber}
                   disabled
                 />
@@ -705,7 +705,7 @@ export const Profile: React.FC = () => {
                   placeholder="+91 9876543210"
                 />
                 <Input
-                  label="College Email (Immutable)"
+                  label="Email address"
                   value={profile.collegeEmail}
                   disabled
                 />
@@ -750,10 +750,11 @@ export const Profile: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-[#111111] mb-1">
+                <label htmlFor="profile-bio" className="block text-sm font-medium text-[#111111] mb-1">
                   Bio / About Me ({bio.length}/1000)
                 </label>
                 <textarea
+                  id="profile-bio"
                   value={bio}
                   onChange={(e) => setBio(e.target.value)}
                   maxLength={1000}
@@ -802,6 +803,7 @@ export const Profile: React.FC = () => {
                   <input
                     type="text"
                     value={newSkillName}
+                    aria-label="Add a skill"
                     onChange={(e) => setNewSkillName(e.target.value)}
                     placeholder="e.g. PyTorch, React, Rust"
                     className="w-full bg-[#FAF9F6] border border-[rgba(17,17,17,0.15)] rounded-full px-4 py-2 text-sm text-[#111111] focus:outline-none focus:border-[#111111]"
@@ -816,6 +818,7 @@ export const Profile: React.FC = () => {
                 <div className="sm:col-span-1">
                   <select
                     value={newSkillProficiency}
+                    aria-label="Skill proficiency"
                     onChange={(e) => setNewSkillProficiency(e.target.value as SkillProficiency)}
                     className="w-full bg-[#FAF9F6] border border-[rgba(17,17,17,0.15)] rounded-full px-4 py-2 text-sm text-[#111111] focus:outline-none focus:border-[#111111]"
                   >
@@ -892,6 +895,7 @@ export const Profile: React.FC = () => {
                 <input
                   type="text"
                   value={newInterestName}
+                  aria-label="Add an interest"
                   onChange={(e) => setNewInterestName(e.target.value)}
                   placeholder="Custom interest (e.g. Edge AI, Quantization)..."
                   className="flex-1 bg-[#FAF9F6] border border-[rgba(17,17,17,0.15)] rounded-full px-4 py-2 text-sm text-[#111111] focus:outline-none focus:border-[#111111]"

@@ -1,3 +1,5 @@
+import { confirmAction } from '../services/confirmation';
+import { notifyError } from '../services/actionFeedback';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Calendar, Clock, MapPin, Globe, ArrowRight, XCircle, ArrowLeft } from 'lucide-react';
@@ -32,13 +34,13 @@ export default function MyEvents() {
   }, []);
 
   const handleCancel = async (eventId: string) => {
-    if (!confirm('Are you sure you want to cancel your registration for this event?')) return;
+    if (!await confirmAction('Are you sure you want to cancel your registration for this event?')) return;
     try {
       setCancellingId(eventId);
       await eventsApi.cancelRegistration(eventId, 'Student cancelled from My Events');
       await fetchRegistrations();
     } catch (err: any) {
-      alert(err.message || 'Failed to cancel registration');
+      notifyError(err.message || 'Failed to cancel registration');
     } finally {
       setCancellingId(null);
     }

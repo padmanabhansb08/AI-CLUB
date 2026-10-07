@@ -63,7 +63,7 @@ export const MyLearning: React.FC = () => {
           <div className="flex items-center gap-2 mb-1">
             <BookOpen className="text-[var(--accent-color, #6366f1)]" size={26} />
             <h2 className="text-2xl font-bold tracking-tight text-white m-0">
-              MY LEARNING
+              My learning
             </h2>
           </div>
           <p className="text-sm text-[var(--text-muted, #94a3b8)]">

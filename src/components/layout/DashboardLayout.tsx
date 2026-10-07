@@ -20,6 +20,8 @@ import {
   Award
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { useMobile } from '../../hooks/useMobile';
+import { useDialog } from '../../hooks/useDialog';
 import { NotificationBell } from '../notifications/NotificationBell';
 
 interface DashboardLayoutProps {
@@ -30,23 +32,25 @@ interface DashboardLayoutProps {
 export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, pageTitle = 'Dashboard' }) => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
+  const displayName = user?.fullName || user?.email?.split('@')[0] || 'Member';
+  const initials = displayName.split(/\s+/).map(part => part[0]).slice(0, 2).join('').toUpperCase();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
+  const mobile = useMobile();
   const profileMenuRef = useRef<HTMLDivElement>(null);
+  const navigationRef = useDialog<HTMLElement>(mobile && mobileMenuOpen, () => setMobileMenuOpen(false));
 
-  // Body scroll lock on mobile drawer
   useEffect(() => {
-    if (mobileMenuOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = '';
-    }
-    return () => {
-      document.body.style.overflow = '';
+    const dismiss = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setMobileMenuOpen(false);
+        setProfileDropdownOpen(false);
+      }
     };
-  }, [mobileMenuOpen]);
+    document.addEventListener('keydown', dismiss);
+    return () => document.removeEventListener('keydown', dismiss);
+  }, []);
 
-  // Handle click outside profile dropdown
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (profileMenuRef.current && !profileMenuRef.current.contains(e.target as Node)) {
@@ -61,18 +65,10 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, page
     };
   }, [profileDropdownOpen]);
 
-  const initials = user?.fullName
-    ? user.fullName.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase()
-    : (user?.email?.slice(0, 2).toUpperCase() || 'ST');
-
-  const displayName = user?.fullName || user?.email?.split('@')[0] || 'Member';
-
   const handleLogout = async () => {
     await logout();
-    navigate('/');
+    navigate('/login', { replace: true });
   };
-
-  const isMember = user?.isClubMember || user?.membershipStatus === 'ACTIVE';
 
   const navItems = [
     { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
@@ -91,6 +87,10 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, page
 
   return (
     <div className="dashboard-layout">
+      <a className="skip-link sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:p-2 focus:bg-white focus:shadow" href="#member-content">
+        Skip to content
+      </a>
+
       {/* Mobile Menu Overlay */}
       {mobileMenuOpen && (
         <div 
@@ -102,8 +102,9 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, page
 
       {/* Sidebar */}
       <aside 
+        ref={navigationRef} 
+        aria-label="Member navigation" 
         className={`sidebar ${mobileMenuOpen ? 'open' : ''}`}
-        aria-label="Primary Navigation"
       >
         <div className="sidebar-header">
           <Link to="/" className="sidebar-brand text-[#111111]">
@@ -111,9 +112,9 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, page
             <span>AI CLUB</span>
           </Link>
           <button 
+            aria-label="Close navigation" 
             className="mobile-close" 
             onClick={() => setMobileMenuOpen(false)}
-            aria-label="Close navigation menu"
           >
             <X size={20} />
           </button>
@@ -156,11 +157,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, page
           </div>
 
           <div className="sidebar-footer">
-            <button 
-              className="nav-item logout-btn" 
-              onClick={handleLogout}
-              aria-label="Log out of account"
-            >
+            <button className="nav-item logout-btn" onClick={handleLogout}>
               <LogOut size={18} className="shrink-0" />
               <span>Logout</span>
             </button>
@@ -174,9 +171,10 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, page
         <header className="topbar">
           <div className="topbar-left">
             <button 
+              aria-label="Open navigation" 
+              aria-expanded={mobileMenuOpen} 
               className="mobile-toggle" 
               onClick={() => setMobileMenuOpen(true)}
-              aria-label="Open navigation menu"
             >
               <Menu size={22} />
             </button>
@@ -189,10 +187,10 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, page
             <div className="profile-menu-container" ref={profileMenuRef}>
               <button 
                 className="profile-btn flex items-center gap-2.5 p-1 sm:pr-3 rounded-full hover:bg-black/5 transition-colors" 
-                onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
+                aria-label={`Account menu for ${displayName}`}
                 aria-expanded={profileDropdownOpen}
                 aria-haspopup="true"
-                aria-label="User account menu"
+                onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
               >
                 <div className="avatar w-8 h-8 rounded-full bg-[#050505] text-[#FFFFFF] flex items-center justify-center text-xs font-semibold font-mono">
                   {initials}
@@ -208,48 +206,15 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, page
                   </div>
                   <Link to="/profile" className="dropdown-item" onClick={() => setProfileDropdownOpen(false)}>Profile</Link>
                   <Link to="/settings" className="dropdown-item" onClick={() => setProfileDropdownOpen(false)}>Settings</Link>
-                  <div className="dropdown-divider"></div>
-                  <button className="dropdown-item text-error" onClick={handleLogout}>Logout</button>
+                  <button className="dropdown-item text-red-600 w-full text-left" onClick={handleLogout}>Logout</button>
                 </div>
               )}
             </div>
           </div>
         </header>
 
-        {/* Page Content */}
-        <div className="dashboard-content">
-          {user?.role === 'student' && !isMember && (
-            <div className="mb-8 p-6 rounded-[20px] bg-[#FFFFFF] border border-[rgba(17,17,17,0.09)] flex flex-col sm:flex-row sm:items-center justify-between gap-5 shadow-[0_4px_16px_rgba(0,0,0,0.02)]">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-full bg-[#FAF9F6] border border-[rgba(17,17,17,0.08)] text-[#111111] flex items-center justify-center shrink-0">
-                  <Award size={22} />
-                </div>
-                <div>
-                  <div className="text-sm font-semibold text-[#111111] flex items-center gap-2.5">
-                    <span>AI CLUB Selection Status</span>
-                    <span className="px-2.5 py-0.5 rounded-full text-[10.5px] font-semibold uppercase tracking-wider bg-[#FAF9F6] border border-[rgba(17,17,17,0.08)] text-[#66645F]">
-                      {user?.applicationStatus?.replace('_', ' ') || 'Application Active'}
-                    </span>
-                  </div>
-                  <p className="text-xs text-[#66645F] mt-1 max-w-[60ch] leading-relaxed">
-                    {user?.applicationStatus === 'TEST_REQUIRED' 
-                      ? 'You are invited to complete the 25-question technical assessment.' 
-                      : user?.applicationStatus === 'UNDER_REVIEW'
-                        ? 'Your assessment has been submitted and is currently under administrator review.'
-                        : user?.applicationStatus === 'WAITLISTED'
-                          ? 'Your application is on the waitlist. You will be notified of decisions.'
-                          : 'Complete your application to unlock official AI CLUB member privileges.'}
-                  </p>
-                </div>
-              </div>
-              <Link
-                to="/application"
-                className="pill-btn h-[40px] px-5 text-xs font-semibold shrink-0"
-              >
-                {user?.applicationStatus === 'TEST_REQUIRED' ? 'Start Mock Test →' : 'View Application →'}
-              </Link>
-            </div>
-          )}
+        {/* Dynamic Page Content */}
+        <div className="dashboard-content" id="member-content" tabIndex={-1}>
           {children}
         </div>
       </main>

@@ -40,11 +40,11 @@ export const MyProjects: React.FC = () => {
           <div className="flex items-center gap-2 mb-1">
             <FolderGit2 className="text-[var(--accent-color, #6366f1)]" size={24} />
             <h2 className="text-2xl font-bold tracking-tight text-white m-0">
-              MY PROJECTS & PODS
+              My projects & teams
             </h2>
           </div>
           <p className="text-sm text-[var(--text-muted, #94a3b8)]">
-            Active club initiatives, team squads, and collaborations you are contributing to.
+            Projects you’ve joined and requests waiting for approval.
           </p>
         </div>
 
@@ -74,7 +74,7 @@ export const MyProjects: React.FC = () => {
           <FolderGit2 size={40} className="mx-auto mb-3 text-[var(--text-muted, #64748b)]" />
           <h3 className="text-lg font-bold text-white mb-1">You Haven't Joined Any Projects Yet</h3>
           <p className="text-xs text-[var(--text-muted, #94a3b8)] max-w-sm mx-auto mb-4">
-            Discover active club initiatives, request to join as a contributor, or build a team pod with peers.
+            Browse club projects, request to join, or create a team with other members.
           </p>
           <button
             type="button"

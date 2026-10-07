@@ -1,3 +1,5 @@
+import { confirmAction } from '../services/confirmation';
+import { notifyError, notifySuccess } from '../services/actionFeedback';
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { DashboardLayout } from '../components/layout/DashboardLayout';
@@ -70,10 +72,10 @@ export const ProjectDetail: React.FC = () => {
     try {
       setActionLoading(true);
       await projectsApi.joinProject(project.id, 'CONTRIBUTOR');
-      alert('Join request submitted! A project lead or admin will review your application.');
+      notifySuccess('Join request submitted! A project lead or admin will review your application.');
       await fetchProjectData();
     } catch (err: any) {
-      alert(err.message || 'Failed to request to join project');
+      notifyError(err.message || 'Failed to request to join project');
     } finally {
       setActionLoading(false);
     }
@@ -81,13 +83,13 @@ export const ProjectDetail: React.FC = () => {
 
   const handleLeaveProject = async () => {
     if (!project) return;
-    if (!confirm('Are you sure you want to leave this project?')) return;
+    if (!await confirmAction('Are you sure you want to leave this project?')) return;
     try {
       setActionLoading(true);
       await projectsApi.leaveProject(project.id);
       await fetchProjectData();
     } catch (err: any) {
-      alert(err.message || 'Failed to leave project');
+      notifyError(err.message || 'Failed to leave project');
     } finally {
       setActionLoading(false);
     }

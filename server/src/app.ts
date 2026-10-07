@@ -3,6 +3,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 
 import authRoutes from './routes/authRoutes';
+import accountSecurityRoutes from './routes/accountSecurityRoutes';
 import adminRoutes from './routes/adminRoutes';
 import studentRoutes from './routes/studentRoutes';
 import memberRoutes from './routes/memberRoutes';
@@ -146,6 +147,7 @@ app.get(['/ready', '/api/ready'], async (req, res) => {
 
 // 9. Domain API Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/auth', accountSecurityRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/me', studentRoutes);
 app.use('/api/members', memberRoutes);

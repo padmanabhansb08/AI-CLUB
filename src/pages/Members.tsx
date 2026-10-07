@@ -55,6 +55,7 @@ export const Members: React.FC = () => {
           <div className="relative flex-1">
             <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#92908A]" />
             <input
+              aria-label="Search members"
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -67,6 +68,7 @@ export const Members: React.FC = () => {
           <div className="flex items-center gap-2">
             <Filter size={16} className="text-[#92908A]" />
             <select
+              aria-label="Member department"
               value={department}
               onChange={(e) => setDepartment(e.target.value)}
               className="bg-[#FAF9F6] border border-[rgba(17,17,17,0.12)] rounded-full px-4 py-2.5 text-sm text-[#111111] focus:outline-none focus:border-[#111111] font-medium"

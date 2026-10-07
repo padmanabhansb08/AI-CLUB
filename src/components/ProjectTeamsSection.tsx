@@ -1,3 +1,5 @@
+import { confirmAction } from '../services/confirmation';
+import { notifyError } from '../services/actionFeedback';
 import { useState, useEffect } from 'react';
 import { projectTeamService } from '../services/content/projectTeamService';
 import type { ProjectTeam } from '../data/projectTeams';
@@ -56,7 +58,7 @@ export const ProjectTeamsSection = ({ projectId, projectStatus }: Props) => {
       setCreateData({ name: '', description: '', maxMembers: 4 });
       await fetchTeams();
     } catch (err: any) {
-      alert(err.message || 'Failed to create team');
+      notifyError(err.message || 'Failed to create team');
     } finally {
       setCreating(false);
     }
@@ -69,7 +71,7 @@ export const ProjectTeamsSection = ({ projectId, projectStatus }: Props) => {
       await projectTeamService.joinTeam(teamId);
       await fetchTeams();
     } catch (err: any) {
-      alert(err.message || 'Failed to join team');
+      notifyError(err.message || 'Failed to join team');
     } finally {
       setActionLoading(null);
     }
@@ -78,13 +80,13 @@ export const ProjectTeamsSection = ({ projectId, projectStatus }: Props) => {
   const handleLeave = async (teamId: string) => {
     if (!isAuthenticated) return;
     // @ts-ignore
-    if (!window.__E2E_TEST__ && !window.confirm("Are you sure you want to leave this team?")) return;
+    if (!await confirmAction("Are you sure you want to leave this team?")) return;
     try {
       setActionLoading(teamId);
       await projectTeamService.leaveTeam(teamId);
       await fetchTeams();
     } catch (err: any) {
-      alert(err.message || 'Failed to leave team');
+      notifyError(err.message || 'Failed to leave team');
     } finally {
       setActionLoading(null);
     }

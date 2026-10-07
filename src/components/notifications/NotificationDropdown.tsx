@@ -10,6 +10,7 @@ interface NotificationDropdownProps {
   notifications: NotificationItemType[];
   unreadCount: number;
   loading: boolean;
+  error?: string;
   onMarkAsRead: (id: string) => void;
   onMarkAllAsRead: () => void;
 }
@@ -20,6 +21,7 @@ export const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
   notifications,
   unreadCount,
   loading,
+  error,
   onMarkAsRead,
   onMarkAllAsRead,
 }) => {
@@ -27,6 +29,7 @@ export const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
   const navigate = useNavigate();
 
   useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
     const handleOutsideClick = (e: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
         onClose();
@@ -34,9 +37,11 @@ export const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
     };
     if (isOpen) {
       document.addEventListener('mousedown', handleOutsideClick);
+      document.addEventListener('keydown', handleEscape);
     }
     return () => {
       document.removeEventListener('mousedown', handleOutsideClick);
+      document.removeEventListener('keydown', handleEscape);
     };
   }, [isOpen, onClose]);
 
@@ -45,6 +50,8 @@ export const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
   return (
     <div
       ref={dropdownRef}
+      role="region"
+      aria-label="Recent notifications"
       className="notification-dropdown absolute right-0 top-full mt-2 w-80 sm:w-96 rounded-2xl shadow-2xl z-50 overflow-hidden flex flex-col border border-white/10"
       style={{
         backgroundColor: '#121624',
@@ -90,7 +97,7 @@ export const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
 
       {/* Content */}
       <div className="overflow-y-auto flex-1 p-2 space-y-1 divide-y divide-white/5 max-h-[380px]">
-        {loading ? (
+        {error ? <p className="p-4 text-sm text-red-700" role="alert">{error}</p> : loading ? (
           <div className="flex flex-col items-center justify-center py-10 text-gray-400">
             <Loader2 size={24} className="animate-spin text-cyan-400 mb-2" />
             <span className="text-xs">Loading notifications...</span>

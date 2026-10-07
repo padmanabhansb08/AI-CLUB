@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { DashboardLayout } from '../components/layout/DashboardLayout';
 import { useDashboard } from '../hooks/useDashboard';
@@ -10,9 +10,9 @@ import { AIRecommendationCard } from '../components/ai/AIRecommendationCard';
 import type { StudentDashboardInsights } from '../types/ai';
 import { ArrowRight, Sparkles, PlayCircle, Bot } from 'lucide-react';
 
-export const Dashboard: React.FC = () => {
-  const navigate = useNavigate();
+export function Dashboard() {
   const { data, loading, error, retry } = useDashboard();
+  const navigate = useNavigate();
   const [aiInsights, setAiInsights] = useState<StudentDashboardInsights | null>(null);
   const [aiTab, setAiTab] = useState<'courses' | 'events' | 'projects'>('courses');
 
@@ -432,4 +432,4 @@ export const Dashboard: React.FC = () => {
       </div>
     </DashboardLayout>
   );
-};
+}

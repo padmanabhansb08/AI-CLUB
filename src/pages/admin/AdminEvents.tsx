@@ -1,3 +1,5 @@
+import { confirmAction } from '../../services/confirmation';
+import { notifyError } from '../../services/actionFeedback';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { 
@@ -83,7 +85,7 @@ export function AdminEvents() {
       await eventsApi.publishEvent(id);
       await fetchEvents();
     } catch (err: any) {
-      alert(err.message || 'Failed to publish event');
+      notifyError(err.message || 'Failed to publish event');
     }
   };
 
@@ -94,17 +96,17 @@ export function AdminEvents() {
       await eventsApi.cancelEvent(id, reason.trim());
       await fetchEvents();
     } catch (err: any) {
-      alert(err.message || 'Failed to cancel event');
+      notifyError(err.message || 'Failed to cancel event');
     }
   };
 
   const handleComplete = async (id: string) => {
-    if (!confirm('Mark this event as COMPLETED?')) return;
+    if (!await confirmAction('Mark this event as COMPLETED?')) return;
     try {
       await eventsApi.completeEvent(id, true);
       await fetchEvents();
     } catch (err: any) {
-      alert(err.message || 'Failed to mark event as completed');
+      notifyError(err.message || 'Failed to mark event as completed');
     }
   };
 

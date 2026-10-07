@@ -1,3 +1,5 @@
+import { API_URL } from '../services/apiConfig';
+
 export interface ApiSuccessResponse<T> {
   success: true;
   data: T;
@@ -34,16 +36,7 @@ export class ApiError extends Error {
   }
 }
 
-// Compute normalized API URL ensuring single /api prefix
-function getApiBaseUrl(): string {
-  const envUrl = import.meta.env.VITE_API_URL as string | undefined;
-  if (envUrl && envUrl.trim().length > 0) {
-    return envUrl.replace(/\/+$/, '');
-  }
-  return 'http://localhost:5000/api';
-}
-
-const API_BASE_URL = getApiBaseUrl();
+const API_BASE_URL = `${API_URL}/api`;
 
 interface RequestOptions extends RequestInit {
   params?: Record<string, string | number | boolean | undefined>;
@@ -79,10 +72,16 @@ async function request<T>(endpoint: string, options: RequestOptions = {}): Promi
   }
 
   let response: Response;
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 15000);
+  const abort = () => controller.abort();
+  options.signal?.addEventListener('abort', abort, { once: true });
+  if (options.signal?.aborted) controller.abort();
   try {
     response = await fetch(url, {
       ...options,
       headers,
+      signal: controller.signal,
     });
   } catch (networkError: any) {
     throw new ApiError(
@@ -90,6 +89,9 @@ async function request<T>(endpoint: string, options: RequestOptions = {}): Promi
       0,
       'NETWORK_ERROR'
     );
+  } finally {
+    clearTimeout(timeout);
+    options.signal?.removeEventListener('abort', abort);
   }
 
   // Handle No Content (204)

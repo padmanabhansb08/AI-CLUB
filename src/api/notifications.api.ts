@@ -68,11 +68,13 @@ export const notificationsApi = {
 
   markAsRead: async (id: string): Promise<NotificationItem> => {
     const res = await apiClient.post<any>(`/notifications/${id}/read`, {});
+    window.dispatchEvent(new Event('aiclub:notifications-changed'));
     return res?.data ?? res;
   },
 
   markAllAsRead: async (): Promise<{ updatedCount: number }> => {
     const res = await apiClient.post<any>('/notifications/read-all', {});
+    window.dispatchEvent(new Event('aiclub:notifications-changed'));
     return res?.data ?? { updatedCount: 0 };
   },
 

@@ -1,3 +1,4 @@
+import { notifyError } from '../../services/actionFeedback';
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { 
@@ -43,7 +44,7 @@ export const AdminOverview: React.FC = () => {
       setExportMessage(`Successfully exported ${type.replace('-', ' ')} CSV.`);
       setTimeout(() => setExportMessage(null), 4000);
     } catch (err: any) {
-      alert(`Export failed: ${err.message}`);
+      notifyError(`Export failed: ${err.message}`);
     } finally {
       setExporting(null);
     }
@@ -58,7 +59,7 @@ export const AdminOverview: React.FC = () => {
   ];
 
   return (
-    <AdminLayout pageTitle="Command Center">
+    <AdminLayout pageTitle="Club overview">
       {/* Top Controls Toolbar */}
       <div className="admin-toolbar">
         <div className="date-filter-group">
@@ -313,7 +314,7 @@ export const AdminOverview: React.FC = () => {
           </div>
 
           {/* Visualizations Section */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(450px, 1fr))', gap: 'var(--spacing-6)', marginBottom: 'var(--spacing-8)' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(450px, 100%), 1fr))', gap: 'var(--spacing-6)', marginBottom: 'var(--spacing-8)' }}>
             
             {/* Chart 1: Member Growth */}
             <div className="chart-card">
