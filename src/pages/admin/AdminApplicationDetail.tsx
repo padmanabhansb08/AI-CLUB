@@ -82,13 +82,13 @@ export const AdminApplicationDetail: React.FC = () => {
   if (error || !application) {
     return (
       <AdminLayout pageTitle="Application Review">
-        <div className="max-w-md mx-auto p-6 rounded-2xl bg-slate-900 border border-slate-800 text-center space-y-4 shadow-xl">
-          <AlertTriangle size={32} className="mx-auto text-amber-400" />
-          <h2 className="text-xl font-bold text-white">Application Not Found</h2>
-          <p className="text-slate-300 text-sm">{error || 'Unable to locate application.'}</p>
+        <div className="max-w-md mx-auto p-8 rounded-3xl bg-[#FFFFFF] border border-[rgba(17,17,17,0.08)] text-center space-y-4 shadow-sm">
+          <AlertTriangle size={32} className="mx-auto text-amber-600" />
+          <h2 className="text-xl font-bold text-[#111111]">Application Not Found</h2>
+          <p className="text-[#66645F] text-xs">{error || 'Unable to locate application.'}</p>
           <button
             onClick={() => navigate('/admin/applications')}
-            className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-medium text-sm transition-all"
+            className="pill-btn px-5 py-2.5 text-xs font-semibold"
           >
             Back to Applications
           </button>
@@ -104,7 +104,7 @@ export const AdminApplicationDetail: React.FC = () => {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <Link
             to="/admin/applications"
-            className="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-white transition-colors"
+            className="inline-flex items-center gap-2 text-xs font-semibold text-[#66645F] hover:text-[#111111] transition-colors"
           >
             <ArrowLeft size={16} />
             <span>Back to All Applications</span>
@@ -112,50 +112,50 @@ export const AdminApplicationDetail: React.FC = () => {
 
           {/* Quick status pill */}
           <div className="flex items-center gap-2">
-            <span className="text-xs uppercase font-medium text-slate-400">Current Status:</span>
-            <span className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-slate-800 border border-slate-700 text-white">
+            <span className="text-xs uppercase font-medium text-[#92908A]">Current Status:</span>
+            <span className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-[#FAF9F6] border border-[rgba(17,17,17,0.12)] text-[#111111]">
               {application.status}
             </span>
           </div>
         </div>
 
         {/* Hero Card */}
-        <div className="p-6 sm:p-8 rounded-2xl bg-gradient-to-r from-slate-900 via-slate-850 to-slate-900 border border-slate-800 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div className="p-6 sm:p-8 rounded-3xl bg-[#FFFFFF] border border-[rgba(17,17,17,0.08)] shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
-            <div className="text-xs font-mono font-bold text-blue-400 tracking-wider uppercase mb-1">
+            <div className="text-xs font-mono font-bold text-[#66645F] tracking-wider uppercase mb-1">
               Application {application.application_number}
             </div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-white">
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-[#111111] tracking-tight">
               {application.fullName}
             </h1>
-            <p className="text-slate-300 text-sm mt-1">
-              {application.department} • Year {application.year} (Sec {application.classSection}) • Reg No: <span className="font-mono text-white">{application.registerNumber}</span>
+            <p className="text-[#66645F] text-xs sm:text-sm mt-1">
+              {application.department} • Year {application.year} (Sec {application.classSection}) • Reg No: <span className="font-mono text-[#111111]">{application.registerNumber}</span>
             </p>
           </div>
 
           {/* Decision Buttons */}
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2.5">
             <button
               onClick={() => setDecisionType('APPROVED')}
-              className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm flex items-center gap-2 transition-all shadow-md hover:shadow-emerald-500/20 cursor-pointer"
+              className="px-5 py-2.5 rounded-full bg-[#050505] hover:bg-[#222222] text-[#FFFFFF] font-semibold text-xs flex items-center gap-2 transition-all shadow-sm cursor-pointer"
             >
-              <CheckCircle2 size={16} />
+              <CheckCircle2 size={15} />
               <span>Approve Candidate</span>
             </button>
 
             <button
               onClick={() => setDecisionType('WAITLISTED')}
-              className="px-4 py-2.5 rounded-xl bg-amber-600/20 hover:bg-amber-600 border border-amber-500/40 text-amber-300 hover:text-white font-semibold text-sm flex items-center gap-2 transition-all cursor-pointer"
+              className="px-4 py-2.5 rounded-full bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-800 font-semibold text-xs flex items-center gap-2 transition-all cursor-pointer"
             >
-              <Clock size={16} />
+              <Clock size={15} />
               <span>Waitlist</span>
             </button>
 
             <button
               onClick={() => setDecisionType('REJECTED')}
-              className="px-4 py-2.5 rounded-xl bg-red-600/20 hover:bg-red-600 border border-red-500/40 text-red-300 hover:text-white font-semibold text-sm flex items-center gap-2 transition-all cursor-pointer"
+              className="px-4 py-2.5 rounded-full bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-800 font-semibold text-xs flex items-center gap-2 transition-all cursor-pointer"
             >
-              <XCircle size={16} />
+              <XCircle size={15} />
               <span>Reject</span>
             </button>
           </div>
@@ -165,17 +165,17 @@ export const AdminApplicationDetail: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Left Column: Assessment Breakdown (5 cols) */}
           <div className="lg:col-span-5 space-y-6">
-            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-lg space-y-6">
-              <div className="flex items-center justify-between pb-3 border-b border-slate-800">
-                <h2 className="font-bold text-base text-white flex items-center gap-2">
-                  <Award size={18} className="text-blue-400" />
+            <div className="bg-[#FFFFFF] border border-[rgba(17,17,17,0.08)] rounded-3xl p-6 shadow-sm space-y-6">
+              <div className="flex items-center justify-between pb-3 border-b border-[rgba(17,17,17,0.06)]">
+                <h2 className="font-bold text-sm text-[#111111] flex items-center gap-2">
+                  <Award size={18} className="text-[#111111]" />
                   <span>Technical Assessment</span>
                 </h2>
                 {application.passed !== null && (
                   <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${
                     application.passed 
-                      ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' 
-                      : 'bg-red-500/20 text-red-400 border border-red-500/30'
+                      ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' 
+                      : 'bg-rose-50 text-rose-800 border border-rose-200'
                   }`}>
                     {application.passed ? 'PASSED (≥60%)' : 'NOT PASSED (<60%)'}
                   </span>
@@ -185,52 +185,52 @@ export const AdminApplicationDetail: React.FC = () => {
               {attempt ? (
                 <>
                   {/* Big Score Box */}
-                  <div className="p-6 rounded-xl bg-slate-850 border border-slate-750 text-center space-y-1">
-                    <div className="text-xs uppercase font-medium text-slate-400">Total Score</div>
-                    <div className="text-4xl font-mono font-black text-white">
-                      {attempt.score} <span className="text-xl font-normal text-slate-400">/ {attempt.totalQuestions}</span>
+                  <div className="p-6 rounded-2xl bg-[#FAF9F6] border border-[rgba(17,17,17,0.06)] text-center space-y-1">
+                    <div className="text-xs uppercase font-medium text-[#92908A]">Total Score</div>
+                    <div className="text-4xl font-mono font-black text-[#111111]">
+                      {attempt.score} <span className="text-xl font-normal text-[#92908A]">/ {attempt.totalQuestions}</span>
                     </div>
-                    <div className="text-sm font-semibold text-blue-400">
+                    <div className="text-xs font-semibold text-[#111111] pt-1">
                       Percentage: {attempt.percentage}%
                     </div>
                   </div>
 
                   {/* Metrics Table */}
                   <div className="grid grid-cols-3 gap-3 text-center text-sm">
-                    <div className="p-3 rounded-lg bg-emerald-950/20 border border-emerald-900/40">
-                      <div className="text-xs text-slate-400">Correct</div>
-                      <div className="text-lg font-bold text-emerald-400 mt-0.5">{attempt.correctAnswers}</div>
+                    <div className="p-3 rounded-xl bg-emerald-50/60 border border-emerald-200/60">
+                      <div className="text-xs text-[#66645F]">Correct</div>
+                      <div className="text-lg font-bold text-emerald-800 mt-0.5 font-mono">{attempt.correctAnswers}</div>
                     </div>
-                    <div className="p-3 rounded-lg bg-red-950/20 border border-red-900/40">
-                      <div className="text-xs text-slate-400">Wrong</div>
-                      <div className="text-lg font-bold text-red-400 mt-0.5">{attempt.wrongAnswers}</div>
+                    <div className="p-3 rounded-xl bg-rose-50/60 border border-rose-200/60">
+                      <div className="text-xs text-[#66645F]">Wrong</div>
+                      <div className="text-lg font-bold text-rose-800 mt-0.5 font-mono">{attempt.wrongAnswers}</div>
                     </div>
-                    <div className="p-3 rounded-lg bg-slate-800/40 border border-slate-800">
-                      <div className="text-xs text-slate-400">Unanswered</div>
-                      <div className="text-lg font-bold text-slate-400 mt-0.5">{attempt.unanswered}</div>
+                    <div className="p-3 rounded-xl bg-[#FAF9F6] border border-[rgba(17,17,17,0.08)]">
+                      <div className="text-xs text-[#66645F]">Unanswered</div>
+                      <div className="text-lg font-bold text-[#111111] mt-0.5 font-mono">{attempt.unanswered}</div>
                     </div>
                   </div>
 
                   {/* Test Timing Details */}
-                  <div className="space-y-2 text-xs text-slate-400 pt-2 border-t border-slate-800">
+                  <div className="space-y-2 text-xs text-[#66645F] pt-2 border-t border-[rgba(17,17,17,0.06)]">
                     <div className="flex justify-between">
                       <span>Started At:</span>
-                      <span className="text-slate-200">{new Date(attempt.startedAt).toLocaleString()}</span>
+                      <span className="text-[#111111] font-mono">{new Date(attempt.startedAt).toLocaleString()}</span>
                     </div>
                     <div className="flex justify-between">
                       <span>Submitted At:</span>
-                      <span className="text-slate-200">{attempt.submittedAt ? new Date(attempt.submittedAt).toLocaleString() : '—'}</span>
+                      <span className="text-[#111111] font-mono">{attempt.submittedAt ? new Date(attempt.submittedAt).toLocaleString() : '—'}</span>
                     </div>
                     {attempt.durationMinutes !== null && (
                       <div className="flex justify-between">
                         <span>Duration:</span>
-                        <span className="text-slate-200">{attempt.durationMinutes} minutes</span>
+                        <span className="text-[#111111] font-mono">{attempt.durationMinutes} minutes</span>
                       </div>
                     )}
                   </div>
                 </>
               ) : (
-                <div className="p-8 text-center text-slate-400 text-sm">
+                <div className="p-8 text-center text-[#92908A] text-xs">
                   Candidate has not yet completed the mock assessment.
                 </div>
               )}
@@ -238,15 +238,15 @@ export const AdminApplicationDetail: React.FC = () => {
 
             {/* Official Club Membership Card if Approved */}
             {application.status === 'APPROVED' && (
-              <div className="p-6 rounded-2xl bg-gradient-to-br from-emerald-950/30 to-slate-900 border border-emerald-500/30 shadow-lg space-y-3">
-                <div className="flex items-center gap-2 text-emerald-400 font-bold text-sm">
-                  <ShieldCheck size={18} />
+              <div className="p-6 rounded-3xl bg-emerald-50/50 border border-emerald-200 shadow-sm space-y-3">
+                <div className="flex items-center gap-2 text-emerald-900 font-bold text-xs uppercase tracking-wider">
+                  <ShieldCheck size={16} />
                   <span>Official Member Record Active</span>
                 </div>
-                <div className="p-3 rounded-xl bg-slate-900/80 border border-slate-800 font-mono text-sm text-emerald-300">
+                <div className="p-3 rounded-2xl bg-[#FFFFFF] border border-emerald-200/80 font-mono text-xs text-emerald-900">
                   Member Number: <strong>{application.memberNumber || 'AIC-M-2026-ACTIVE'}</strong>
                 </div>
-                <div className="text-xs text-slate-400">
+                <div className="text-[11px] text-[#66645F]">
                   Approved on {application.reviewed_at ? new Date(application.reviewed_at).toLocaleDateString() : '—'}
                 </div>
               </div>
@@ -255,36 +255,36 @@ export const AdminApplicationDetail: React.FC = () => {
 
           {/* Right Column: Full Student Profile & Dossier (7 cols) */}
           <div className="lg:col-span-7 space-y-6">
-            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-lg space-y-6">
-              <h2 className="font-bold text-base text-white pb-3 border-b border-slate-800 flex items-center gap-2">
-                <User size={18} className="text-blue-400" />
+            <div className="bg-[#FFFFFF] border border-[rgba(17,17,17,0.08)] rounded-3xl p-6 shadow-sm space-y-6">
+              <h2 className="font-bold text-sm text-[#111111] pb-3 border-b border-[rgba(17,17,17,0.06)] flex items-center gap-2">
+                <User size={18} className="text-[#111111]" />
                 <span>Student Academic Dossier</span>
               </h2>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-                <div className="p-3 rounded-xl bg-slate-850 border border-slate-800">
-                  <div className="text-xs text-slate-400">Email Address</div>
-                  <div className="font-semibold text-white mt-0.5 truncate">{application.email}</div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                <div className="p-3.5 rounded-2xl bg-[#FAF9F6] border border-[rgba(17,17,17,0.06)]">
+                  <div className="text-[11px] text-[#92908A] uppercase tracking-wider font-semibold">Email Address</div>
+                  <div className="font-semibold text-[#111111] mt-0.5 truncate">{application.email}</div>
                 </div>
-                <div className="p-3 rounded-xl bg-slate-850 border border-slate-800">
-                  <div className="text-xs text-slate-400">Contact Phone</div>
-                  <div className="font-semibold text-white mt-0.5">{application.phone || 'Not provided'}</div>
+                <div className="p-3.5 rounded-2xl bg-[#FAF9F6] border border-[rgba(17,17,17,0.06)]">
+                  <div className="text-[11px] text-[#92908A] uppercase tracking-wider font-semibold">Contact Phone</div>
+                  <div className="font-semibold text-[#111111] mt-0.5">{application.phone || 'Not provided'}</div>
                 </div>
-                <div className="p-3 rounded-xl bg-slate-850 border border-slate-800">
-                  <div className="text-xs text-slate-400">Academic Unit</div>
-                  <div className="font-semibold text-white mt-0.5">{application.department}</div>
+                <div className="p-3.5 rounded-2xl bg-[#FAF9F6] border border-[rgba(17,17,17,0.06)]">
+                  <div className="text-[11px] text-[#92908A] uppercase tracking-wider font-semibold">Academic Unit</div>
+                  <div className="font-semibold text-[#111111] mt-0.5">{application.department}</div>
                 </div>
-                <div className="p-3 rounded-xl bg-slate-850 border border-slate-800">
-                  <div className="text-xs text-slate-400">Year & Section</div>
-                  <div className="font-semibold text-white mt-0.5">Year {application.year} • Section {application.classSection}</div>
+                <div className="p-3.5 rounded-2xl bg-[#FAF9F6] border border-[rgba(17,17,17,0.06)]">
+                  <div className="text-[11px] text-[#92908A] uppercase tracking-wider font-semibold">Year & Section</div>
+                  <div className="font-semibold text-[#111111] mt-0.5">Year {application.year} • Section {application.classSection}</div>
                 </div>
               </div>
 
               {/* Bio */}
               {application.bio && (
                 <div>
-                  <div className="text-xs uppercase font-semibold text-slate-400 mb-1">Student Biography</div>
-                  <p className="text-sm text-slate-300 leading-relaxed bg-slate-850 p-4 rounded-xl border border-slate-800">
+                  <div className="text-[11px] uppercase tracking-wider font-semibold text-[#92908A] mb-1.5">Student Biography</div>
+                  <p className="text-xs text-[#66645F] leading-relaxed bg-[#FAF9F6] p-4 rounded-2xl border border-[rgba(17,17,17,0.06)]">
                     {application.bio}
                   </p>
                 </div>
@@ -293,10 +293,10 @@ export const AdminApplicationDetail: React.FC = () => {
               {/* Skills */}
               {application.skills && application.skills.length > 0 && (
                 <div>
-                  <div className="text-xs uppercase font-semibold text-slate-400 mb-2">Technical Skills</div>
+                  <div className="text-[11px] uppercase tracking-wider font-semibold text-[#92908A] mb-2">Technical Skills</div>
                   <div className="flex flex-wrap gap-2">
                     {application.skills.map((s, i) => (
-                      <span key={i} className="px-3 py-1 rounded-lg bg-blue-950/40 border border-blue-800/40 text-blue-300 text-xs font-medium">
+                      <span key={i} className="px-3 py-1 rounded-full bg-[#FAF9F6] border border-[rgba(17,17,17,0.1)] text-[#111111] text-xs font-semibold">
                         {s}
                       </span>
                     ))}
@@ -307,10 +307,10 @@ export const AdminApplicationDetail: React.FC = () => {
               {/* Technical Interests */}
               {application.technicalInterests && application.technicalInterests.length > 0 && (
                 <div>
-                  <div className="text-xs uppercase font-semibold text-slate-400 mb-2">AI & Technical Focus</div>
+                  <div className="text-[11px] uppercase tracking-wider font-semibold text-[#92908A] mb-2">AI & Technical Focus</div>
                   <div className="flex flex-wrap gap-2">
                     {application.technicalInterests.map((t, i) => (
-                      <span key={i} className="px-3 py-1 rounded-lg bg-purple-950/40 border border-purple-800/40 text-purple-300 text-xs font-medium">
+                      <span key={i} className="px-3 py-1 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-900 text-xs font-semibold">
                         {t}
                       </span>
                     ))}
@@ -319,17 +319,17 @@ export const AdminApplicationDetail: React.FC = () => {
               )}
 
               {/* External Links */}
-              <div className="flex flex-wrap gap-3 pt-3 border-t border-slate-800">
+              <div className="flex flex-wrap gap-3 pt-3 border-t border-[rgba(17,17,17,0.06)]">
                 {application.githubUrl && (
                   <a
                     href={application.githubUrl}
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium transition-colors"
+                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#FAF9F6] hover:bg-[#EBE9E3] text-[#111111] text-xs font-semibold transition-colors border border-[rgba(17,17,17,0.08)]"
                   >
-                    <Globe size={14} />
+                    <Globe size={13} />
                     <span>GitHub Profile</span>
-                    <ExternalLink size={12} className="text-slate-400" />
+                    <ExternalLink size={11} className="text-[#92908A]" />
                   </a>
                 )}
                 {application.linkedinUrl && (
@@ -337,11 +337,11 @@ export const AdminApplicationDetail: React.FC = () => {
                     href={application.linkedinUrl}
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium transition-colors"
+                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#FAF9F6] hover:bg-[#EBE9E3] text-[#111111] text-xs font-semibold transition-colors border border-[rgba(17,17,17,0.08)]"
                   >
-                    <Globe size={14} />
+                    <Globe size={13} />
                     <span>LinkedIn Profile</span>
-                    <ExternalLink size={12} className="text-slate-400" />
+                    <ExternalLink size={11} className="text-[#92908A]" />
                   </a>
                 )}
                 {application.portfolioUrl && (
@@ -349,29 +349,29 @@ export const AdminApplicationDetail: React.FC = () => {
                     href={application.portfolioUrl}
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium transition-colors"
+                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#FAF9F6] hover:bg-[#EBE9E3] text-[#111111] text-xs font-semibold transition-colors border border-[rgba(17,17,17,0.08)]"
                   >
-                    <Globe size={14} />
+                    <Globe size={13} />
                     <span>Portfolio</span>
-                    <ExternalLink size={12} className="text-slate-400" />
+                    <ExternalLink size={11} className="text-[#92908A]" />
                   </a>
                 )}
               </div>
 
               {/* Review History / Notes if already reviewed */}
               {(application.admin_notes || application.rejection_reason) && (
-                <div className="p-4 rounded-xl bg-slate-850 border border-slate-800 space-y-2 text-xs">
-                  <div className="font-semibold text-slate-300 uppercase">Review Records</div>
+                <div className="p-4 rounded-2xl bg-[#FAF9F6] border border-[rgba(17,17,17,0.08)] space-y-2 text-xs">
+                  <div className="font-semibold text-[#111111] uppercase tracking-wider text-[11px]">Review Records</div>
                   {application.admin_notes && (
                     <div>
-                      <span className="text-slate-400">Admin Notes: </span>
-                      <span className="text-slate-200">{application.admin_notes}</span>
+                      <span className="text-[#66645F]">Admin Notes: </span>
+                      <span className="text-[#111111] font-medium">{application.admin_notes}</span>
                     </div>
                   )}
                   {application.rejection_reason && (
                     <div>
-                      <span className="text-red-400">Rejection Reason: </span>
-                      <span className="text-slate-200">{application.rejection_reason}</span>
+                      <span className="text-rose-700">Rejection Reason: </span>
+                      <span className="text-[#111111] font-medium">{application.rejection_reason}</span>
                     </div>
                   )}
                 </div>
@@ -383,23 +383,23 @@ export const AdminApplicationDetail: React.FC = () => {
 
       {/* Decision Modal */}
       {decisionType && (
-        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="max-w-md w-full bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-2xl space-y-6">
+        <div className="fixed inset-0 z-50 bg-[#050505]/40 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="max-w-md w-full bg-[#FFFFFF] border border-[rgba(17,17,17,0.12)] rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6">
             <div className="text-center space-y-2">
               <div className={`w-12 h-12 rounded-full flex items-center justify-center mx-auto ${
                 decisionType === 'APPROVED' 
-                  ? 'bg-emerald-500/20 text-emerald-400' 
+                  ? 'bg-emerald-50 text-emerald-800' 
                   : decisionType === 'WAITLISTED'
-                    ? 'bg-amber-500/20 text-amber-400'
-                    : 'bg-red-500/20 text-red-400'
+                    ? 'bg-amber-50 text-amber-800'
+                    : 'bg-rose-50 text-rose-800'
               }`}>
                 {decisionType === 'APPROVED' ? <CheckCircle2 size={24} /> : decisionType === 'WAITLISTED' ? <Clock size={24} /> : <XCircle size={24} />}
               </div>
-              <h3 className="text-xl font-bold text-white">
+              <h3 className="text-lg font-bold text-[#111111]">
                 Confirm Decision: {decisionType}
               </h3>
-              <p className="text-slate-300 text-sm">
-                Candidate: <strong className="text-white">{application.fullName}</strong>
+              <p className="text-[#66645F] text-xs">
+                Candidate: <strong className="text-[#111111]">{application.fullName}</strong>
                 {application.final_score !== null && (
                   <span> (Score: {application.final_score}/25 • {application.score_percentage}%)</span>
                 )}
@@ -407,15 +407,15 @@ export const AdminApplicationDetail: React.FC = () => {
             </div>
 
             {decisionType === 'APPROVED' && (
-              <div className="p-3 rounded-xl bg-emerald-950/20 border border-emerald-800/40 text-emerald-300 text-xs">
+              <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs leading-relaxed">
                 Approving this candidate will atomically create an official Club Membership record, mark their status ACTIVE, and generate their unique Member ID.
               </div>
             )}
 
             {decisionType === 'REJECTED' && (
-              <div className="space-y-2">
-                <label className="text-xs font-semibold text-slate-300">
-                  Rejection Reason <span className="text-red-400">*</span>
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-[#111111]">
+                  Rejection Reason <span className="text-rose-600">*</span>
                 </label>
                 <textarea
                   rows={3}
@@ -423,13 +423,13 @@ export const AdminApplicationDetail: React.FC = () => {
                   placeholder="e.g. Assessment score below semester cutoff threshold..."
                   value={rejectionReason}
                   onChange={(e) => setRejectionReason(e.target.value)}
-                  className="w-full p-3 rounded-xl bg-slate-800 border border-slate-700 text-white placeholder-slate-400 text-sm focus:outline-none focus:border-red-500"
+                  className="w-full p-3 rounded-2xl bg-[#FFFFFF] border border-[rgba(17,17,17,0.15)] text-[#111111] placeholder-[#92908A] text-xs focus:outline-none focus:border-[#111111]"
                 />
               </div>
             )}
 
-            <div className="space-y-2">
-              <label className="text-xs font-semibold text-slate-300">
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-[#111111]">
                 Internal Admin Notes (Optional)
               </label>
               <textarea
@@ -437,15 +437,15 @@ export const AdminApplicationDetail: React.FC = () => {
                 placeholder="Internal notes visible to reviewers only..."
                 value={adminNotes}
                 onChange={(e) => setAdminNotes(e.target.value)}
-                className="w-full p-3 rounded-xl bg-slate-800 border border-slate-700 text-white placeholder-slate-400 text-sm focus:outline-none focus:border-blue-500"
+                className="w-full p-3 rounded-2xl bg-[#FFFFFF] border border-[rgba(17,17,17,0.15)] text-[#111111] placeholder-[#92908A] text-xs focus:outline-none focus:border-[#111111]"
               />
             </div>
 
-            <div className="flex gap-3">
+            <div className="flex gap-2.5">
               <button
                 type="button"
                 onClick={() => setDecisionType(null)}
-                className="flex-1 py-2.5 rounded-xl border border-slate-700 bg-slate-800 hover:bg-slate-700 text-white font-medium text-sm transition-all cursor-pointer"
+                className="flex-1 py-2.5 rounded-full border border-[rgba(17,17,17,0.12)] bg-[#FAF9F6] hover:bg-[#EBE9E3] text-[#111111] font-semibold text-xs transition-all cursor-pointer"
               >
                 Cancel
               </button>
@@ -453,12 +453,12 @@ export const AdminApplicationDetail: React.FC = () => {
                 type="button"
                 onClick={handleDecisionSubmit}
                 disabled={isSubmitting || (decisionType === 'REJECTED' && !rejectionReason.trim())}
-                className={`flex-1 py-2.5 rounded-xl font-bold text-sm text-white transition-all shadow-md cursor-pointer disabled:opacity-50 ${
+                className={`flex-1 py-2.5 rounded-full font-bold text-xs text-white transition-all shadow-sm cursor-pointer disabled:opacity-50 ${
                   decisionType === 'APPROVED' 
-                    ? 'bg-emerald-600 hover:bg-emerald-500' 
+                    ? 'bg-[#050505] hover:bg-[#222222]' 
                     : decisionType === 'WAITLISTED'
-                      ? 'bg-amber-600 hover:bg-amber-500'
-                      : 'bg-red-600 hover:bg-red-500'
+                      ? 'bg-amber-600 hover:bg-amber-700'
+                      : 'bg-rose-600 hover:bg-rose-700'
                 }`}
               >
                 {isSubmitting ? 'Processing...' : `Confirm ${decisionType}`}
@@ -470,3 +470,4 @@ export const AdminApplicationDetail: React.FC = () => {
     </AdminLayout>
   );
 };
+export default AdminApplicationDetail;

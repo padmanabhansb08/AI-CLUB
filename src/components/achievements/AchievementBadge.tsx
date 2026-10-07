@@ -32,35 +32,35 @@ export const AchievementBadge: React.FC<AchievementBadgeProps> = ({
     const name = iconName?.toLowerCase() || '';
 
     if (!isUnlocked) {
-      return <Lock size={iconSize} className="text-gray-500" />;
+      return <Lock size={iconSize} className="text-[#92908A]" />;
     }
 
     if (name.includes('calendar') || name.includes('event')) {
-      return <Calendar size={iconSize} className="text-cyan-400" />;
+      return <Calendar size={iconSize} className="text-indigo-600" />;
     }
     if (name.includes('book') || name.includes('course') || name.includes('learn')) {
-      return <BookOpen size={iconSize} className="text-emerald-400" />;
+      return <BookOpen size={iconSize} className="text-emerald-600" />;
     }
     if (name.includes('user') || name.includes('team') || name.includes('community')) {
-      return <Users size={iconSize} className="text-purple-400" />;
+      return <Users size={iconSize} className="text-purple-600" />;
     }
     if (name.includes('flame') || name.includes('streak')) {
-      return <Flame size={iconSize} className="text-orange-400" />;
+      return <Flame size={iconSize} className="text-orange-600" />;
     }
     if (name.includes('zap') || name.includes('milestone')) {
-      return <Zap size={iconSize} className="text-yellow-400" />;
+      return <Zap size={iconSize} className="text-amber-600" />;
     }
     if (name.includes('target')) {
-      return <Target size={iconSize} className="text-rose-400" />;
+      return <Target size={iconSize} className="text-rose-600" />;
     }
     if (name.includes('star')) {
-      return <Star size={iconSize} className="text-amber-400" />;
+      return <Star size={iconSize} className="text-amber-600" />;
     }
     if (name.includes('sparkle')) {
-      return <Sparkles size={iconSize} className="text-pink-400" />;
+      return <Sparkles size={iconSize} className="text-pink-600" />;
     }
 
-    return <Trophy size={iconSize} className="text-amber-400" />;
+    return <Trophy size={iconSize} className="text-amber-600" />;
   };
 
   const containerSizes = {
@@ -75,18 +75,19 @@ export const AchievementBadge: React.FC<AchievementBadgeProps> = ({
       <div
         className={`${containerSizes[size]} flex items-center justify-center border transition-all duration-300 ${
           isUnlocked
-            ? 'bg-gradient-to-br from-amber-500/10 via-purple-500/10 to-cyan-500/10 border-amber-500/30 shadow-lg shadow-amber-500/10 group-hover:border-amber-500/60'
-            : 'bg-white/[0.02] border-white/5 opacity-40'
+            ? 'bg-[#FAF9F6] border-[rgba(17,17,17,0.12)] shadow-sm'
+            : 'bg-[#F5F4F0] border-[rgba(17,17,17,0.06)] opacity-60'
         }`}
       >
         {renderIcon()}
       </div>
 
       {isUnlocked && points !== undefined && size !== 'sm' && (
-        <span className="absolute -bottom-1.5 -right-1 px-1.5 py-0.2 bg-amber-500/20 border border-amber-500/40 text-amber-300 font-bold text-[9px] rounded-full shadow-sm">
+        <span className="absolute -bottom-1.5 -right-1 px-1.5 py-0.5 bg-[#050505] text-[#FFFFFF] font-mono font-bold text-[9px] rounded-full shadow-sm">
           +{points}
         </span>
       )}
     </div>
   );
 };
+

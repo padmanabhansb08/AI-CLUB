@@ -99,10 +99,10 @@ export const Achievements: React.FC = () => {
       // Search filter
       if (searchTerm.trim()) {
         const query = searchTerm.toLowerCase();
-        const matchesName = a.name.toLowerCase().includes(query);
-        const matchesDesc = a.description.toLowerCase().includes(query);
-        const matchesCat = a.category.toLowerCase().includes(query);
-        if (!matchesName && !matchesDesc && !matchesCat) return false;
+        const nameMatch = a.name.toLowerCase().includes(query);
+        const descMatch = a.description.toLowerCase().includes(query);
+        const catMatch = a.category?.toLowerCase().includes(query);
+        if (!nameMatch && !descMatch && !catMatch) return false;
       }
 
       return true;
@@ -113,31 +113,28 @@ export const Achievements: React.FC = () => {
     <DashboardLayout pageTitle="Achievements">
       <div className="max-w-7xl mx-auto space-y-6 pb-12">
         {/* Hero Banner with Stats */}
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-[#121624] via-[#1a2035] to-[#121624] border border-white/10 p-6 sm:p-8 shadow-2xl">
-          <div className="absolute top-0 right-0 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none -mr-20 -mt-20" />
-          <div className="absolute bottom-0 left-0 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none -ml-20 -mb-20" />
-
-          <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div className="rounded-3xl bg-[#FFFFFF] border border-[rgba(17,17,17,0.08)] p-6 sm:p-8 shadow-sm">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <span className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-cyan-500/10 text-cyan-300 border border-cyan-500/30">
-                  Sprint 6 Recognition
+                <span className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-[#FAF9F6] text-[#111111] border border-[rgba(17,17,17,0.1)]">
+                  Recognition & Milestones
                 </span>
-                <span className="text-gray-400 text-xs">AI CLUB Milestones</span>
+                <span className="text-[#66645F] text-xs">AI CLUB Badges</span>
               </div>
-              <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-                Achievements & Rewards
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-[#111111] tracking-tight">
+                Achievements & Credentials
               </h1>
-              <p className="text-sm text-gray-300 mt-1 max-w-xl">
-                Earn recognition for attending events, collaborating on projects, completing courses,
-                and contributing to the AI Club community.
+              <p className="text-sm text-[#66645F] mt-1 max-w-xl">
+                Earn recognition for attending seminars, collaborating in research pods, completing courses,
+                and contributing to AI Club initiatives.
               </p>
             </div>
 
             <button
               onClick={handleEvaluate}
               disabled={evaluating}
-              className="flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black font-bold text-sm shadow-lg shadow-amber-500/20 transition-all transform active:scale-95 disabled:opacity-50 shrink-0"
+              className="pill-btn flex items-center justify-center gap-2 px-6 py-3 shrink-0"
             >
               <RefreshCw size={16} className={evaluating ? 'animate-spin' : ''} />
               <span>{evaluating ? 'Evaluating Activity...' : 'Check My Achievements'}</span>
@@ -145,62 +142,62 @@ export const Achievements: React.FC = () => {
           </div>
 
           {/* Stats Bar */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-8 pt-6 border-t border-white/10">
-            <div className="bg-black/30 backdrop-blur-md rounded-2xl p-4 border border-white/5">
-              <div className="flex items-center gap-2 text-amber-400 mb-1">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-8 pt-6 border-t border-[rgba(17,17,17,0.08)]">
+            <div className="bg-[#FAF9F6] rounded-2xl p-4 border border-[rgba(17,17,17,0.06)]">
+              <div className="flex items-center gap-2 text-amber-700 mb-1">
                 <Trophy size={18} />
-                <span className="text-xs font-semibold text-gray-300">Earned</span>
+                <span className="text-xs font-semibold text-[#111111]">Earned</span>
               </div>
-              <div className="text-2xl font-black text-white">{stats.totalEarned}</div>
-              <div className="text-[11px] text-gray-400 mt-0.5">
+              <div className="text-2xl font-black text-[#111111] font-mono">{stats.totalEarned}</div>
+              <div className="text-[11px] text-[#66645F] mt-0.5">
                 of {stats.totalActiveAchievements} unlocked
               </div>
             </div>
 
-            <div className="bg-black/30 backdrop-blur-md rounded-2xl p-4 border border-white/5">
-              <div className="flex items-center gap-2 text-cyan-400 mb-1">
+            <div className="bg-[#FAF9F6] rounded-2xl p-4 border border-[rgba(17,17,17,0.06)]">
+              <div className="flex items-center gap-2 text-[#111111] mb-1">
                 <Star size={18} />
-                <span className="text-xs font-semibold text-gray-300">Club Points</span>
+                <span className="text-xs font-semibold text-[#111111]">Club Points</span>
               </div>
-              <div className="text-2xl font-black text-white">{stats.totalPoints}</div>
-              <div className="text-[11px] text-gray-400 mt-0.5">Total recognition score</div>
+              <div className="text-2xl font-black text-[#111111] font-mono">{stats.totalPoints}</div>
+              <div className="text-[11px] text-[#66645F] mt-0.5">Total recognition score</div>
             </div>
 
-            <div className="bg-black/30 backdrop-blur-md rounded-2xl p-4 border border-white/5">
-              <div className="flex items-center gap-2 text-emerald-400 mb-1">
+            <div className="bg-[#FAF9F6] rounded-2xl p-4 border border-[rgba(17,17,17,0.06)]">
+              <div className="flex items-center gap-2 text-emerald-700 mb-1">
                 <Target size={18} />
-                <span className="text-xs font-semibold text-gray-300">In Progress</span>
+                <span className="text-xs font-semibold text-[#111111]">In Progress</span>
               </div>
-              <div className="text-2xl font-black text-white">{stats.inProgressCount}</div>
-              <div className="text-[11px] text-gray-400 mt-0.5">Actively tracked goals</div>
+              <div className="text-2xl font-black text-[#111111] font-mono">{stats.inProgressCount}</div>
+              <div className="text-[11px] text-[#66645F] mt-0.5">Actively tracked goals</div>
             </div>
 
-            <div className="bg-black/30 backdrop-blur-md rounded-2xl p-4 border border-white/5">
-              <div className="flex items-center gap-2 text-purple-400 mb-1">
+            <div className="bg-[#FAF9F6] rounded-2xl p-4 border border-[rgba(17,17,17,0.06)]">
+              <div className="flex items-center gap-2 text-[#111111] mb-1">
                 <Sparkles size={18} />
-                <span className="text-xs font-semibold text-gray-300">Completion</span>
+                <span className="text-xs font-semibold text-[#111111]">Completion</span>
               </div>
-              <div className="text-2xl font-black text-white">
+              <div className="text-2xl font-black text-[#111111] font-mono">
                 {stats.totalActiveAchievements > 0
                   ? Math.round((stats.totalEarned / stats.totalActiveAchievements) * 100)
                   : 0}
                 %
               </div>
-              <div className="text-[11px] text-gray-400 mt-0.5">Overall achievement rate</div>
+              <div className="text-[11px] text-[#66645F] mt-0.5">Overall achievement rate</div>
             </div>
           </div>
         </div>
 
         {/* Toast Notification */}
         {toastMessage && (
-          <div className="p-4 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-200 text-sm flex items-center justify-between shadow-lg">
+          <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm flex items-center justify-between shadow-sm">
             <div className="flex items-center gap-2">
-              <Sparkles size={18} className="text-cyan-400" />
+              <Sparkles size={18} className="text-emerald-700" />
               <span>{toastMessage}</span>
             </div>
             <button
               onClick={() => setToastMessage(null)}
-              className="text-xs text-gray-400 hover:text-white px-2 py-1 rounded"
+              className="text-xs text-[#66645F] hover:text-[#111111] px-2 py-1 rounded"
             >
               Dismiss
             </button>
@@ -211,7 +208,7 @@ export const Achievements: React.FC = () => {
         <div className="space-y-4">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             {/* Tabs */}
-            <div className="flex items-center gap-1.5 p-1.5 rounded-2xl bg-[#121624] border border-white/10 overflow-x-auto">
+            <div className="flex items-center gap-1.5 p-1 rounded-full bg-[#FFFFFF] border border-[rgba(17,17,17,0.08)] overflow-x-auto shadow-sm">
               {(
                 [
                   { id: 'ALL', label: 'All Achievements', icon: Layers },
@@ -226,10 +223,10 @@ export const Achievements: React.FC = () => {
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
+                    className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold transition-all whitespace-nowrap ${
                       isActive
-                        ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-md shadow-cyan-500/20'
-                        : 'text-gray-400 hover:text-white hover:bg-white/5'
+                        ? 'bg-[#050505] text-[#FFFFFF] shadow-sm'
+                        : 'text-[#66645F] hover:text-[#111111]'
                     }`}
                   >
                     <Icon size={14} />
@@ -243,14 +240,14 @@ export const Achievements: React.FC = () => {
             <div className="relative min-w-[260px]">
               <Search
                 size={16}
-                className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400"
+                className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#92908A]"
               />
               <input
                 type="text"
                 placeholder="Search achievements..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full bg-[#121624] border border-white/10 rounded-2xl pl-10 pr-4 py-2 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500/50 transition-colors"
+                className="w-full bg-[#FFFFFF] border border-[rgba(17,17,17,0.12)] rounded-full pl-10 pr-4 py-2 text-xs text-[#111111] placeholder-[#92908A] focus:outline-none focus:border-[#111111] transition-colors shadow-sm"
               />
             </div>
           </div>
@@ -261,10 +258,10 @@ export const Achievements: React.FC = () => {
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
-                className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all border ${
+                className={`px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all border ${
                   selectedCategory === cat
-                    ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40'
-                    : 'bg-white/[0.02] text-gray-400 border-white/5 hover:border-white/15 hover:text-gray-300'
+                    ? 'bg-[#050505] text-[#FFFFFF] border-[#050505]'
+                    : 'bg-[#FFFFFF] text-[#66645F] border-[rgba(17,17,17,0.08)] hover:border-[rgba(17,17,17,0.2)] hover:text-[#111111]'
                 }`}
               >
                 {cat}
@@ -279,15 +276,15 @@ export const Achievements: React.FC = () => {
             {[1, 2, 3, 4, 5, 6].map((i) => (
               <div
                 key={i}
-                className="h-48 rounded-2xl bg-white/[0.03] animate-pulse border border-white/5"
+                className="h-48 rounded-2xl bg-[#FFFFFF] animate-pulse border border-[rgba(17,17,17,0.08)]"
               />
             ))}
           </div>
         ) : filteredAchievements.length === 0 ? (
-          <div className="py-16 text-center rounded-3xl bg-[#121624]/60 border border-white/10 p-8">
-            <Trophy size={48} className="mx-auto text-gray-600 mb-3 opacity-50" />
-            <h3 className="text-base font-bold text-white">No achievements match your criteria</h3>
-            <p className="text-xs text-gray-400 max-w-sm mx-auto mt-1">
+          <div className="py-16 text-center rounded-3xl bg-[#FFFFFF] border border-[rgba(17,17,17,0.08)] p-8 shadow-sm">
+            <Trophy size={48} className="mx-auto text-[#92908A] mb-3 opacity-50" />
+            <h3 className="text-base font-bold text-[#111111]">No achievements match your criteria</h3>
+            <p className="text-xs text-[#66645F] max-w-sm mx-auto mt-1">
               Try adjusting your category filter, tab selection, or search query.
             </p>
             {(selectedCategory !== 'ALL' || activeTab !== 'ALL' || searchTerm) && (
@@ -297,7 +294,7 @@ export const Achievements: React.FC = () => {
                   setActiveTab('ALL');
                   setSearchTerm('');
                 }}
-                className="mt-4 px-4 py-2 rounded-xl text-xs font-semibold bg-white/10 text-white hover:bg-white/15 transition-colors"
+                className="mt-4 px-5 py-2 rounded-full text-xs font-semibold bg-[#050505] text-[#FFFFFF] hover:bg-[#222222] transition-colors"
               >
                 Reset Filters
               </button>
@@ -314,3 +311,4 @@ export const Achievements: React.FC = () => {
     </DashboardLayout>
   );
 };
+export default Achievements;

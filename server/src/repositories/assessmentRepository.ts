@@ -102,7 +102,25 @@ export const assessmentRepo = {
         data.totalQuestions || 25,
       ]
     );
-    return res.rows[0];
+    const attempt = res.rows[0];
+
+    // Store question order in relational assessment_attempt_questions table
+    if (attempt && data.questionIds && data.questionIds.length > 0) {
+      try {
+        for (let i = 0; i < data.questionIds.length; i++) {
+          await query(
+            `INSERT INTO assessment_attempt_questions (attempt_id, question_id, question_order)
+             VALUES ($1, $2, $3)
+             ON CONFLICT DO NOTHING`,
+            [attempt.id, data.questionIds[i], i + 1]
+          );
+        }
+      } catch (err) {
+        console.warn('[assessmentRepo] Note: assessment_attempt_questions insert skipped:', (err as any)?.message);
+      }
+    }
+
+    return attempt;
   },
 
   // 5. Find attempt by ID

@@ -20,48 +20,48 @@ interface EventTypeBadgeProps {
 export const EventTypeBadge: React.FC<EventTypeBadgeProps> = ({ type, size = 'sm' }) => {
   const norm = (type || '').toUpperCase();
 
-  let colorClass = 'bg-gray-800 text-gray-300 border-gray-700';
+  let colorClass = 'bg-[#FAF9F6] text-[#111111] border-[rgba(17,17,17,0.1)]';
   let Icon = Tag;
 
   switch (norm) {
     case 'WORKSHOP':
-      colorClass = 'bg-purple-950/60 text-purple-300 border-purple-800/60';
+      colorClass = 'bg-purple-50 text-purple-700 border-purple-200';
       Icon = Laptop;
       break;
     case 'WEBINAR':
-      colorClass = 'bg-sky-950/60 text-sky-300 border-sky-800/60';
+      colorClass = 'bg-sky-50 text-sky-700 border-sky-200';
       Icon = Video;
       break;
     case 'HACKATHON':
-      colorClass = 'bg-amber-950/60 text-amber-300 border-amber-800/60';
+      colorClass = 'bg-amber-50 text-amber-800 border-amber-200';
       Icon = Code2;
       break;
     case 'COMPETITION':
-      colorClass = 'bg-rose-950/60 text-rose-300 border-rose-800/60';
+      colorClass = 'bg-rose-50 text-rose-700 border-rose-200';
       Icon = Trophy;
       break;
     case 'MEETUP':
-      colorClass = 'bg-emerald-950/60 text-emerald-300 border-emerald-800/60';
+      colorClass = 'bg-emerald-50 text-emerald-700 border-emerald-200';
       Icon = Users;
       break;
     case 'BOOTCAMP':
-      colorClass = 'bg-fuchsia-950/60 text-fuchsia-300 border-fuchsia-800/60';
+      colorClass = 'bg-fuchsia-50 text-fuchsia-700 border-fuchsia-200';
       Icon = Flame;
       break;
     case 'SEMINAR':
-      colorClass = 'bg-blue-950/60 text-blue-300 border-blue-800/60';
+      colorClass = 'bg-blue-50 text-blue-700 border-blue-200';
       Icon = GraduationCap;
       break;
     case 'GUEST_LECTURE':
-      colorClass = 'bg-teal-950/60 text-teal-300 border-teal-800/60';
+      colorClass = 'bg-teal-50 text-teal-700 border-teal-200';
       Icon = Mic2;
       break;
     case 'CLUB_MEETING':
-      colorClass = 'bg-slate-800/80 text-slate-300 border-slate-700/60';
+      colorClass = 'bg-stone-100 text-stone-700 border-stone-200';
       Icon = Compass;
       break;
     default:
-      colorClass = 'bg-zinc-800/80 text-zinc-300 border-zinc-700/60';
+      colorClass = 'bg-[#FAF9F6] text-[#111111] border-[rgba(17,17,17,0.1)]';
       Icon = Tag;
       break;
   }
@@ -71,7 +71,7 @@ export const EventTypeBadge: React.FC<EventTypeBadgeProps> = ({ type, size = 'sm
 
   return (
     <span
-      className={`inline-flex items-center gap-1.5 font-semibold tracking-wide uppercase rounded-md border ${paddingClass} ${colorClass}`}
+      className={`inline-flex items-center gap-1.5 font-semibold tracking-wide uppercase rounded-full border ${paddingClass} ${colorClass}`}
     >
       <Icon size={iconSize} className="shrink-0" />
       <span>{type}</span>

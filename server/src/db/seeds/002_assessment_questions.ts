@@ -471,6 +471,118 @@ export async function seedQuestionsAndApplicants() {
         category: 'LOGICAL_REASONING',
         difficulty: 'MEDIUM',
         explanation: 'By modus tollens, if C is false then B is false, and if B is false then A must be false.'
+      },
+
+      // PROBLEM SOLVING & ADVANCED DOMAINS
+      {
+        question: 'You are designing a rate-limiting algorithm for an AI API. Which algorithmic structure efficiently tracks sliding window timestamps with minimal memory overhead?',
+        option_a: 'A doubly-linked ring buffer of epoch millisecond timestamps',
+        option_b: 'A full database table scan on every incoming HTTP call',
+        option_c: 'A fixed 24-hour sleep timer thread',
+        option_d: 'A static array of size 1,000,000 strings',
+        correct_option: 'A',
+        category: 'PROBLEM_SOLVING',
+        difficulty: 'MEDIUM',
+        explanation: 'A sliding window log using a ring buffer or sorted set tracks exact request timestamps within the active time window with minimal space.'
+      },
+      {
+        question: 'When training an LLM, GPU memory is overwhelmed by large batch sizes. Which technique accumulates gradients across multiple small micro-batches before updating weights?',
+        option_a: 'Stochastic Weight Averaging',
+        option_b: 'Gradient Accumulation',
+        option_c: 'Layer Freezing',
+        option_d: 'Early Stopping',
+        correct_option: 'B',
+        category: 'PROBLEM_SOLVING',
+        difficulty: 'EASY',
+        explanation: 'Gradient Accumulation calculates gradients in smaller micro-batches without updating weights until a target effective batch size is accumulated.'
+      },
+      {
+        question: 'A database query on a table with 10 million rows is taking 4.2 seconds to filter by (department, year). What is the most effective immediate fix?',
+        option_a: 'Rebuilding the entire database server on bare metal hardware',
+        option_b: 'Creating a composite B-Tree index on (department, year)',
+        option_c: 'Replacing PostgreSQL with a CSV file reader',
+        option_d: 'Converting all text columns to JSON blobs',
+        correct_option: 'B',
+        category: 'PROBLEM_SOLVING',
+        difficulty: 'EASY',
+        explanation: 'A composite index on (department, year) allows the database query planner to perform index range scans in logarithmic time O(log N).'
+      },
+      {
+        question: 'In an AI club voting system, you must select the top 3 projects from an unsorted list of 100,000 student submissions without sorting the entire dataset. What is the most optimal approach?',
+        option_a: 'Full Quicksort of all 100,000 records',
+        option_b: 'A Min-Heap of size 3 that tracks the 3 largest elements in O(N log k) time',
+        option_c: 'Bubble Sort terminating after 10 passes',
+        option_d: 'Random sampling of 10 records',
+        correct_option: 'B',
+        category: 'PROBLEM_SOLVING',
+        difficulty: 'MEDIUM',
+        explanation: 'A min-heap of size k=3 processes N items in O(N log 3) = O(N) time and requires only O(k) additional memory space.'
+      },
+      {
+        question: 'A microservice architecture suffers from cascading failures when an external AI model provider experiences 504 Gateway Timeouts. What software resilience pattern should be implemented?',
+        option_a: 'Infinite Retry Loop Pattern',
+        option_b: 'Circuit Breaker Pattern with Fallback and Exponential Backoff',
+        option_c: 'Fire-and-Forget Pattern without error logging',
+        option_d: 'Single Point of Failure Pattern',
+        correct_option: 'B',
+        category: 'PROBLEM_SOLVING',
+        difficulty: 'MEDIUM',
+        explanation: 'The Circuit Breaker pattern trips open when downstream failures cross a threshold, failing fast with a fallback and preventing system-wide resource exhaustion.'
+      },
+      {
+        question: 'To guarantee that a student assessment attempt cannot be submitted after the 30-minute limit even if the student tampers with their local browser clock, what must be done?',
+        option_a: 'Rely on JavaScript window.setInterval in the React frontend',
+        option_b: 'Enforce the check server-side in PostgreSQL/API by comparing CURRENT_TIMESTAMP against expires_at stored in the database',
+        option_c: 'Disable developer tools in the user browser window',
+        option_d: 'Use local storage cookies to record time',
+        correct_option: 'B',
+        category: 'PROBLEM_SOLVING',
+        difficulty: 'EASY',
+        explanation: 'Server-authoritative timestamp validation guarantees security because the client cannot tamper with server or database clocks.'
+      },
+      {
+        question: 'In LoRA (Low-Rank Adaptation) parameter-efficient fine-tuning (PEFT), how are model weights updated?',
+        option_a: 'By updating all parameters across every transformer block with full FP32 gradients',
+        option_b: 'By freezing base model weights and injecting trainable low-rank decomposition rank matrices (A and B) into attention projections',
+        option_c: 'By pruning 90% of model neurons before training',
+        option_d: 'By appending synthetic prefix tokens to user prompts',
+        correct_option: 'B',
+        category: 'GENERATIVE_AI',
+        difficulty: 'MEDIUM',
+        explanation: 'LoRA decomposes weight updates delta-W into two low-rank matrices A and B (rank r << d), drastically reducing memory and trainable parameter count.'
+      },
+      {
+        question: 'What is the computational benefit of KV-Caching (Key-Value caching) during LLM autoregressive inference generation?',
+        option_a: 'It caches computed Key and Value attention tensors of previous prompt tokens so they do not need to be recalculated at each new token generation step',
+        option_b: 'It compresses model weights into 2-bit quantization',
+        option_c: 'It replaces multi-head attention with single-head recurrent units',
+        option_d: 'It stores generated chat conversations into Redis databases',
+        correct_option: 'A',
+        category: 'GENERATIVE_AI',
+        difficulty: 'HARD',
+        explanation: 'KV caching avoids redundant O(N^2) calculations during token generation by preserving past Keys and Values, transforming token generation time from O(N^2) to O(N).'
+      },
+      {
+        question: 'In modern frontend architecture, why should the Supabase Service Role key NEVER be exposed to the browser client?',
+        option_a: 'Because it slows down Vite bundling performance',
+        option_b: 'Because the Service Role key bypasses all Row Level Security (RLS) policies and grants complete unrestricted admin access to all tables',
+        option_c: 'Because browsers do not support 256-bit cryptographic keys',
+        option_d: 'Because PostgreSQL only permits connections from Linux servers',
+        correct_option: 'B',
+        category: 'PROGRAMMING',
+        difficulty: 'EASY',
+        explanation: 'The Supabase Service Role key bypasses all RLS checks and can read, write, or delete any table in the database; it must remain strictly server-side.'
+      },
+      {
+        question: 'In PostgreSQL, what is the role of Row Level Security (RLS)?',
+        option_a: 'It compresses table rows into zip files on disk',
+        option_b: 'It restricts which rows an authenticated user can select, insert, update, or delete based on evaluated SQL security policies',
+        option_c: 'It prevents SQL syntax errors by auto-correcting queries',
+        option_d: 'It converts relational tables into GraphQL schemas',
+        correct_option: 'B',
+        category: 'PROGRAMMING',
+        difficulty: 'EASY',
+        explanation: 'RLS evaluates declarative policies on each row to ensure users can only access records they are authorized to see or modify.'
       }
     ];
 

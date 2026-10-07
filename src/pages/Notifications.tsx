@@ -84,21 +84,21 @@ export const Notifications: React.FC = () => {
     <DashboardLayout pageTitle="Notifications">
       <div className="max-w-4xl mx-auto space-y-6 pb-16">
         {/* Header Banner */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 sm:p-6 rounded-2xl bg-[#0d131f] border border-white/10 shadow-sm">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6 rounded-3xl bg-[#FFFFFF] border border-[rgba(17,17,17,0.08)] shadow-sm">
           <div className="flex items-center gap-3.5 min-w-0">
-            <div className="p-3 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400 shrink-0">
-              <Bell size={24} />
+            <div className="p-3 rounded-2xl bg-[#050505] text-[#FFFFFF] shrink-0">
+              <Bell size={22} />
             </div>
             <div className="min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
-                <h1 className="text-lg sm:text-xl font-bold text-white tracking-tight">Notification Center</h1>
+                <h1 className="text-xl font-bold text-[#111111] tracking-tight">Notification Center</h1>
                 {unreadCount > 0 && (
-                  <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-500/15 text-blue-400 border border-blue-500/30 font-mono">
+                  <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#FAF9F6] border border-[rgba(17,17,17,0.1)] text-[#111111] font-mono">
                     {unreadCount} unread
                   </span>
                 )}
               </div>
-              <p className="text-xs text-slate-400 mt-1 line-clamp-1 sm:line-clamp-none">
+              <p className="text-xs text-[#66645F] mt-1 line-clamp-1 sm:line-clamp-none">
                 Stay informed on events, learning milestones, team invitations, and recognition.
               </p>
             </div>
@@ -108,7 +108,7 @@ export const Notifications: React.FC = () => {
             {unreadCount > 0 && activeTab !== 'ACTIVITY' && (
               <button
                 onClick={handleMarkAllAsRead}
-                className="btn btn-secondary btn-sm flex items-center gap-1.5 text-xs text-blue-400 border-blue-500/30 hover:bg-blue-500/10"
+                className="pill-outline text-xs py-1.5 px-4 flex items-center gap-1.5"
               >
                 <CheckCheck size={14} />
                 <span>Mark All Read</span>
@@ -117,7 +117,7 @@ export const Notifications: React.FC = () => {
 
             <button
               onClick={() => setPreferencesOpen(true)}
-              className="btn btn-secondary btn-sm flex items-center gap-1.5 text-xs text-slate-300 hover:text-white"
+              className="pill-outline text-xs py-1.5 px-4 flex items-center gap-1.5"
               title="Notification Preferences"
               aria-label="Notification Preferences"
             >
@@ -128,16 +128,16 @@ export const Notifications: React.FC = () => {
         </div>
 
         {/* Tab Controls */}
-        <div className="flex items-center gap-1.5 p-1 rounded-xl bg-[#0d131f] border border-white/10 w-full sm:w-fit overflow-x-auto">
+        <div className="flex items-center gap-1.5 p-1 rounded-full bg-[#FFFFFF] border border-[rgba(17,17,17,0.08)] w-full sm:w-fit overflow-x-auto shadow-sm">
           <button
             onClick={() => {
               setActiveTab('ALL');
               setPage(1);
             }}
-            className={`flex items-center justify-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all shrink-0 ${
+            className={`flex items-center justify-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold transition-all shrink-0 ${
               activeTab === 'ALL'
-                ? 'bg-blue-600 text-white shadow-sm'
-                : 'text-slate-400 hover:text-white hover:bg-white/5'
+                ? 'bg-[#050505] text-[#FFFFFF] shadow-sm'
+                : 'text-[#66645F] hover:text-[#111111]'
             }`}
           >
             <Layers size={13} />
@@ -149,10 +149,10 @@ export const Notifications: React.FC = () => {
               setActiveTab('UNREAD');
               setPage(1);
             }}
-            className={`flex items-center justify-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all shrink-0 ${
+            className={`flex items-center justify-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold transition-all shrink-0 ${
               activeTab === 'UNREAD'
-                ? 'bg-blue-600 text-white shadow-sm'
-                : 'text-slate-400 hover:text-white hover:bg-white/5'
+                ? 'bg-[#050505] text-[#FFFFFF] shadow-sm'
+                : 'text-[#66645F] hover:text-[#111111]'
             }`}
           >
             <Inbox size={13} />
@@ -169,10 +169,10 @@ export const Notifications: React.FC = () => {
               setActiveTab('ACTIVITY');
               setPage(1);
             }}
-            className={`flex items-center justify-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all shrink-0 ${
+            className={`flex items-center justify-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold transition-all shrink-0 ${
               activeTab === 'ACTIVITY'
-                ? 'bg-blue-600 text-white shadow-sm'
-                : 'text-slate-400 hover:text-white hover:bg-white/5'
+                ? 'bg-[#050505] text-[#FFFFFF] shadow-sm'
+                : 'text-[#66645F] hover:text-[#111111]'
             }`}
           >
             <Activity size={13} />
@@ -182,42 +182,42 @@ export const Notifications: React.FC = () => {
 
         {/* Body */}
         {loading ? (
-          <div className="py-20 flex flex-col items-center justify-center text-slate-400 bg-[#0d131f] rounded-2xl border border-white/5">
-            <Loader2 size={32} className="animate-spin text-blue-400 mb-2" />
+          <div className="py-20 flex flex-col items-center justify-center text-[#66645F] bg-[#FFFFFF] rounded-3xl border border-[rgba(17,17,17,0.08)] shadow-sm">
+            <Loader2 size={32} className="animate-spin text-[#111111] mb-2" />
             <span className="text-xs">Loading updates...</span>
           </div>
         ) : activeTab === 'ACTIVITY' ? (
           /* Activity Feed View */
           activities.length === 0 ? (
-            <div className="py-20 text-center rounded-2xl bg-[#0d131f] border border-white/10 p-8">
-              <Activity size={40} className="mx-auto text-slate-600 mb-2 opacity-50" />
-              <h3 className="text-sm font-bold text-white">No recent activity logged</h3>
-              <p className="text-xs text-slate-400 max-w-sm mx-auto mt-1">
+            <div className="py-20 text-center rounded-3xl bg-[#FFFFFF] border border-[rgba(17,17,17,0.08)] p-8 shadow-sm">
+              <Activity size={40} className="mx-auto text-[#92908A] mb-2 opacity-50" />
+              <h3 className="text-sm font-bold text-[#111111]">No recent activity logged</h3>
+              <p className="text-xs text-[#66645F] max-w-sm mx-auto mt-1">
                 Participate in events, courses, or projects to begin building your activity timeline.
               </p>
             </div>
           ) : (
-            <div className="rounded-2xl bg-[#0d131f] border border-white/10 p-6 space-y-4">
-              <h3 className="text-sm font-bold text-white mb-2 flex items-center gap-2">
-                <Clock size={16} className="text-blue-400" />
+            <div className="rounded-3xl bg-[#FFFFFF] border border-[rgba(17,17,17,0.08)] p-6 space-y-4 shadow-sm">
+              <h3 className="text-sm font-bold text-[#111111] mb-2 flex items-center gap-2">
+                <Clock size={16} className="text-[#111111]" />
                 <span>Your Platform Timeline</span>
               </h3>
-              <div className="divide-y divide-white/5">
+              <div className="divide-y divide-[rgba(17,17,17,0.06)]">
                 {activities.map((act) => (
                   <div key={act.id} className="py-3 flex items-start gap-3">
-                    <div className="p-2 rounded-lg bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 shrink-0 mt-0.5">
+                    <div className="p-2 rounded-full bg-[#FAF9F6] text-[#111111] border border-[rgba(17,17,17,0.08)] shrink-0 mt-0.5">
                       <Sparkles size={14} />
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between gap-2">
-                        <span className="text-xs font-bold text-white uppercase tracking-wider">
+                        <span className="text-xs font-bold text-[#111111] uppercase tracking-wider">
                           {act.activity_type.replace(/_/g, ' ')}
                         </span>
-                        <span className="text-[11px] text-gray-500">
+                        <span className="text-[11px] text-[#92908A]">
                           {new Date(act.created_at).toLocaleString()}
                         </span>
                       </div>
-                      <p className="text-xs text-gray-400 mt-0.5">
+                      <p className="text-xs text-[#66645F] mt-0.5">
                         {act.metadata?.message ||
                           `Logged action on ${act.entity_type.toLowerCase()} record.`}
                       </p>
@@ -229,12 +229,12 @@ export const Notifications: React.FC = () => {
           )
         ) : notifications.length === 0 ? (
           /* Notifications Empty State */
-          <div className="py-20 text-center rounded-2xl bg-[#0d131f] border border-white/10 p-8">
-            <Inbox size={42} className="mx-auto text-slate-600 mb-2 opacity-50" />
-            <h3 className="text-sm font-bold text-white">
+          <div className="py-20 text-center rounded-3xl bg-[#FFFFFF] border border-[rgba(17,17,17,0.08)] p-8 shadow-sm">
+            <Inbox size={42} className="mx-auto text-[#92908A] mb-2 opacity-50" />
+            <h3 className="text-sm font-bold text-[#111111]">
               {activeTab === 'UNREAD' ? 'No unread notifications' : 'No notifications yet'}
             </h3>
-            <p className="text-xs text-slate-400 max-w-sm mx-auto mt-1">
+            <p className="text-xs text-[#66645F] max-w-sm mx-auto mt-1">
               {activeTab === 'UNREAD'
                 ? "You're all caught up! Switch to 'All' to view past history."
                 : 'Important platform updates and achievements will appear here.'}
@@ -253,22 +253,22 @@ export const Notifications: React.FC = () => {
 
             {/* Pagination Controls */}
             {totalPages > 1 && (
-              <div className="flex items-center justify-between pt-6 border-t border-white/5">
-                <span className="text-xs text-gray-400">
+              <div className="flex items-center justify-between pt-6 border-t border-[rgba(17,17,17,0.08)]">
+                <span className="text-xs text-[#66645F]">
                   Page {page} of {totalPages}
                 </span>
                 <div className="flex items-center gap-2">
                   <button
                     disabled={page <= 1}
                     onClick={() => setPage((p) => Math.max(1, p - 1))}
-                    className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-gray-300 disabled:opacity-30 disabled:pointer-events-none transition-colors"
+                    className="p-2 rounded-full border border-[rgba(17,17,17,0.1)] bg-[#FAF9F6] hover:bg-[#EBE9E3] text-[#111111] disabled:opacity-30 disabled:pointer-events-none transition-colors"
                   >
                     <ChevronLeft size={16} />
                   </button>
                   <button
                     disabled={page >= totalPages}
                     onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                    className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-gray-300 disabled:opacity-30 disabled:pointer-events-none transition-colors"
+                    className="p-2 rounded-full border border-[rgba(17,17,17,0.1)] bg-[#FAF9F6] hover:bg-[#EBE9E3] text-[#111111] disabled:opacity-30 disabled:pointer-events-none transition-colors"
                   >
                     <ChevronRight size={16} />
                   </button>
@@ -287,3 +287,4 @@ export const Notifications: React.FC = () => {
     </DashboardLayout>
   );
 };
+export default Notifications;

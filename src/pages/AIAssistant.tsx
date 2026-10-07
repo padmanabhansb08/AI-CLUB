@@ -185,8 +185,8 @@ export const AIAssistant: React.FC = () => {
         {/* Header Banner */}
         <div 
           style={{
-            background: 'linear-gradient(135deg, rgba(30, 41, 59, 0.9) 0%, rgba(15, 23, 42, 0.95) 100%)',
-            border: '1px solid rgba(56, 189, 248, 0.2)',
+            background: '#FFFFFF',
+            border: '1px solid rgba(17, 17, 17, 0.08)',
             borderRadius: '16px',
             padding: '1.5rem 2rem',
             display: 'flex',
@@ -194,55 +194,57 @@ export const AIAssistant: React.FC = () => {
             alignItems: 'center',
             flexWrap: 'wrap',
             gap: '1rem',
+            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.02)',
           }}
         >
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.25rem' }}>
               <div 
                 style={{
-                  background: 'linear-gradient(135deg, #0ea5e9 0%, #3b82f6 100%)',
+                  background: '#050505',
                   borderRadius: '10px',
                   width: '38px',
                   height: '38px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  color: '#fff',
+                  color: '#FFFFFF',
                 }}
               >
                 <Bot size={22} />
               </div>
-              <h1 style={{ fontSize: '1.6rem', fontWeight: 700, margin: 0, color: '#f8fafc' }}>
-                AI CLUB Assistant
+              <h1 style={{ fontSize: '1.5rem', fontWeight: 600, margin: 0, color: '#111111', letterSpacing: '-0.02em' }}>
+                AI CLUB Intelligence Companion
               </h1>
             </div>
-            <p style={{ margin: 0, color: '#94a3b8', fontSize: '0.9rem' }}>
-              Your personalized academic companion for course recommendations, event discovery, skill maps, and team projects.
+            <p style={{ margin: 0, color: '#66645F', fontSize: '0.9rem' }}>
+              Curriculum guidance, workshop recommendations, skill gap mapping, and project pod discovery.
             </p>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(34, 197, 94, 0.1)', border: '1px solid rgba(34, 197, 94, 0.25)', padding: '0.4rem 0.8rem', borderRadius: '9999px', fontSize: '0.8rem', color: '#4ade80' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(21, 128, 61, 0.06)', border: '1px solid rgba(21, 128, 61, 0.18)', padding: '0.4rem 0.85rem', borderRadius: '9999px', fontSize: '0.8rem', color: '#15803d', fontWeight: 500 }}>
             <ShieldCheck size={16} />
             <span>Grounded in verified platform records</span>
           </div>
         </div>
 
         {/* Navigation Tabs */}
-        <div style={{ display: 'flex', gap: '0.75rem', borderBottom: '1px solid var(--border-color, #334155)', paddingBottom: '0.5rem' }}>
+        <div style={{ display: 'flex', gap: '0.5rem', borderBottom: '1px solid rgba(17, 17, 17, 0.08)', paddingBottom: '0.75rem' }}>
           <button
             onClick={() => setActiveTab('chat')}
             style={{
               padding: '0.5rem 1.25rem',
-              borderRadius: '8px',
-              border: 'none',
-              background: activeTab === 'chat' ? 'var(--accent-color, #38bdf8)' : 'transparent',
-              color: activeTab === 'chat' ? '#0f172a' : 'var(--text-muted, #94a3b8)',
-              fontWeight: 600,
-              fontSize: '0.9rem',
+              borderRadius: '9999px',
+              border: activeTab === 'chat' ? '1px solid #050505' : '1px solid transparent',
+              background: activeTab === 'chat' ? '#050505' : 'transparent',
+              color: activeTab === 'chat' ? '#FFFFFF' : '#66645F',
+              fontWeight: 500,
+              fontSize: '0.875rem',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               gap: '0.5rem',
+              transition: 'all 0.2s ease',
             }}
           >
             <MessageSquare size={16} />
@@ -256,16 +258,17 @@ export const AIAssistant: React.FC = () => {
             }}
             style={{
               padding: '0.5rem 1.25rem',
-              borderRadius: '8px',
-              border: 'none',
-              background: activeTab === 'skills' ? 'var(--accent-color, #38bdf8)' : 'transparent',
-              color: activeTab === 'skills' ? '#0f172a' : 'var(--text-muted, #94a3b8)',
-              fontWeight: 600,
-              fontSize: '0.9rem',
+              borderRadius: '9999px',
+              border: activeTab === 'skills' ? '1px solid #050505' : '1px solid transparent',
+              background: activeTab === 'skills' ? '#050505' : 'transparent',
+              color: activeTab === 'skills' ? '#FFFFFF' : '#66645F',
+              fontWeight: 500,
+              fontSize: '0.875rem',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               gap: '0.5rem',
+              transition: 'all 0.2s ease',
             }}
           >
             <TrendingUp size={16} />
@@ -276,16 +279,17 @@ export const AIAssistant: React.FC = () => {
             onClick={() => setActiveTab('search')}
             style={{
               padding: '0.5rem 1.25rem',
-              borderRadius: '8px',
-              border: 'none',
-              background: activeTab === 'search' ? 'var(--accent-color, #38bdf8)' : 'transparent',
-              color: activeTab === 'search' ? '#0f172a' : 'var(--text-muted, #94a3b8)',
-              fontWeight: 600,
-              fontSize: '0.9rem',
+              borderRadius: '9999px',
+              border: activeTab === 'search' ? '1px solid #050505' : '1px solid transparent',
+              background: activeTab === 'search' ? '#050505' : 'transparent',
+              color: activeTab === 'search' ? '#FFFFFF' : '#66645F',
+              fontWeight: 500,
+              fontSize: '0.875rem',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               gap: '0.5rem',
+              transition: 'all 0.2s ease',
             }}
           >
             <Search size={16} />
@@ -295,18 +299,19 @@ export const AIAssistant: React.FC = () => {
 
         {/* TAB 1: CHAT ASSISTANT */}
         {activeTab === 'chat' && (
-          <div style={{ display: 'grid', gridTemplateColumns: '260px 1fr', gap: '1.25rem', minHeight: '600px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '270px 1fr', gap: '1.25rem', minHeight: '620px' }}>
             
             {/* Conversation History Sidebar */}
             <div 
               style={{
-                background: 'var(--card-bg, #1e293b)',
-                borderRadius: '12px',
-                border: '1px solid var(--border-color, #334155)',
-                padding: '1rem',
+                background: '#FFFFFF',
+                borderRadius: '16px',
+                border: '1px solid rgba(17, 17, 17, 0.08)',
+                padding: '1.15rem',
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'space-between',
+                boxShadow: '0 1px 3px rgba(0, 0, 0, 0.02)',
               }}
             >
               <div>
@@ -314,32 +319,33 @@ export const AIAssistant: React.FC = () => {
                   onClick={startNewChat}
                   style={{
                     width: '100%',
-                    padding: '0.6rem 1rem',
-                    borderRadius: '8px',
-                    border: '1px dashed var(--accent-color, #38bdf8)',
-                    background: 'rgba(56, 189, 248, 0.1)',
-                    color: 'var(--accent-color, #38bdf8)',
-                    fontWeight: 600,
+                    padding: '0.65rem 1rem',
+                    borderRadius: '9999px',
+                    border: '1px solid #050505',
+                    background: '#050505',
+                    color: '#FFFFFF',
+                    fontWeight: 500,
                     fontSize: '0.85rem',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     gap: '0.5rem',
                     cursor: 'pointer',
-                    marginBottom: '1rem',
+                    marginBottom: '1.25rem',
+                    transition: 'all 0.2s ease',
                   }}
                 >
                   <Plus size={16} />
                   New Conversation
                 </button>
 
-                <div style={{ fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', color: 'var(--text-muted, #94a3b8)', marginBottom: '0.5rem', letterSpacing: '0.05em' }}>
+                <div style={{ fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', color: '#92908A', marginBottom: '0.65rem', letterSpacing: '0.05em' }}>
                   Recent Sessions
                 </div>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', maxHeight: '420px', overflowY: 'auto' }}>
                   {conversations.length === 0 ? (
-                    <div style={{ fontSize: '0.8rem', color: 'var(--text-muted, #64748b)', padding: '0.5rem 0' }}>
+                    <div style={{ fontSize: '0.8rem', color: '#92908A', padding: '0.5rem 0' }}>
                       No saved conversations yet.
                     </div>
                   ) : (
@@ -349,11 +355,12 @@ export const AIAssistant: React.FC = () => {
                         onClick={() => selectConversation(conv.id)}
                         style={{
                           textAlign: 'left',
-                          padding: '0.6rem 0.75rem',
-                          borderRadius: '6px',
-                          border: conv.id === currentConversationId ? '1px solid var(--accent-color, #38bdf8)' : '1px solid transparent',
-                          background: conv.id === currentConversationId ? 'rgba(56, 189, 248, 0.15)' : 'transparent',
-                          color: conv.id === currentConversationId ? '#f8fafc' : 'var(--text-muted, #cbd5e1)',
+                          padding: '0.65rem 0.85rem',
+                          borderRadius: '8px',
+                          border: conv.id === currentConversationId ? '1px solid rgba(17, 17, 17, 0.2)' : '1px solid transparent',
+                          background: conv.id === currentConversationId ? '#F5F4F0' : 'transparent',
+                          color: conv.id === currentConversationId ? '#111111' : '#66645F',
+                          fontWeight: conv.id === currentConversationId ? 600 : 400,
                           fontSize: '0.85rem',
                           cursor: 'pointer',
                           display: 'flex',
@@ -362,9 +369,10 @@ export const AIAssistant: React.FC = () => {
                           whiteSpace: 'nowrap',
                           overflow: 'hidden',
                           textOverflow: 'ellipsis',
+                          transition: 'background-color 0.15s ease',
                         }}
                       >
-                        <MessageSquare size={14} style={{ flexShrink: 0 }} />
+                        <MessageSquare size={14} style={{ flexShrink: 0, opacity: 0.7 }} />
                         <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{conv.title || 'Conversation'}</span>
                       </button>
                     ))
@@ -377,16 +385,18 @@ export const AIAssistant: React.FC = () => {
                   onClick={deleteCurrentConversation}
                   style={{
                     padding: '0.5rem',
-                    borderRadius: '6px',
-                    border: '1px solid rgba(239, 68, 68, 0.3)',
-                    background: 'rgba(239, 68, 68, 0.1)',
-                    color: '#f87171',
+                    borderRadius: '8px',
+                    border: '1px solid rgba(185, 28, 28, 0.2)',
+                    background: 'rgba(185, 28, 28, 0.05)',
+                    color: '#b91c1c',
                     fontSize: '0.8rem',
+                    fontWeight: 500,
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     gap: '0.35rem',
                     cursor: 'pointer',
+                    marginTop: '1rem',
                   }}
                 >
                   <Trash2 size={14} />
@@ -398,16 +408,18 @@ export const AIAssistant: React.FC = () => {
             {/* Chat Messages Panel */}
             <div 
               style={{
-                background: 'var(--card-bg, #1e293b)',
-                borderRadius: '12px',
-                border: '1px solid var(--border-color, #334155)',
+                background: '#FFFFFF',
+                borderRadius: '16px',
+                border: '1px solid rgba(17, 17, 17, 0.08)',
                 display: 'flex',
                 flexDirection: 'column',
                 height: '620px',
+                boxShadow: '0 1px 3px rgba(0, 0, 0, 0.02)',
+                overflow: 'hidden',
               }}
             >
               {/* Message Feed */}
-              <div style={{ flex: 1, padding: '1.5rem', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+              <div style={{ flex: 1, padding: '1.5rem', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '1.25rem', background: '#FAF9F6' }}>
                 {messages.length === 0 ? (
                   <div style={{ textAlign: 'center', margin: 'auto', maxWidth: '480px', padding: '2rem 1rem' }}>
                     <div 
@@ -415,21 +427,21 @@ export const AIAssistant: React.FC = () => {
                         width: '56px',
                         height: '56px',
                         borderRadius: '50%',
-                        background: 'rgba(56, 189, 248, 0.15)',
-                        color: 'var(--accent-color, #38bdf8)',
+                        background: '#EBE9E3',
+                        color: '#111111',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        margin: '0 auto 1rem',
+                        margin: '0 auto 1.25rem',
                       }}
                     >
-                      <Sparkles size={28} />
+                      <Sparkles size={26} />
                     </div>
-                    <h3 style={{ fontSize: '1.2rem', color: '#f8fafc', marginBottom: '0.5rem' }}>
-                      How can I help you today?
+                    <h3 style={{ fontSize: '1.25rem', color: '#111111', marginBottom: '0.5rem', fontWeight: 600 }}>
+                      What would you like to explore today?
                     </h3>
-                    <p style={{ fontSize: '0.85rem', color: '#94a3b8', marginBottom: '1.5rem' }}>
-                      Ask questions about courses, upcoming workshops, project teams, or your personal learning progression.
+                    <p style={{ fontSize: '0.875rem', color: '#66645F', marginBottom: '1.5rem', lineHeight: 1.5 }}>
+                      Ask questions about courses, upcoming workshops, research tracks, project pods, or your personal mock test review.
                     </p>
 
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
@@ -438,21 +450,31 @@ export const AIAssistant: React.FC = () => {
                           key={i}
                           onClick={() => handleSendMessage(prompt)}
                           style={{
-                            padding: '0.6rem 1rem',
-                            borderRadius: '8px',
-                            border: '1px solid var(--border-color, #334155)',
-                            background: 'rgba(255, 255, 255, 0.03)',
-                            color: 'var(--text-color, #e2e8f0)',
+                            padding: '0.75rem 1rem',
+                            borderRadius: '10px',
+                            border: '1px solid rgba(17, 17, 17, 0.08)',
+                            background: '#FFFFFF',
+                            color: '#111111',
                             fontSize: '0.85rem',
                             textAlign: 'left',
                             cursor: 'pointer',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'space-between',
+                            boxShadow: '0 1px 2px rgba(0, 0, 0, 0.02)',
+                            transition: 'all 0.2s ease',
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.borderColor = 'rgba(17, 17, 17, 0.25)';
+                            e.currentTarget.style.transform = 'translateY(-1px)';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.borderColor = 'rgba(17, 17, 17, 0.08)';
+                            e.currentTarget.style.transform = 'none';
                           }}
                         >
-                          <span>{prompt}</span>
-                          <ChevronRight size={14} style={{ color: 'var(--accent-color, #38bdf8)' }} />
+                          <span style={{ fontWeight: 500 }}>{prompt}</span>
+                          <ChevronRight size={14} style={{ color: '#92908A' }} />
                         </button>
                       ))}
                     </div>
@@ -469,24 +491,25 @@ export const AIAssistant: React.FC = () => {
                     >
                       <div 
                         style={{
-                          maxWidth: '80%',
-                          padding: '0.85rem 1.15rem',
-                          borderRadius: msg.role === 'user' ? '14px 14px 2px 14px' : '14px 14px 14px 2px',
-                          background: msg.role === 'user' ? 'var(--accent-color, #0284c7)' : 'rgba(15, 23, 42, 0.8)',
-                          color: msg.role === 'user' ? '#ffffff' : '#f8fafc',
-                          border: msg.role === 'user' ? 'none' : '1px solid var(--border-color, #334155)',
+                          maxWidth: '78%',
+                          padding: '0.95rem 1.25rem',
+                          borderRadius: msg.role === 'user' ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
+                          background: msg.role === 'user' ? '#050505' : '#FFFFFF',
+                          color: msg.role === 'user' ? '#FFFFFF' : '#111111',
+                          border: msg.role === 'user' ? 'none' : '1px solid rgba(17, 17, 17, 0.08)',
                           fontSize: '0.9rem',
-                          lineHeight: 1.5,
+                          lineHeight: 1.55,
                           whiteSpace: 'pre-wrap',
+                          boxShadow: '0 1px 3px rgba(0, 0, 0, 0.03)',
                         }}
                       >
                         {msg.content}
 
                         {/* Verified Source Badges */}
                         {msg.sources && msg.sources.length > 0 && (
-                          <div style={{ marginTop: '0.85rem', paddingTop: '0.65rem', borderTop: '1px solid rgba(255, 255, 255, 0.1)' }}>
-                            <div style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--accent-color, #38bdf8)', marginBottom: '0.4rem' }}>
-                              Verified Platform Sources:
+                          <div style={{ marginTop: '0.85rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(17, 17, 17, 0.08)' }}>
+                            <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#66645F', marginBottom: '0.4rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                              Verified Platform References:
                             </div>
                             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
                               {msg.sources.map((src, sIdx) => {
@@ -502,21 +525,22 @@ export const AIAssistant: React.FC = () => {
                                     style={{
                                       display: 'inline-flex',
                                       alignItems: 'center',
-                                      gap: '0.3rem',
-                                      padding: '0.2rem 0.5rem',
-                                      borderRadius: '4px',
+                                      gap: '0.35rem',
+                                      padding: '0.25rem 0.6rem',
+                                      borderRadius: '9999px',
                                       fontSize: '0.75rem',
-                                      background: 'rgba(56, 189, 248, 0.15)',
-                                      color: '#7dd3fc',
+                                      background: '#F5F4F0',
+                                      color: '#111111',
                                       textDecoration: 'none',
-                                      border: '1px solid rgba(56, 189, 248, 0.3)',
+                                      border: '1px solid rgba(17, 17, 17, 0.1)',
+                                      fontWeight: 500,
                                     }}
                                   >
                                     {src.type === 'COURSE' && <BookOpen size={12} />}
                                     {src.type === 'EVENT' && <Calendar size={12} />}
                                     {src.type === 'PROJECT' && <FolderGit2 size={12} />}
                                     <span>{src.title}</span>
-                                    <ExternalLink size={10} />
+                                    <ExternalLink size={10} style={{ opacity: 0.6 }} />
                                   </Link>
                                 );
                               })}
@@ -529,14 +553,14 @@ export const AIAssistant: React.FC = () => {
                 )}
 
                 {isLoading && (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--accent-color, #38bdf8)', fontSize: '0.85rem' }}>
-                    <Bot size={18} className="animate-pulse" />
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#66645F', fontSize: '0.85rem', fontWeight: 500 }}>
+                    <Bot size={18} className="animate-pulse text-[#050505]" />
                     <span>AI Assistant is analyzing club records...</span>
                   </div>
                 )}
 
                 {chatError && (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.75rem', borderRadius: '8px', background: 'rgba(239, 68, 68, 0.15)', border: '1px solid rgba(239, 68, 68, 0.3)', color: '#f87171', fontSize: '0.85rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.75rem 1rem', borderRadius: '10px', background: 'rgba(185, 28, 28, 0.08)', border: '1px solid rgba(185, 28, 28, 0.2)', color: '#b91c1c', fontSize: '0.85rem' }}>
                     <AlertCircle size={16} />
                     <span>{chatError}</span>
                   </div>
@@ -546,7 +570,7 @@ export const AIAssistant: React.FC = () => {
               </div>
 
               {/* Input Form */}
-              <div style={{ padding: '1rem', borderTop: '1px solid var(--border-color, #334155)', background: 'rgba(15, 23, 42, 0.5)' }}>
+              <div style={{ padding: '1rem 1.25rem', borderTop: '1px solid rgba(17, 17, 17, 0.08)', background: '#FFFFFF' }}>
                 <form 
                   onSubmit={(e) => {
                     e.preventDefault();
@@ -558,15 +582,15 @@ export const AIAssistant: React.FC = () => {
                     type="text"
                     value={inputMessage}
                     onChange={(e) => setInputMessage(e.target.value)}
-                    placeholder="Ask AI Assistant about courses, hackathons, or project recommendations..."
+                    placeholder="Ask about courses, research tracks, hackathons, or project teams..."
                     disabled={isLoading}
                     style={{
                       flex: 1,
-                      padding: '0.75rem 1rem',
-                      borderRadius: '8px',
-                      border: '1px solid var(--border-color, #334155)',
-                      background: 'rgba(255, 255, 255, 0.05)',
-                      color: '#f8fafc',
+                      padding: '0.75rem 1.15rem',
+                      borderRadius: '9999px',
+                      border: '1px solid rgba(17, 17, 17, 0.15)',
+                      background: '#FFFFFF',
+                      color: '#111111',
                       fontSize: '0.9rem',
                       outline: 'none',
                     }}
@@ -575,20 +599,21 @@ export const AIAssistant: React.FC = () => {
                     type="submit"
                     disabled={isLoading || !inputMessage.trim()}
                     style={{
-                      padding: '0.75rem 1.25rem',
-                      borderRadius: '8px',
+                      padding: '0.75rem 1.5rem',
+                      borderRadius: '9999px',
                       border: 'none',
-                      background: 'var(--accent-color, #38bdf8)',
-                      color: '#0f172a',
-                      fontWeight: 600,
+                      background: '#050505',
+                      color: '#FFFFFF',
+                      fontWeight: 500,
                       cursor: isLoading || !inputMessage.trim() ? 'not-allowed' : 'pointer',
                       display: 'flex',
                       alignItems: 'center',
                       gap: '0.5rem',
-                      opacity: isLoading || !inputMessage.trim() ? 0.6 : 1,
+                      opacity: isLoading || !inputMessage.trim() ? 0.4 : 1,
+                      transition: 'all 0.2s ease',
                     }}
                   >
-                    <Send size={16} />
+                    <Send size={15} />
                     <span>Send</span>
                   </button>
                 </form>
@@ -603,23 +628,24 @@ export const AIAssistant: React.FC = () => {
             {/* Target Role Selector */}
             <div 
               style={{
-                background: 'var(--card-bg, #1e293b)',
-                borderRadius: '12px',
-                border: '1px solid var(--border-color, #334155)',
-                padding: '1.25rem 1.5rem',
+                background: '#FFFFFF',
+                borderRadius: '16px',
+                border: '1px solid rgba(17, 17, 17, 0.08)',
+                padding: '1.5rem 1.75rem',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
                 flexWrap: 'wrap',
                 gap: '1rem',
+                boxShadow: '0 1px 3px rgba(0, 0, 0, 0.02)',
               }}
             >
               <div>
-                <h3 style={{ margin: 0, fontSize: '1.1rem', color: '#f8fafc' }}>
+                <h3 style={{ margin: 0, fontSize: '1.15rem', color: '#111111', fontWeight: 600 }}>
                   Target Specialization or Role
                 </h3>
-                <p style={{ margin: 0, fontSize: '0.85rem', color: '#94a3b8' }}>
-                  Select your learning destination to compare current profile competencies with curriculum requirements.
+                <p style={{ margin: 0, fontSize: '0.85rem', color: '#66645F' }}>
+                  Select your learning destination to compare current profile competencies with club curriculum requirements.
                 </p>
               </div>
 
@@ -632,12 +658,13 @@ export const AIAssistant: React.FC = () => {
                   }}
                   style={{
                     padding: '0.6rem 1rem',
-                    borderRadius: '8px',
-                    border: '1px solid var(--border-color, #334155)',
-                    background: '#0f172a',
-                    color: '#f8fafc',
-                    fontSize: '0.9rem',
+                    borderRadius: '9999px',
+                    border: '1px solid rgba(17, 17, 17, 0.15)',
+                    background: '#FFFFFF',
+                    color: '#111111',
+                    fontSize: '0.875rem',
                     outline: 'none',
+                    fontWeight: 500,
                   }}
                 >
                   <option value="Generative AI Developer">Generative AI Developer</option>
@@ -651,12 +678,12 @@ export const AIAssistant: React.FC = () => {
                   onClick={() => handleAnalyzeSkills()}
                   disabled={isSkillLoading}
                   style={{
-                    padding: '0.6rem 1rem',
-                    borderRadius: '8px',
+                    padding: '0.6rem 1.25rem',
+                    borderRadius: '9999px',
                     border: 'none',
-                    background: 'var(--accent-color, #38bdf8)',
-                    color: '#0f172a',
-                    fontWeight: 600,
+                    background: '#050505',
+                    color: '#FFFFFF',
+                    fontWeight: 500,
                     fontSize: '0.85rem',
                     cursor: isSkillLoading ? 'not-allowed' : 'pointer',
                     display: 'flex',
@@ -671,13 +698,13 @@ export const AIAssistant: React.FC = () => {
             </div>
 
             {isSkillLoading && (
-              <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--accent-color, #38bdf8)' }}>
+              <div style={{ padding: '2.5rem', textAlign: 'center', color: '#66645F', fontSize: '0.9rem', fontWeight: 500 }}>
                 Analyzing skills matrix and mapping to existing AI CLUB courses...
               </div>
             )}
 
             {skillError && (
-              <div style={{ padding: '1rem', borderRadius: '8px', background: 'rgba(239, 68, 68, 0.15)', color: '#f87171' }}>
+              <div style={{ padding: '1rem', borderRadius: '10px', background: 'rgba(185, 28, 28, 0.08)', color: '#b91c1c', border: '1px solid rgba(185, 28, 28, 0.2)', fontSize: '0.85rem' }}>
                 {skillError}
               </div>
             )}
@@ -687,35 +714,36 @@ export const AIAssistant: React.FC = () => {
                 {/* Competency Matrix Card */}
                 <div 
                   style={{
-                    background: 'var(--card-bg, #1e293b)',
-                    borderRadius: '12px',
-                    border: '1px solid var(--border-color, #334155)',
+                    background: '#FFFFFF',
+                    borderRadius: '16px',
+                    border: '1px solid rgba(17, 17, 17, 0.08)',
                     padding: '1.5rem',
                     display: 'flex',
                     flexDirection: 'column',
                     gap: '1.25rem',
+                    boxShadow: '0 1px 3px rgba(0, 0, 0, 0.02)',
                   }}
                 >
                   <div>
-                    <h3 style={{ fontSize: '1.1rem', color: '#f8fafc', marginBottom: '0.35rem' }}>
+                    <h3 style={{ fontSize: '1.15rem', color: '#111111', fontWeight: 600, marginBottom: '0.35rem' }}>
                       Skill Gap Breakdown: {skillGapData.target}
                     </h3>
-                    <p style={{ fontSize: '0.85rem', color: '#94a3b8', margin: 0 }}>
+                    <p style={{ fontSize: '0.85rem', color: '#66645F', margin: 0, lineHeight: 1.5 }}>
                       {skillGapData.summary}
                     </p>
                   </div>
 
                   {/* Mastered Skills */}
                   <div>
-                    <div style={{ fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', color: '#4ade80', marginBottom: '0.4rem' }}>
+                    <div style={{ fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', color: '#15803d', marginBottom: '0.4rem', letterSpacing: '0.04em' }}>
                       ✓ Mastered Skills ({skillGapData.currentSkills.length})
                     </div>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem' }}>
                       {skillGapData.currentSkills.length === 0 ? (
-                        <span style={{ fontSize: '0.8rem', color: '#64748b' }}>None matched in profile yet</span>
+                        <span style={{ fontSize: '0.8rem', color: '#92908A' }}>None matched in profile yet</span>
                       ) : (
                         skillGapData.currentSkills.map((s, idx) => (
-                          <span key={idx} style={{ padding: '0.2rem 0.6rem', borderRadius: '4px', fontSize: '0.8rem', background: 'rgba(34, 197, 94, 0.15)', color: '#86efac', border: '1px solid rgba(34, 197, 94, 0.3)' }}>
+                          <span key={idx} style={{ padding: '0.25rem 0.65rem', borderRadius: '9999px', fontSize: '0.78rem', background: 'rgba(21, 128, 61, 0.08)', color: '#15803d', border: '1px solid rgba(21, 128, 61, 0.2)', fontWeight: 500 }}>
                             {s}
                           </span>
                         ))
@@ -726,12 +754,12 @@ export const AIAssistant: React.FC = () => {
                   {/* Developing Skills */}
                   {skillGapData.developingSkills.length > 0 && (
                     <div>
-                      <div style={{ fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', color: '#60a5fa', marginBottom: '0.4rem' }}>
+                      <div style={{ fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', color: '#0369a1', marginBottom: '0.4rem', letterSpacing: '0.04em' }}>
                         ⚡ Developing ({skillGapData.developingSkills.length})
                       </div>
                       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem' }}>
                         {skillGapData.developingSkills.map((s, idx) => (
-                          <span key={idx} style={{ padding: '0.2rem 0.6rem', borderRadius: '4px', fontSize: '0.8rem', background: 'rgba(59, 130, 246, 0.15)', color: '#93c5fd', border: '1px solid rgba(59, 130, 246, 0.3)' }}>
+                          <span key={idx} style={{ padding: '0.25rem 0.65rem', borderRadius: '9999px', fontSize: '0.78rem', background: 'rgba(3, 105, 161, 0.08)', color: '#0369a1', border: '1px solid rgba(3, 105, 161, 0.2)', fontWeight: 500 }}>
                             {s}
                           </span>
                         ))}
@@ -741,12 +769,12 @@ export const AIAssistant: React.FC = () => {
 
                   {/* Missing Skills */}
                   <div>
-                    <div style={{ fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', color: '#f59e0b', marginBottom: '0.4rem' }}>
+                    <div style={{ fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', color: '#b45309', marginBottom: '0.4rem', letterSpacing: '0.04em' }}>
                       🎯 Growth Skills to Acquire ({skillGapData.missingSkills.length})
                     </div>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem' }}>
                       {skillGapData.missingSkills.map((s, idx) => (
-                        <span key={idx} style={{ padding: '0.2rem 0.6rem', borderRadius: '4px', fontSize: '0.8rem', background: 'rgba(245, 158, 11, 0.15)', color: '#fcd34d', border: '1px solid rgba(245, 158, 11, 0.3)' }}>
+                        <span key={idx} style={{ padding: '0.25rem 0.65rem', borderRadius: '9999px', fontSize: '0.78rem', background: 'rgba(180, 83, 9, 0.08)', color: '#b45309', border: '1px solid rgba(180, 83, 9, 0.2)', fontWeight: 500 }}>
                           {s}
                         </span>
                       ))}
@@ -755,9 +783,9 @@ export const AIAssistant: React.FC = () => {
 
                   {/* Recommended Courses to bridge gaps */}
                   {skillGapData.recommendedCourses.length > 0 && (
-                    <div style={{ marginTop: '0.5rem', borderTop: '1px solid var(--border-color, #334155)', paddingTop: '1rem' }}>
-                      <div style={{ fontSize: '0.8rem', fontWeight: 600, color: '#f8fafc', marginBottom: '0.5rem' }}>
-                        Courses Bridging These Gaps:
+                    <div style={{ marginTop: '0.5rem', borderTop: '1px solid rgba(17, 17, 17, 0.08)', paddingTop: '1rem' }}>
+                      <div style={{ fontSize: '0.8rem', fontWeight: 600, color: '#111111', marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                        Recommended Courses:
                       </div>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                         {skillGapData.recommendedCourses.map((c, idx) => (
@@ -768,17 +796,17 @@ export const AIAssistant: React.FC = () => {
                               display: 'flex',
                               alignItems: 'center',
                               justifyContent: 'space-between',
-                              padding: '0.6rem 0.75rem',
-                              borderRadius: '6px',
-                              background: 'rgba(255, 255, 255, 0.03)',
-                              border: '1px solid var(--border-color, #334155)',
-                              color: '#f8fafc',
+                              padding: '0.65rem 0.85rem',
+                              borderRadius: '8px',
+                              background: '#FAF9F6',
+                              border: '1px solid rgba(17, 17, 17, 0.08)',
+                              color: '#111111',
                               textDecoration: 'none',
                               fontSize: '0.85rem',
                             }}
                           >
-                            <span style={{ fontWeight: 600 }}>{c.title}</span>
-                            <span style={{ fontSize: '0.75rem', color: 'var(--accent-color, #38bdf8)' }}>View →</span>
+                            <span style={{ fontWeight: 500 }}>{c.title}</span>
+                            <span style={{ fontSize: '0.75rem', color: '#66645F', fontWeight: 600 }}>Explore →</span>
                           </Link>
                         ))}
                       </div>
@@ -789,21 +817,22 @@ export const AIAssistant: React.FC = () => {
                 {/* Structured Learning Path Roadmap */}
                 <div 
                   style={{
-                    background: 'var(--card-bg, #1e293b)',
-                    borderRadius: '12px',
-                    border: '1px solid var(--border-color, #334155)',
+                    background: '#FFFFFF',
+                    borderRadius: '16px',
+                    border: '1px solid rgba(17, 17, 17, 0.08)',
                     padding: '1.5rem',
                     display: 'flex',
                     flexDirection: 'column',
                     gap: '1rem',
+                    boxShadow: '0 1px 3px rgba(0, 0, 0, 0.02)',
                   }}
                 >
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <h3 style={{ fontSize: '1.1rem', color: '#f8fafc', margin: 0 }}>
-                      Guided Roadmap
+                    <h3 style={{ fontSize: '1.15rem', color: '#111111', margin: 0, fontWeight: 600 }}>
+                      Structured Learning Roadmap
                     </h3>
                     {learningPathData && (
-                      <span style={{ fontSize: '0.8rem', color: 'var(--text-muted, #94a3b8)' }}>
+                      <span style={{ fontSize: '0.8rem', color: '#66645F', fontWeight: 500 }}>
                         ~{learningPathData.estimatedDurationWeeks} Weeks
                       </span>
                     )}
@@ -816,7 +845,7 @@ export const AIAssistant: React.FC = () => {
                           key={step.step}
                           style={{
                             display: 'flex',
-                            gap: '0.75rem',
+                            gap: '0.85rem',
                             position: 'relative',
                           }}
                         >
@@ -825,10 +854,10 @@ export const AIAssistant: React.FC = () => {
                               width: '28px',
                               height: '28px',
                               borderRadius: '50%',
-                              background: 'var(--accent-color, #38bdf8)',
-                              color: '#0f172a',
-                              fontWeight: 700,
-                              fontSize: '0.85rem',
+                              background: '#050505',
+                              color: '#FFFFFF',
+                              fontWeight: 600,
+                              fontSize: '0.8rem',
                               display: 'flex',
                               alignItems: 'center',
                               justifyContent: 'center',
@@ -838,31 +867,32 @@ export const AIAssistant: React.FC = () => {
                             {step.step}
                           </div>
 
-                          <div style={{ flex: 1, background: 'rgba(255, 255, 255, 0.02)', padding: '0.75rem', borderRadius: '8px', border: '1px solid var(--border-color, #334155)' }}>
+                          <div style={{ flex: 1, background: '#FAF9F6', padding: '0.85rem 1rem', borderRadius: '10px', border: '1px solid rgba(17, 17, 17, 0.06)' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.25rem' }}>
-                              <h4 style={{ margin: 0, fontSize: '0.9rem', color: '#f8fafc' }}>{step.title}</h4>
+                              <h4 style={{ margin: 0, fontSize: '0.9rem', color: '#111111', fontWeight: 600 }}>{step.title}</h4>
                               {step.courseId && (
                                 <Link 
                                   to={`/courses/${step.courseId}`}
                                   style={{
                                     fontSize: '0.75rem',
-                                    color: 'var(--accent-color, #38bdf8)',
+                                    color: '#111111',
                                     textDecoration: 'none',
                                     display: 'inline-flex',
                                     alignItems: 'center',
                                     gap: '0.2rem',
+                                    fontWeight: 600,
                                   }}
                                 >
                                   Course <ExternalLink size={10} />
                                 </Link>
                               )}
                             </div>
-                            <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.8rem', color: '#94a3b8' }}>
+                            <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.8rem', color: '#66645F', lineHeight: 1.5 }}>
                               {step.description}
                             </p>
                             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.3rem' }}>
                               {step.targetSkills.map((sk, sIdx) => (
-                                <span key={sIdx} style={{ fontSize: '0.7rem', padding: '0.1rem 0.4rem', borderRadius: '3px', background: 'rgba(56, 189, 248, 0.1)', color: '#7dd3fc' }}>
+                                <span key={sIdx} style={{ fontSize: '0.72rem', padding: '0.15rem 0.5rem', borderRadius: '9999px', background: 'rgba(17, 17, 17, 0.06)', color: '#111111', fontWeight: 500 }}>
                                   {sk}
                                 </span>
                               ))}
@@ -882,20 +912,21 @@ export const AIAssistant: React.FC = () => {
         {activeTab === 'search' && (
           <div 
             style={{
-              background: 'var(--card-bg, #1e293b)',
-              borderRadius: '12px',
-              border: '1px solid var(--border-color, #334155)',
-              padding: '1.5rem',
+              background: '#FFFFFF',
+              borderRadius: '16px',
+              border: '1px solid rgba(17, 17, 17, 0.08)',
+              padding: '1.75rem',
               display: 'flex',
               flexDirection: 'column',
               gap: '1.25rem',
+              boxShadow: '0 1px 3px rgba(0, 0, 0, 0.02)',
             }}
           >
             <div>
-              <h3 style={{ margin: '0 0 0.25rem 0', fontSize: '1.1rem', color: '#f8fafc' }}>
+              <h3 style={{ margin: '0 0 0.25rem 0', fontSize: '1.15rem', color: '#111111', fontWeight: 600 }}>
                 Multi-Domain Knowledge Search
               </h3>
-              <p style={{ margin: 0, fontSize: '0.85rem', color: '#94a3b8' }}>
+              <p style={{ margin: 0, fontSize: '0.85rem', color: '#66645F' }}>
                 Search across all published AI CLUB courses, workshops, hackathons, and collaborative projects.
               </p>
             </div>
@@ -908,11 +939,11 @@ export const AIAssistant: React.FC = () => {
                 placeholder="Search topics (e.g. PyTorch, Computer Vision, RAG, Reinforcement Learning)..."
                 style={{
                   flex: 1,
-                  padding: '0.75rem 1rem',
-                  borderRadius: '8px',
-                  border: '1px solid var(--border-color, #334155)',
-                  background: 'rgba(255, 255, 255, 0.05)',
-                  color: '#f8fafc',
+                  padding: '0.75rem 1.15rem',
+                  borderRadius: '9999px',
+                  border: '1px solid rgba(17, 17, 17, 0.15)',
+                  background: '#FFFFFF',
+                  color: '#111111',
                   fontSize: '0.9rem',
                   outline: 'none',
                 }}
@@ -921,12 +952,12 @@ export const AIAssistant: React.FC = () => {
                 type="submit"
                 disabled={isSearching || !searchQuery.trim()}
                 style={{
-                  padding: '0.75rem 1.25rem',
-                  borderRadius: '8px',
+                  padding: '0.75rem 1.5rem',
+                  borderRadius: '9999px',
                   border: 'none',
-                  background: 'var(--accent-color, #38bdf8)',
-                  color: '#0f172a',
-                  fontWeight: 600,
+                  background: '#050505',
+                  color: '#FFFFFF',
+                  fontWeight: 500,
                   cursor: isSearching || !searchQuery.trim() ? 'not-allowed' : 'pointer',
                   display: 'flex',
                   alignItems: 'center',
@@ -939,7 +970,7 @@ export const AIAssistant: React.FC = () => {
             </form>
 
             {isSearching && (
-              <div style={{ textAlign: 'center', padding: '1rem', color: 'var(--accent-color, #38bdf8)' }}>
+              <div style={{ textAlign: 'center', padding: '1.5rem', color: '#66645F', fontSize: '0.875rem' }}>
                 Querying platform domains...
               </div>
             )}
@@ -947,23 +978,23 @@ export const AIAssistant: React.FC = () => {
             {searchResults && (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.25rem', marginTop: '1rem' }}>
                 {/* Courses */}
-                <div style={{ background: 'rgba(255, 255, 255, 0.02)', padding: '1rem', borderRadius: '8px', border: '1px solid var(--border-color, #334155)' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#38bdf8', fontSize: '0.9rem', fontWeight: 600, marginBottom: '0.75rem' }}>
+                <div style={{ background: '#FAF9F6', padding: '1.25rem', borderRadius: '12px', border: '1px solid rgba(17, 17, 17, 0.08)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#111111', fontSize: '0.9rem', fontWeight: 600, marginBottom: '0.75rem' }}>
                     <BookOpen size={16} />
                     <span>Courses ({searchResults.filter(r => r.type === 'COURSE').length})</span>
                   </div>
                   {searchResults.filter(r => r.type === 'COURSE').length === 0 ? (
-                    <div style={{ fontSize: '0.8rem', color: '#64748b' }}>No matching courses</div>
+                    <div style={{ fontSize: '0.8rem', color: '#92908A' }}>No matching courses</div>
                   ) : (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                       {searchResults.filter(r => r.type === 'COURSE').map(c => (
                         <Link 
                           key={c.id} 
                           to={c.url}
-                          style={{ padding: '0.5rem', borderRadius: '6px', background: 'rgba(255, 255, 255, 0.03)', color: '#f8fafc', textDecoration: 'none', fontSize: '0.85rem' }}
+                          style={{ padding: '0.65rem', borderRadius: '8px', background: '#FFFFFF', color: '#111111', textDecoration: 'none', fontSize: '0.85rem', border: '1px solid rgba(17, 17, 17, 0.06)' }}
                         >
                           <div style={{ fontWeight: 600 }}>{c.title}</div>
-                          <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>{c.snippet}</div>
+                          <div style={{ fontSize: '0.75rem', color: '#66645F' }}>{c.snippet}</div>
                         </Link>
                       ))}
                     </div>
@@ -971,23 +1002,23 @@ export const AIAssistant: React.FC = () => {
                 </div>
 
                 {/* Events */}
-                <div style={{ background: 'rgba(255, 255, 255, 0.02)', padding: '1rem', borderRadius: '8px', border: '1px solid var(--border-color, #334155)' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#4ade80', fontSize: '0.9rem', fontWeight: 600, marginBottom: '0.75rem' }}>
+                <div style={{ background: '#FAF9F6', padding: '1.25rem', borderRadius: '12px', border: '1px solid rgba(17, 17, 17, 0.08)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#111111', fontSize: '0.9rem', fontWeight: 600, marginBottom: '0.75rem' }}>
                     <Calendar size={16} />
                     <span>Events ({searchResults.filter(r => r.type === 'EVENT').length})</span>
                   </div>
                   {searchResults.filter(r => r.type === 'EVENT').length === 0 ? (
-                    <div style={{ fontSize: '0.8rem', color: '#64748b' }}>No matching events</div>
+                    <div style={{ fontSize: '0.8rem', color: '#92908A' }}>No matching events</div>
                   ) : (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                       {searchResults.filter(r => r.type === 'EVENT').map(e => (
                         <Link 
                           key={e.id} 
                           to={e.url}
-                          style={{ padding: '0.5rem', borderRadius: '6px', background: 'rgba(255, 255, 255, 0.03)', color: '#f8fafc', textDecoration: 'none', fontSize: '0.85rem' }}
+                          style={{ padding: '0.65rem', borderRadius: '8px', background: '#FFFFFF', color: '#111111', textDecoration: 'none', fontSize: '0.85rem', border: '1px solid rgba(17, 17, 17, 0.06)' }}
                         >
                           <div style={{ fontWeight: 600 }}>{e.title}</div>
-                          <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>{e.snippet}</div>
+                          <div style={{ fontSize: '0.75rem', color: '#66645F' }}>{e.snippet}</div>
                         </Link>
                       ))}
                     </div>
@@ -995,23 +1026,23 @@ export const AIAssistant: React.FC = () => {
                 </div>
 
                 {/* Projects */}
-                <div style={{ background: 'rgba(255, 255, 255, 0.02)', padding: '1rem', borderRadius: '8px', border: '1px solid var(--border-color, #334155)' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#c084fc', fontSize: '0.9rem', fontWeight: 600, marginBottom: '0.75rem' }}>
+                <div style={{ background: '#FAF9F6', padding: '1.25rem', borderRadius: '12px', border: '1px solid rgba(17, 17, 17, 0.08)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#111111', fontSize: '0.9rem', fontWeight: 600, marginBottom: '0.75rem' }}>
                     <FolderGit2 size={16} />
                     <span>Projects ({searchResults.filter(r => r.type === 'PROJECT').length})</span>
                   </div>
                   {searchResults.filter(r => r.type === 'PROJECT').length === 0 ? (
-                    <div style={{ fontSize: '0.8rem', color: '#64748b' }}>No matching projects</div>
+                    <div style={{ fontSize: '0.8rem', color: '#92908A' }}>No matching projects</div>
                   ) : (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                       {searchResults.filter(r => r.type === 'PROJECT').map(p => (
                         <Link 
                           key={p.id} 
                           to={p.url}
-                          style={{ padding: '0.5rem', borderRadius: '6px', background: 'rgba(255, 255, 255, 0.03)', color: '#f8fafc', textDecoration: 'none', fontSize: '0.85rem' }}
+                          style={{ padding: '0.65rem', borderRadius: '8px', background: '#FFFFFF', color: '#111111', textDecoration: 'none', fontSize: '0.85rem', border: '1px solid rgba(17, 17, 17, 0.06)' }}
                         >
                           <div style={{ fontWeight: 600 }}>{p.title}</div>
-                          <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>{p.snippet}</div>
+                          <div style={{ fontSize: '0.75rem', color: '#66645F' }}>{p.snippet}</div>
                         </Link>
                       ))}
                     </div>

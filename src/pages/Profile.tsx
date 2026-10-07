@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { DashboardLayout } from '../components/layout/DashboardLayout';
 import { useMemberProfile } from '../hooks/useMemberProfile';
-import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { Select } from '../components/ui/Select';
 import { LoadingState } from '../components/common/LoadingState';
@@ -130,23 +129,27 @@ export const Profile: React.FC = () => {
       setNewSkillName('');
       return;
     }
-    setSelectedSkills(prev => [...prev, { name: trimmed, proficiency: newSkillProficiency }]);
+
+    setSelectedSkills(prev => [
+      ...prev,
+      { name: trimmed, proficiency: newSkillProficiency }
+    ]);
     setNewSkillName('');
+    setNewSkillProficiency('INTERMEDIATE');
   };
 
   const handleRemoveSkill = (name: string) => {
     setSelectedSkills(prev => prev.filter(s => s.name.toLowerCase() !== name.toLowerCase()));
   };
 
-  const handleToggleInterest = (name: string) => {
-    const trimmed = name.trim();
-    if (!trimmed) return;
+  const handleToggleInterest = (interest: string) => {
     setSelectedInterests(prev => {
-      const exists = prev.some(i => i.toLowerCase() === trimmed.toLowerCase());
+      const exists = prev.some(i => i.toLowerCase() === interest.toLowerCase());
       if (exists) {
-        return prev.filter(i => i.toLowerCase() !== trimmed.toLowerCase());
+        return prev.filter(i => i.toLowerCase() !== interest.toLowerCase());
+      } else {
+        return [...prev, interest];
       }
-      return [...prev, trimmed];
     });
   };
 
@@ -159,44 +162,45 @@ export const Profile: React.FC = () => {
     setNewInterestName('');
   };
 
+  const handleCancel = () => {
+    setIsEditing(false);
+    setSaveError('');
+    setSaveSuccess('');
+  };
+
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      setSaveError(null);
-      setSaveSuccess('');
+    setSaveError('');
+    setSaveSuccess('');
 
+    try {
       await updateProfile({
-        fullName: fullName.trim(),
+        fullName,
         department,
         classSection,
-        year: Number(year),
-        phone: phone.trim() || undefined,
-        bio: bio.trim() || undefined,
-        profilePhotoUrl: profilePhotoUrl.trim() || undefined,
-        githubUrl: githubUrl.trim() || undefined,
-        linkedinUrl: linkedinUrl.trim() || undefined,
-        portfolioUrl: portfolioUrl.trim() || undefined,
+        year,
+        phone,
+        bio,
+        profilePhotoUrl,
+        githubUrl,
+        linkedinUrl,
+        portfolioUrl,
         skills: selectedSkills,
         technicalInterests: selectedInterests,
       });
 
+      setSaveSuccess('Profile successfully updated!');
       setIsEditing(false);
-      setSaveSuccess('Your profile has been successfully updated.');
-      setTimeout(() => setSaveSuccess(''), 4000);
-    } catch {
+      setTimeout(() => setSaveSuccess(''), 5000);
+    } catch (err: any) {
       // Error handled by hook
     }
-  };
-
-  const handleCancel = () => {
-    setIsEditing(false);
-    setSaveError(null);
   };
 
   if (loading) {
     return (
       <DashboardLayout pageTitle="Member Profile">
-        <LoadingState message="Loading your profile details..." fullScreen={false} />
+        <LoadingState message="Loading member credentials & profile..." />
       </DashboardLayout>
     );
   }
@@ -218,74 +222,74 @@ export const Profile: React.FC = () => {
         {/* Header Bar */}
         <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
           <div>
-            <h1 className="page-title mb-1 text-2xl font-bold flex items-center gap-2">
-              <User size={24} className="text-accent" /> Member Identity
+            <h1 className="page-title mb-1 text-2xl font-bold flex items-center gap-2 text-[#111111]">
+              <User size={24} className="text-[#111111]" /> Member Identity
             </h1>
-            <p className="text-gray-400 text-sm">
+            <p className="text-[#66645F] text-sm">
               Manage your academic credentials, technical skills, interests, and club identity.
             </p>
           </div>
 
           <div className="flex items-center gap-3">
             {!isEditing ? (
-              <Button onClick={() => setIsEditing(true)} className="flex items-center gap-2">
-                <Edit2 size={16} /> Edit Profile
-              </Button>
+              <button onClick={() => setIsEditing(true)} className="pill-btn flex items-center gap-2 text-xs py-2 px-5">
+                <Edit2 size={15} /> Edit Profile
+              </button>
             ) : (
-              <Button variant="secondary" onClick={handleCancel} className="flex items-center gap-2">
-                <X size={16} /> Cancel
-              </Button>
+              <button onClick={handleCancel} className="pill-outline flex items-center gap-2 text-xs py-2 px-5">
+                <X size={15} /> Cancel
+              </button>
             )}
           </div>
         </div>
 
         {/* Success Alert */}
         {saveSuccess && (
-          <div className="mb-6 p-4 rounded-lg bg-green-950/40 border border-green-700/60 text-green-300 flex items-center gap-3 text-sm">
-            <CheckCircle size={18} className="text-green-400 flex-shrink-0" />
+          <div className="mb-6 p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 flex items-center gap-3 text-sm">
+            <CheckCircle size={18} className="text-emerald-700 flex-shrink-0" />
             <span>{saveSuccess}</span>
           </div>
         )}
 
         {/* Error Alert */}
         {saveError && (
-          <div className="mb-6 p-4 rounded-lg bg-red-950/40 border border-red-700/60 text-red-300 flex items-center gap-3 text-sm">
-            <AlertCircle size={18} className="text-red-400 flex-shrink-0" />
+          <div className="mb-6 p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 flex items-center gap-3 text-sm">
+            <AlertCircle size={18} className="text-rose-700 flex-shrink-0" />
             <span>{saveError}</span>
           </div>
         )}
 
         {/* Profile Completion Bar */}
-        <div className="mb-8 p-5 rounded-xl border border-gray-800 bg-gray-900/60 backdrop-blur-sm">
+        <div className="mb-8 p-6 rounded-2xl border border-[rgba(17,17,17,0.08)] bg-[#FFFFFF] shadow-sm">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
             <div className="flex items-center gap-2">
-              <Sparkles size={18} className="text-accent" />
-              <span className="font-semibold text-gray-200">Profile Completion</span>
-              <span className="text-xs px-2 py-0.5 rounded-full bg-accent/10 text-accent font-mono">
+              <Sparkles size={18} className="text-[#111111]" />
+              <span className="font-semibold text-[#111111]">Profile Completion</span>
+              <span className="text-xs px-2.5 py-0.5 rounded-full bg-[#FAF9F6] border border-[rgba(17,17,17,0.1)] text-[#111111] font-mono font-bold">
                 {completionPct}%
               </span>
             </div>
-            <span className="text-xs text-gray-400">
+            <span className="text-xs text-[#66645F]">
               {profile.profileCompletion?.completed || 0} of {profile.profileCompletion?.total || 11} attributes completed
             </span>
           </div>
 
-          <div className="w-full h-2.5 bg-gray-800 rounded-full overflow-hidden mb-3">
+          <div className="w-full h-2 bg-[#EBE9E3] rounded-full overflow-hidden mb-3">
             <div 
-              className="h-full bg-accent transition-all duration-700 ease-out"
+              className="h-full bg-[#050505] transition-all duration-700 ease-out"
               style={{ width: `${completionPct}%` }}
             />
           </div>
 
           {missingItems.length > 0 && (
             <div className="flex flex-wrap items-center gap-2 pt-2">
-              <span className="text-xs text-gray-500">Missing fields:</span>
+              <span className="text-xs text-[#92908A]">Missing fields:</span>
               {missingItems.map(item => (
                 <button
                   key={item}
                   type="button"
                   onClick={() => setIsEditing(true)}
-                  className="text-xs px-2.5 py-1 rounded bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white transition-colors flex items-center gap-1 border border-gray-700"
+                  className="text-xs px-2.5 py-1 rounded-full bg-[#FAF9F6] hover:bg-[#EBE9E3] text-[#111111] transition-colors flex items-center gap-1 border border-[rgba(17,17,17,0.1)]"
                 >
                   <Plus size={12} /> {item}
                 </button>
@@ -298,30 +302,29 @@ export const Profile: React.FC = () => {
         {!isEditing ? (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Identity Card */}
-            <div className="lg:col-span-1 rounded-xl border border-gray-800 bg-gray-900/40 p-6 flex flex-col items-center text-center">
+            <div className="lg:col-span-1 rounded-2xl border border-[rgba(17,17,17,0.08)] bg-[#FFFFFF] p-6 flex flex-col items-center text-center shadow-sm">
               <div className="relative mb-4">
                 {profile.profilePhotoUrl ? (
                   <img 
                     src={profile.profilePhotoUrl} 
                     alt={profile.fullName} 
-                    className="w-28 h-28 rounded-full object-cover border-2 border-accent shadow-lg shadow-accent/10"
+                    className="w-28 h-28 rounded-full object-cover border-2 border-[#111111] shadow-md"
                     onError={(e) => {
-                      // Fallback on broken image
                       (e.target as HTMLElement).style.display = 'none';
                     }}
                   />
                 ) : (
-                  <div className="w-28 h-28 rounded-full bg-accent/20 border-2 border-accent flex items-center justify-center text-accent text-3xl font-bold font-mono">
+                  <div className="w-28 h-28 rounded-full bg-[#EBE9E3] border-2 border-[#111111] flex items-center justify-center text-[#111111] text-3xl font-bold font-mono">
                     {profile.fullName.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
                   </div>
                 )}
-                <span className="absolute bottom-1 right-1 w-4 h-4 rounded-full bg-green-500 border-2 border-gray-900" title="Active Member"></span>
+                <span className="absolute bottom-1 right-1 w-4 h-4 rounded-full bg-emerald-500 border-2 border-[#FFFFFF]" title="Active Member"></span>
               </div>
 
-              <h2 className="text-xl font-bold text-gray-100">{profile.fullName}</h2>
-              <p className="text-xs font-mono text-gray-400 mt-0.5">{profile.registerNumber}</p>
+              <h2 className="text-xl font-bold text-[#111111]">{profile.fullName}</h2>
+              <p className="text-xs font-mono text-[#66645F] mt-0.5">{profile.registerNumber}</p>
               
-              <div className="mt-3 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gray-800/80 border border-gray-700 text-xs text-gray-300">
+              <div className="mt-3 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#FAF9F6] border border-[rgba(17,17,17,0.08)] text-xs text-[#111111]">
                 <span>{profile.department}</span>
                 <span>&bull;</span>
                 <span>Year {profile.year}</span>
@@ -329,43 +332,43 @@ export const Profile: React.FC = () => {
                 <span>Sec {profile.classSection}</span>
               </div>
 
-              <div className="w-full border-t border-gray-800 my-5"></div>
+              <div className="w-full border-t border-[rgba(17,17,17,0.08)] my-5"></div>
 
               {/* Contact Info */}
-              <div className="w-full text-left space-y-2.5 text-xs text-gray-300">
+              <div className="w-full text-left space-y-2.5 text-xs text-[#66645F]">
                 <div className="flex justify-between">
-                  <span className="text-gray-500">College Email</span>
-                  <span className="font-mono text-gray-300 truncate max-w-[160px]">{profile.collegeEmail}</span>
+                  <span className="text-[#92908A]">College Email</span>
+                  <span className="font-mono text-[#111111] truncate max-w-[160px]">{profile.collegeEmail}</span>
                 </div>
                 {profile.phone && (
                   <div className="flex justify-between">
-                    <span className="text-gray-500">Phone</span>
-                    <span className="font-mono text-gray-300">{profile.phone}</span>
+                    <span className="text-[#92908A]">Phone</span>
+                    <span className="font-mono text-[#111111]">{profile.phone}</span>
                   </div>
                 )}
                 <div className="flex justify-between">
-                  <span className="text-gray-500">Member Since</span>
-                  <span className="text-gray-300">{new Date(profile.joinedAt || profile.createdAt).toLocaleDateString()}</span>
+                  <span className="text-[#92908A]">Member Since</span>
+                  <span className="text-[#111111]">{new Date(profile.joinedAt || profile.createdAt).toLocaleDateString()}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-500">Status</span>
-                  <span className="text-green-400 font-medium">{profile.status}</span>
+                  <span className="text-[#92908A]">Status</span>
+                  <span className="text-emerald-700 font-semibold">{profile.status}</span>
                 </div>
                 <div className="flex justify-between pt-1">
-                  <span className="text-gray-500">Events Attended</span>
-                  <span className="text-emerald-400 font-semibold font-mono">{profile.eventsAttended ?? 0}</span>
+                  <span className="text-[#92908A]">Events Attended</span>
+                  <span className="text-[#111111] font-semibold font-mono">{profile.eventsAttended ?? 0}</span>
                 </div>
               </div>
 
               {/* Social Links */}
               {(profile.githubUrl || profile.linkedinUrl || profile.portfolioUrl) && (
-                <div className="w-full mt-6 pt-4 border-t border-gray-800 flex justify-center gap-3">
+                <div className="w-full mt-6 pt-4 border-t border-[rgba(17,17,17,0.08)] flex justify-center gap-3">
                   {profile.githubUrl && (
                     <a 
                       href={profile.githubUrl} 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="p-2 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white transition-colors"
+                      className="p-2.5 rounded-full bg-[#FAF9F6] border border-[rgba(17,17,17,0.08)] hover:bg-[#EBE9E3] text-[#111111] transition-colors"
                       title="GitHub Profile"
                     >
                       <LinkIcon size={16} />
@@ -376,7 +379,7 @@ export const Profile: React.FC = () => {
                       href={profile.linkedinUrl} 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="p-2 rounded-lg bg-gray-800 hover:bg-gray-700 text-blue-400 hover:text-blue-300 transition-colors"
+                      className="p-2.5 rounded-full bg-[#FAF9F6] border border-[rgba(17,17,17,0.08)] hover:bg-[#EBE9E3] text-[#111111] transition-colors"
                       title="LinkedIn Profile"
                     >
                       <LinkIcon size={16} />
@@ -387,7 +390,7 @@ export const Profile: React.FC = () => {
                       href={profile.portfolioUrl} 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="p-2 rounded-lg bg-gray-800 hover:bg-gray-700 text-accent hover:text-accent-hover transition-colors"
+                      className="p-2.5 rounded-full bg-[#FAF9F6] border border-[rgba(17,17,17,0.08)] hover:bg-[#EBE9E3] text-[#111111] transition-colors"
                       title="Personal Portfolio"
                     >
                       <ExternalLink size={16} />
@@ -400,36 +403,36 @@ export const Profile: React.FC = () => {
             {/* Details Column */}
             <div className="lg:col-span-2 space-y-6">
               {/* About / Bio */}
-              <div className="rounded-xl border border-gray-800 bg-gray-900/40 p-6">
-                <h3 className="text-base font-semibold text-gray-200 mb-3 flex items-center gap-2">
-                  <User size={18} className="text-accent" /> About
+              <div className="rounded-2xl border border-[rgba(17,17,17,0.08)] bg-[#FFFFFF] p-6 shadow-sm">
+                <h3 className="text-base font-semibold text-[#111111] mb-3 flex items-center gap-2">
+                  <User size={18} className="text-[#111111]" /> About
                 </h3>
                 {profile.bio ? (
-                  <p className="text-sm text-gray-300 leading-relaxed whitespace-pre-line">{profile.bio}</p>
+                  <p className="text-sm text-[#66645F] leading-relaxed whitespace-pre-line">{profile.bio}</p>
                 ) : (
-                  <p className="text-sm text-gray-500 italic">No bio provided yet. Click "Edit Profile" to share your background and goals.</p>
+                  <p className="text-sm text-[#92908A] italic">No bio provided yet. Click "Edit Profile" to share your background and goals.</p>
                 )}
               </div>
 
               {/* Technical Skills */}
-              <div className="rounded-xl border border-gray-800 bg-gray-900/40 p-6">
-                <h3 className="text-base font-semibold text-gray-200 mb-3 flex items-center gap-2">
-                  <Layers size={18} className="text-accent" /> Skills & Proficiencies
+              <div className="rounded-2xl border border-[rgba(17,17,17,0.08)] bg-[#FFFFFF] p-6 shadow-sm">
+                <h3 className="text-base font-semibold text-[#111111] mb-3 flex items-center gap-2">
+                  <Layers size={18} className="text-[#111111]" /> Skills & Proficiencies
                 </h3>
                 {profile.normalizedSkills && profile.normalizedSkills.length > 0 ? (
                   <div className="flex flex-wrap gap-2">
                     {profile.normalizedSkills.map(s => (
                       <div 
                         key={s.name} 
-                        className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gray-800/80 border border-gray-700/80 text-xs"
+                        className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#FAF9F6] border border-[rgba(17,17,17,0.08)] text-xs"
                       >
-                        <span className="font-medium text-gray-200">{s.name}</span>
+                        <span className="font-medium text-[#111111]">{s.name}</span>
                         {s.proficiency && (
-                          <span className={`text-[10px] px-1.5 py-0.5 rounded font-mono uppercase ${
-                            s.proficiency === 'EXPERT' ? 'bg-purple-900/40 text-purple-300 border border-purple-700/50' :
-                            s.proficiency === 'ADVANCED' ? 'bg-blue-900/40 text-blue-300 border border-blue-700/50' :
-                            s.proficiency === 'INTERMEDIATE' ? 'bg-emerald-900/40 text-emerald-300 border border-emerald-700/50' :
-                            'bg-gray-700 text-gray-300'
+                          <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-mono uppercase ${
+                            s.proficiency === 'EXPERT' ? 'bg-purple-100 text-purple-800' :
+                            s.proficiency === 'ADVANCED' ? 'bg-blue-100 text-blue-800' :
+                            s.proficiency === 'INTERMEDIATE' ? 'bg-emerald-100 text-emerald-800' :
+                            'bg-gray-100 text-gray-800'
                           }`}>
                             {s.proficiency}
                           </span>
@@ -440,53 +443,53 @@ export const Profile: React.FC = () => {
                 ) : profile.skills && profile.skills.length > 0 ? (
                   <div className="flex flex-wrap gap-2">
                     {profile.skills.map(skill => (
-                      <span key={skill} className="px-3 py-1 rounded bg-gray-800 text-gray-300 text-xs border border-gray-700">
+                      <span key={skill} className="px-3 py-1 rounded-full bg-[#FAF9F6] text-[#111111] text-xs border border-[rgba(17,17,17,0.08)]">
                         {skill}
                       </span>
                     ))}
                   </div>
                 ) : (
-                  <p className="text-sm text-gray-500 italic">No skills listed yet.</p>
+                  <p className="text-sm text-[#92908A] italic">No skills listed yet.</p>
                 )}
               </div>
 
               {/* Technical Interests */}
-              <div className="rounded-xl border border-gray-800 bg-gray-900/40 p-6">
-                <h3 className="text-base font-semibold text-gray-200 mb-3 flex items-center gap-2">
-                  <Award size={18} className="text-accent" /> Technical Interests & Focus
+              <div className="rounded-2xl border border-[rgba(17,17,17,0.08)] bg-[#FFFFFF] p-6 shadow-sm">
+                <h3 className="text-base font-semibold text-[#111111] mb-3 flex items-center gap-2">
+                  <Award size={18} className="text-[#111111]" /> Technical Interests & Focus
                 </h3>
                 {profile.technicalInterests && profile.technicalInterests.length > 0 ? (
                   <div className="flex flex-wrap gap-2">
                     {profile.technicalInterests.map(interest => (
                       <span 
                         key={interest} 
-                        className="px-3 py-1 rounded-full bg-accent/10 border border-accent/30 text-accent text-xs"
+                        className="px-3 py-1.5 rounded-full bg-[#FAF9F6] border border-[rgba(17,17,17,0.1)] text-[#111111] text-xs font-medium"
                       >
                         {interest}
                       </span>
                     ))}
                   </div>
                 ) : (
-                  <p className="text-sm text-gray-500 italic">No technical interests specified.</p>
+                  <p className="text-sm text-[#92908A] italic">No technical interests specified.</p>
                 )}
               </div>
 
               {/* Projects & Collaborations (Sprint 4) */}
-              <div className="rounded-xl border border-gray-800 bg-gray-900/40 p-6 space-y-4">
-                <div className="flex items-center justify-between border-b border-gray-800 pb-3">
-                  <h3 className="text-base font-semibold text-gray-200 flex items-center gap-2 m-0">
-                    <FolderGit2 size={18} className="text-emerald-400" /> Projects & Collaborations
+              <div className="rounded-2xl border border-[rgba(17,17,17,0.08)] bg-[#FFFFFF] p-6 space-y-4 shadow-sm">
+                <div className="flex items-center justify-between border-b border-[rgba(17,17,17,0.08)] pb-3">
+                  <h3 className="text-base font-semibold text-[#111111] flex items-center gap-2 m-0">
+                    <FolderGit2 size={18} className="text-[#111111]" /> Projects & Collaborations
                   </h3>
                   <a
                     href="/projects/my"
-                    className="text-xs text-accent hover:underline flex items-center gap-1"
+                    className="text-xs text-[#111111] font-semibold hover:underline flex items-center gap-1"
                   >
                     View All &rarr;
                   </a>
                 </div>
 
                 {myProjects.length === 0 ? (
-                  <p className="text-sm text-gray-500 italic">No project participations yet. Explore active club initiatives!</p>
+                  <p className="text-sm text-[#92908A] italic">No project participations yet. Explore active club initiatives!</p>
                 ) : (
                   <div className="space-y-3">
                     {myProjects.slice(0, 4).map((proj) => {
@@ -494,22 +497,22 @@ export const Profile: React.FC = () => {
                       return (
                         <div
                           key={proj.id}
-                          className="p-3 rounded-lg bg-gray-800/40 border border-gray-800 flex items-center justify-between gap-3"
+                          className="p-3.5 rounded-xl bg-[#FAF9F6] border border-[rgba(17,17,17,0.06)] flex items-center justify-between gap-3"
                         >
                           <div className="min-w-0 flex-1">
                             <div className="flex items-center gap-2 mb-1">
-                              <span className="text-xs font-semibold text-gray-200 truncate">
+                              <span className="text-xs font-semibold text-[#111111] truncate">
                                 {proj.title}
                               </span>
-                              <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium uppercase ${
+                              <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium uppercase ${
                                 isComplete
-                                  ? 'bg-emerald-500/15 text-emerald-400'
-                                  : 'bg-blue-500/15 text-blue-400'
+                                  ? 'bg-emerald-100 text-emerald-800'
+                                  : 'bg-blue-100 text-blue-800'
                               }`}>
                                 {proj.current_member_role || proj.status}
                               </span>
                             </div>
-                            <div className="flex items-center gap-3 text-[11px] text-gray-400">
+                            <div className="flex items-center gap-3 text-[11px] text-[#66645F]">
                               <span>{typeof proj.domain === 'string' ? proj.domain.replace(/_/g, ' ') : 'AI / ML'}</span>
                               <span>Progress: {proj.progress_percentage || 0}%</span>
                             </div>
@@ -517,7 +520,7 @@ export const Profile: React.FC = () => {
 
                           <a
                             href={`/projects/${proj.slug || proj.id}`}
-                            className="text-xs px-2.5 py-1 rounded bg-gray-800 hover:bg-gray-700 text-gray-200 border border-gray-700 transition"
+                            className="text-xs px-3 py-1.5 rounded-full bg-[#FFFFFF] hover:bg-[#EBE9E3] text-[#111111] border border-[rgba(17,17,17,0.1)] transition font-medium"
                           >
                             View
                           </a>
@@ -529,21 +532,21 @@ export const Profile: React.FC = () => {
               </div>
 
               {/* Learning & Courses (Sprint 5) */}
-              <div className="rounded-xl border border-gray-800 bg-gray-900/40 p-6 space-y-4">
-                <div className="flex items-center justify-between border-b border-gray-800 pb-3">
-                  <h3 className="text-base font-semibold text-gray-200 flex items-center gap-2 m-0">
-                    <BookOpen size={18} className="text-indigo-400" /> Learning & Courses
+              <div className="rounded-2xl border border-[rgba(17,17,17,0.08)] bg-[#FFFFFF] p-6 space-y-4 shadow-sm">
+                <div className="flex items-center justify-between border-b border-[rgba(17,17,17,0.08)] pb-3">
+                  <h3 className="text-base font-semibold text-[#111111] flex items-center gap-2 m-0">
+                    <BookOpen size={18} className="text-[#111111]" /> Learning & Courses
                   </h3>
                   <a
                     href="/my-learning"
-                    className="text-xs text-accent hover:underline flex items-center gap-1"
+                    className="text-xs text-[#111111] font-semibold hover:underline flex items-center gap-1"
                   >
                     View All &rarr;
                   </a>
                 </div>
 
                 {myEnrollments.length === 0 ? (
-                  <p className="text-sm text-gray-500 italic">No enrolled courses yet. Discover courses in the catalog!</p>
+                  <p className="text-sm text-[#92908A] italic">No enrolled courses yet. Discover courses in the catalog!</p>
                 ) : (
                   <div className="space-y-3">
                     {myEnrollments.slice(0, 4).map((enr) => {
@@ -552,22 +555,22 @@ export const Profile: React.FC = () => {
                       return (
                         <div
                           key={enr.id}
-                          className="p-3 rounded-lg bg-gray-800/40 border border-gray-800 flex items-center justify-between gap-3"
+                          className="p-3.5 rounded-xl bg-[#FAF9F6] border border-[rgba(17,17,17,0.06)] flex items-center justify-between gap-3"
                         >
                           <div className="min-w-0 flex-1">
                             <div className="flex items-center gap-2 mb-1">
-                              <span className="text-xs font-semibold text-gray-200 truncate">
+                              <span className="text-xs font-semibold text-[#111111] truncate">
                                 {course?.title || 'Course'}
                               </span>
-                              <span className={`text-[10px] px-1.5 py-0.5 rounded font-medium uppercase ${
+                              <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium uppercase ${
                                 isComplete
-                                  ? 'bg-emerald-500/15 text-emerald-400'
-                                  : 'bg-indigo-500/15 text-indigo-400'
+                                  ? 'bg-emerald-100 text-emerald-800'
+                                  : 'bg-blue-100 text-blue-800'
                               }`}>
                                 {isComplete ? 'Completed' : 'In Progress'}
                               </span>
                             </div>
-                            <div className="flex items-center gap-3 text-[11px] text-gray-400">
+                            <div className="flex items-center gap-3 text-[11px] text-[#66645F]">
                               <span>{course?.category?.replace(/_/g, ' ') || 'General'}</span>
                               {enr.completed_at ? (
                                 <span>Completed: {new Date(enr.completed_at).toLocaleDateString()}</span>
@@ -579,7 +582,7 @@ export const Profile: React.FC = () => {
 
                           <a
                             href={isComplete ? `/courses/${course?.slug || course?.id}` : `/courses/${course?.slug || course?.id}/learn`}
-                            className="text-xs px-2.5 py-1 rounded bg-gray-800 hover:bg-gray-700 text-gray-200 border border-gray-700 transition"
+                            className="text-xs px-3 py-1.5 rounded-full bg-[#FFFFFF] hover:bg-[#EBE9E3] text-[#111111] border border-[rgba(17,17,17,0.1)] transition font-medium"
                           >
                             {isComplete ? 'Review' : 'Continue'}
                           </a>
@@ -591,29 +594,29 @@ export const Profile: React.FC = () => {
               </div>
 
               {/* Achievements & Recognition (Sprint 6) */}
-              <div className="rounded-xl border border-gray-800 bg-gray-900/40 p-6 space-y-4">
-                <div className="flex items-center justify-between border-b border-gray-800 pb-3">
+              <div className="rounded-2xl border border-[rgba(17,17,17,0.08)] bg-[#FFFFFF] p-6 space-y-4 shadow-sm">
+                <div className="flex items-center justify-between border-b border-[rgba(17,17,17,0.08)] pb-3">
                   <div className="flex items-center gap-2">
-                    <Trophy size={18} className="text-amber-400" />
-                    <h3 className="text-base font-semibold text-gray-200 m-0">
+                    <Trophy size={18} className="text-amber-600" />
+                    <h3 className="text-base font-semibold text-[#111111] m-0">
                       Achievements & Recognition
                     </h3>
                     {achievementStats && (
-                      <span className="text-xs font-bold text-amber-400 font-mono ml-2">
+                      <span className="text-xs font-bold text-amber-700 font-mono ml-2">
                         ⭐ {achievementStats.totalPoints} PTS
                       </span>
                     )}
                   </div>
                   <a
                     href="/achievements"
-                    className="text-xs text-accent hover:underline flex items-center gap-1"
+                    className="text-xs text-[#111111] font-semibold hover:underline flex items-center gap-1"
                   >
                     View All &rarr;
                   </a>
                 </div>
 
                 {myAchievements.length === 0 ? (
-                  <p className="text-sm text-gray-500 italic">No achievements unlocked yet. Attend events or complete courses to start earning recognition!</p>
+                  <p className="text-sm text-[#92908A] italic">No achievements unlocked yet. Attend events or complete courses to start earning recognition!</p>
                 ) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {myAchievements.map((item) => {
@@ -621,7 +624,7 @@ export const Profile: React.FC = () => {
                       return (
                         <div
                           key={item.id}
-                          className="p-3 rounded-lg bg-gray-800/40 border border-gray-800 flex items-center gap-3"
+                          className="p-3.5 rounded-xl bg-[#FAF9F6] border border-[rgba(17,17,17,0.06)] flex items-center gap-3"
                         >
                           <AchievementBadge
                             iconName={ach?.icon}
@@ -630,17 +633,17 @@ export const Profile: React.FC = () => {
                           />
                           <div className="min-w-0 flex-1">
                             <div className="flex items-center justify-between gap-1 mb-0.5">
-                              <span className="text-xs font-bold text-white truncate">
+                              <span className="text-xs font-bold text-[#111111] truncate">
                                 {ach?.name || 'Achievement'}
                               </span>
-                              <span className="text-[10px] font-bold text-amber-400 font-mono">
+                              <span className="text-[10px] font-bold text-amber-700 font-mono">
                                 +{ach?.points || 10}
                               </span>
                             </div>
-                            <p className="text-[11px] text-gray-400 line-clamp-1">
+                            <p className="text-[11px] text-[#66645F] line-clamp-1">
                               {ach?.description}
                             </p>
-                            <span className="text-[10px] text-gray-500 mt-1 block">
+                            <span className="text-[10px] text-[#92908A] mt-1 block">
                               Earned {new Date(item.earned_at).toLocaleDateString()}
                             </span>
                           </div>
@@ -656,8 +659,8 @@ export const Profile: React.FC = () => {
           /* Dedicated Edit Mode */
           <form onSubmit={handleSave} className="space-y-8">
             {/* Section 1: Personal & Academic */}
-            <div className="rounded-xl border border-gray-800 bg-gray-900/40 p-6 space-y-4">
-              <h3 className="text-base font-semibold text-gray-200 border-b border-gray-800 pb-3">
+            <div className="rounded-2xl border border-[rgba(17,17,17,0.08)] bg-[#FFFFFF] p-6 space-y-4 shadow-sm">
+              <h3 className="text-base font-semibold text-[#111111] border-b border-[rgba(17,17,17,0.08)] pb-3">
                 1. Personal & Academic Information
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -710,9 +713,9 @@ export const Profile: React.FC = () => {
             </div>
 
             {/* Section 2: Bio & Profile Photo */}
-            <div className="rounded-xl border border-gray-800 bg-gray-900/40 p-6 space-y-4">
-              <h3 className="text-base font-semibold text-gray-200 border-b border-gray-800 pb-3 flex items-center gap-2">
-                <Camera size={18} className="text-accent" /> 2. Profile Photo & About
+            <div className="rounded-2xl border border-[rgba(17,17,17,0.08)] bg-[#FFFFFF] p-6 space-y-4 shadow-sm">
+              <h3 className="text-base font-semibold text-[#111111] border-b border-[rgba(17,17,17,0.08)] pb-3 flex items-center gap-2">
+                <Camera size={18} className="text-[#111111]" /> 2. Profile Photo & About
               </h3>
 
               <div>
@@ -727,28 +730,27 @@ export const Profile: React.FC = () => {
                     <img 
                       src={profilePhotoUrl} 
                       alt="Preview" 
-                      className="w-16 h-16 rounded-full object-cover border border-accent"
+                      className="w-16 h-16 rounded-full object-cover border border-[#111111]"
                       onError={(e) => {
                         (e.target as HTMLElement).style.opacity = '0.3';
                       }}
                     />
-                    <div className="text-xs text-gray-400">
+                    <div className="text-xs text-[#66645F]">
                       Live preview. If image fails to load, ensure the URL is publicly accessible.
                     </div>
-                    <Button 
+                    <button 
                       type="button" 
-                      variant="secondary" 
                       onClick={() => setProfilePhotoUrl('')}
-                      className="text-xs px-2.5 py-1 ml-auto"
+                      className="pill-outline text-xs px-3 py-1 ml-auto"
                     >
                       Clear
-                    </Button>
+                    </button>
                   </div>
                 )}
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">
+                <label className="block text-sm font-medium text-[#111111] mb-1">
                   Bio / About Me ({bio.length}/1000)
                 </label>
                 <textarea
@@ -756,36 +758,36 @@ export const Profile: React.FC = () => {
                   onChange={(e) => setBio(e.target.value)}
                   maxLength={1000}
                   rows={4}
-                  className="w-full bg-dark-bg border border-gray-700 rounded-lg p-3 text-sm text-gray-200 focus:outline-none focus:border-accent"
+                  className="w-full bg-[#FAF9F6] border border-[rgba(17,17,17,0.15)] rounded-xl p-3 text-sm text-[#111111] focus:outline-none focus:border-[#111111]"
                   placeholder="Share a brief overview of your technical background, research passions, and engineering focus..."
                 />
               </div>
             </div>
 
             {/* Section 3: Normalized Skills */}
-            <div className="rounded-xl border border-gray-800 bg-gray-900/40 p-6 space-y-4">
-              <h3 className="text-base font-semibold text-gray-200 border-b border-gray-800 pb-3 flex items-center gap-2">
-                <Layers size={18} className="text-accent" /> 3. Skills & Proficiencies
+            <div className="rounded-2xl border border-[rgba(17,17,17,0.08)] bg-[#FFFFFF] p-6 space-y-4 shadow-sm">
+              <h3 className="text-base font-semibold text-[#111111] border-b border-[rgba(17,17,17,0.08)] pb-3 flex items-center gap-2">
+                <Layers size={18} className="text-[#111111]" /> 3. Skills & Proficiencies
               </h3>
 
               {/* Current Selected Skills */}
-              <div className="flex flex-wrap gap-2 min-h-[3rem] p-3 rounded-lg bg-dark-bg border border-gray-800">
+              <div className="flex flex-wrap gap-2 min-h-[3rem] p-3 rounded-xl bg-[#FAF9F6] border border-[rgba(17,17,17,0.08)]">
                 {selectedSkills.length === 0 ? (
-                  <span className="text-xs text-gray-500 italic">No skills added yet. Add from catalog below or type a custom skill.</span>
+                  <span className="text-xs text-[#92908A] italic">No skills added yet. Add from catalog below or type a custom skill.</span>
                 ) : (
                   selectedSkills.map(skill => (
                     <div 
                       key={skill.name}
-                      className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gray-800 border border-gray-700 text-xs text-gray-200"
+                      className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#FFFFFF] border border-[rgba(17,17,17,0.1)] text-xs text-[#111111]"
                     >
                       <span>{skill.name}</span>
-                      <span className="text-[10px] text-accent font-mono uppercase bg-accent/10 px-1 py-0.5 rounded">
+                      <span className="text-[10px] text-[#111111] font-mono uppercase bg-[#FAF9F6] px-1.5 py-0.5 rounded-full font-semibold">
                         {skill.proficiency || 'INTERMEDIATE'}
                       </span>
                       <button
                         type="button"
                         onClick={() => handleRemoveSkill(skill.name)}
-                        className="text-gray-400 hover:text-red-400 transition-colors ml-1"
+                        className="text-[#92908A] hover:text-rose-600 transition-colors ml-1"
                       >
                         <X size={14} />
                       </button>
@@ -802,7 +804,7 @@ export const Profile: React.FC = () => {
                     value={newSkillName}
                     onChange={(e) => setNewSkillName(e.target.value)}
                     placeholder="e.g. PyTorch, React, Rust"
-                    className="w-full bg-dark-bg border border-gray-700 rounded-lg p-2.5 text-sm text-gray-200 focus:outline-none focus:border-accent"
+                    className="w-full bg-[#FAF9F6] border border-[rgba(17,17,17,0.15)] rounded-full px-4 py-2 text-sm text-[#111111] focus:outline-none focus:border-[#111111]"
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') {
                         e.preventDefault();
@@ -815,7 +817,7 @@ export const Profile: React.FC = () => {
                   <select
                     value={newSkillProficiency}
                     onChange={(e) => setNewSkillProficiency(e.target.value as SkillProficiency)}
-                    className="w-full bg-dark-bg border border-gray-700 rounded-lg p-2.5 text-sm text-gray-200 focus:outline-none focus:border-accent"
+                    className="w-full bg-[#FAF9F6] border border-[rgba(17,17,17,0.15)] rounded-full px-4 py-2 text-sm text-[#111111] focus:outline-none focus:border-[#111111]"
                   >
                     <option value="BEGINNER">BEGINNER</option>
                     <option value="INTERMEDIATE">INTERMEDIATE</option>
@@ -824,16 +826,16 @@ export const Profile: React.FC = () => {
                   </select>
                 </div>
                 <div className="sm:col-span-1">
-                  <Button type="button" onClick={handleAddSkill} className="w-full h-full flex items-center justify-center gap-1">
+                  <button type="button" onClick={handleAddSkill} className="pill-btn w-full text-xs py-2">
                     <Plus size={16} /> Add Skill
-                  </Button>
+                  </button>
                 </div>
               </div>
 
               {/* Suggested Catalog Skills */}
               {catalogSkills.length > 0 && (
                 <div className="pt-2">
-                  <div className="text-xs text-gray-400 mb-2">Curated skills catalog (click to add):</div>
+                  <div className="text-xs text-[#66645F] mb-2 font-medium">Curated skills catalog (click to add):</div>
                   <div className="flex flex-wrap gap-1.5 max-h-32 overflow-y-auto p-1">
                     {catalogSkills
                       .filter(cs => !selectedSkills.some(s => s.name.toLowerCase() === cs.name.toLowerCase()))
@@ -845,7 +847,7 @@ export const Profile: React.FC = () => {
                           onClick={() => {
                             setSelectedSkills(prev => [...prev, { name: cs.name, proficiency: 'INTERMEDIATE' }]);
                           }}
-                          className="text-xs px-2.5 py-1 rounded bg-gray-800/60 hover:bg-accent/20 hover:text-accent text-gray-400 border border-gray-700/60 transition-colors"
+                          className="text-xs px-3 py-1 rounded-full bg-[#FAF9F6] hover:bg-[#EBE9E3] text-[#111111] border border-[rgba(17,17,17,0.08)] transition-colors"
                         >
                           + {cs.name}
                         </button>
@@ -856,9 +858,9 @@ export const Profile: React.FC = () => {
             </div>
 
             {/* Section 4: Technical Interests */}
-            <div className="rounded-xl border border-gray-800 bg-gray-900/40 p-6 space-y-4">
-              <h3 className="text-base font-semibold text-gray-200 border-b border-gray-800 pb-3 flex items-center gap-2">
-                <Award size={18} className="text-accent" /> 4. Technical Interests
+            <div className="rounded-2xl border border-[rgba(17,17,17,0.08)] bg-[#FFFFFF] p-6 space-y-4 shadow-sm">
+              <h3 className="text-base font-semibold text-[#111111] border-b border-[rgba(17,17,17,0.08)] pb-3 flex items-center gap-2">
+                <Award size={18} className="text-[#111111]" /> 4. Technical Interests
               </h3>
 
               <div className="flex flex-wrap gap-2">
@@ -873,10 +875,10 @@ export const Profile: React.FC = () => {
                       key={interest}
                       type="button"
                       onClick={() => handleToggleInterest(interest)}
-                      className={`text-xs px-3 py-1.5 rounded-full transition-all border ${
+                      className={`text-xs px-3.5 py-1.5 rounded-full transition-all border ${
                         active
-                          ? 'bg-accent/20 border-accent text-accent font-medium shadow-sm shadow-accent/10'
-                          : 'bg-gray-800/60 border-gray-700 text-gray-400 hover:text-gray-200 hover:bg-gray-700'
+                          ? 'bg-[#050505] border-[#050505] text-[#FFFFFF] font-medium shadow-sm'
+                          : 'bg-[#FAF9F6] border-[rgba(17,17,17,0.08)] text-[#66645F] hover:text-[#111111] hover:bg-[#EBE9E3]'
                       }`}
                     >
                       {active ? '✓ ' : '+ '} {interest}
@@ -892,7 +894,7 @@ export const Profile: React.FC = () => {
                   value={newInterestName}
                   onChange={(e) => setNewInterestName(e.target.value)}
                   placeholder="Custom interest (e.g. Edge AI, Quantization)..."
-                  className="flex-1 bg-dark-bg border border-gray-700 rounded-lg p-2.5 text-sm text-gray-200 focus:outline-none focus:border-accent"
+                  className="flex-1 bg-[#FAF9F6] border border-[rgba(17,17,17,0.15)] rounded-full px-4 py-2 text-sm text-[#111111] focus:outline-none focus:border-[#111111]"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') {
                       e.preventDefault();
@@ -900,16 +902,16 @@ export const Profile: React.FC = () => {
                     }
                   }}
                 />
-                <Button type="button" variant="secondary" onClick={handleAddCustomInterest}>
+                <button type="button" onClick={handleAddCustomInterest} className="pill-outline text-xs px-5 py-2">
                   Add
-                </Button>
+                </button>
               </div>
             </div>
 
             {/* Section 5: Social Links */}
-            <div className="rounded-xl border border-gray-800 bg-gray-900/40 p-6 space-y-4">
-              <h3 className="text-base font-semibold text-gray-200 border-b border-gray-800 pb-3 flex items-center gap-2">
-                <LinkIcon size={18} className="text-accent" /> 5. Professional & Social Links
+            <div className="rounded-2xl border border-[rgba(17,17,17,0.08)] bg-[#FFFFFF] p-6 space-y-4 shadow-sm">
+              <h3 className="text-base font-semibold text-[#111111] border-b border-[rgba(17,17,17,0.08)] pb-3 flex items-center gap-2">
+                <LinkIcon size={18} className="text-[#111111]" /> 5. Professional & Social Links
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <Input
@@ -934,13 +936,13 @@ export const Profile: React.FC = () => {
             </div>
 
             {/* Form Action Buttons */}
-            <div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-800">
-              <Button type="button" variant="secondary" onClick={handleCancel}>
+            <div className="flex items-center justify-end gap-3 pt-4 border-t border-[rgba(17,17,17,0.08)]">
+              <button type="button" onClick={handleCancel} className="pill-outline text-xs py-2 px-5">
                 Cancel
-              </Button>
-              <Button type="submit" disabled={saving} className="flex items-center gap-2">
+              </button>
+              <button type="submit" disabled={saving} className="pill-btn flex items-center gap-2 text-xs py-2 px-6">
                 <Save size={16} /> {saving ? 'Saving Changes...' : 'Save Profile Changes'}
-              </Button>
+              </button>
             </div>
           </form>
         )}
@@ -948,3 +950,4 @@ export const Profile: React.FC = () => {
     </DashboardLayout>
   );
 };
+export default Profile;

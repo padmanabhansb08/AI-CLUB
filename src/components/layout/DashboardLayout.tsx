@@ -106,9 +106,9 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, page
         aria-label="Primary Navigation"
       >
         <div className="sidebar-header">
-          <Link to="/dashboard" className="sidebar-brand">
-            <span className="font-mono text-blue-500 font-bold">{'>_'}</span>
-            <span className="bg-gradient-to-r from-white via-slate-100 to-slate-400 bg-clip-text text-transparent">AI CLUB</span>
+          <Link to="/" className="sidebar-brand text-[#111111]">
+            <span className="font-serif text-[15px]">✦</span>
+            <span>AI CLUB</span>
           </Link>
           <button 
             className="mobile-close" 
@@ -180,7 +180,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, page
             >
               <Menu size={22} />
             </button>
-            <h1 className="page-title text-base sm:text-lg font-bold text-white tracking-tight">{pageTitle}</h1>
+            <h1 className="page-title text-base sm:text-lg font-semibold text-[#111111] tracking-tight">{pageTitle}</h1>
           </div>
           
           <div className="topbar-right flex items-center gap-3">
@@ -188,23 +188,23 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, page
             
             <div className="profile-menu-container" ref={profileMenuRef}>
               <button 
-                className="profile-btn flex items-center gap-2.5 p-1 sm:pr-3 rounded-full hover:bg-white/5 transition-colors" 
+                className="profile-btn flex items-center gap-2.5 p-1 sm:pr-3 rounded-full hover:bg-black/5 transition-colors" 
                 onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
                 aria-expanded={profileDropdownOpen}
                 aria-haspopup="true"
                 aria-label="User account menu"
               >
-                <div className="avatar w-8 h-8 rounded-full bg-blue-600/20 text-blue-400 border border-blue-500/40 flex items-center justify-center text-xs font-bold font-mono">
+                <div className="avatar w-8 h-8 rounded-full bg-[#050505] text-[#FFFFFF] flex items-center justify-center text-xs font-semibold font-mono">
                   {initials}
                 </div>
-                <span className="profile-name hidden sm:inline text-xs font-medium text-slate-200">{displayName}</span>
+                <span className="profile-name hidden sm:inline text-xs font-medium text-[#111111]">{displayName}</span>
               </button>
               
               {profileDropdownOpen && (
                 <div className="profile-dropdown">
-                  <div className="px-4 py-2 border-b border-white/5 mb-1 sm:hidden">
-                    <p className="text-xs font-bold text-white truncate">{displayName}</p>
-                    <p className="text-[11px] text-gray-400 truncate">{user?.email}</p>
+                  <div className="px-4 py-2 border-b border-[rgba(17,17,17,0.06)] mb-1 sm:hidden">
+                    <p className="text-xs font-semibold text-[#111111] truncate">{displayName}</p>
+                    <p className="text-[11px] text-[#66645F] truncate">{user?.email}</p>
                   </div>
                   <Link to="/profile" className="dropdown-item" onClick={() => setProfileDropdownOpen(false)}>Profile</Link>
                   <Link to="/settings" className="dropdown-item" onClick={() => setProfileDropdownOpen(false)}>Settings</Link>
@@ -219,19 +219,19 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, page
         {/* Page Content */}
         <div className="dashboard-content">
           {user?.role === 'student' && !isMember && (
-            <div className="mb-6 p-4 rounded-xl bg-gradient-to-r from-blue-950/60 to-slate-900 border border-blue-600/40 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-lg">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center shrink-0">
-                  <Award size={20} />
+            <div className="mb-8 p-6 rounded-[20px] bg-[#FFFFFF] border border-[rgba(17,17,17,0.09)] flex flex-col sm:flex-row sm:items-center justify-between gap-5 shadow-[0_4px_16px_rgba(0,0,0,0.02)]">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-full bg-[#FAF9F6] border border-[rgba(17,17,17,0.08)] text-[#111111] flex items-center justify-center shrink-0">
+                  <Award size={22} />
                 </div>
                 <div>
-                  <div className="text-sm font-bold text-white flex items-center gap-2">
+                  <div className="text-sm font-semibold text-[#111111] flex items-center gap-2.5">
                     <span>AI CLUB Selection Status</span>
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-blue-500/20 text-blue-300 border border-blue-400/30">
+                    <span className="px-2.5 py-0.5 rounded-full text-[10.5px] font-semibold uppercase tracking-wider bg-[#FAF9F6] border border-[rgba(17,17,17,0.08)] text-[#66645F]">
                       {user?.applicationStatus?.replace('_', ' ') || 'Application Active'}
                     </span>
                   </div>
-                  <p className="text-xs text-slate-300 mt-0.5">
+                  <p className="text-xs text-[#66645F] mt-1 max-w-[60ch] leading-relaxed">
                     {user?.applicationStatus === 'TEST_REQUIRED' 
                       ? 'You are invited to complete the 25-question technical assessment.' 
                       : user?.applicationStatus === 'UNDER_REVIEW'
@@ -244,7 +244,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, page
               </div>
               <Link
                 to="/application"
-                className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition-all text-center shrink-0 shadow-sm"
+                className="pill-btn h-[40px] px-5 text-xs font-semibold shrink-0"
               >
                 {user?.applicationStatus === 'TEST_REQUIRED' ? 'Start Mock Test →' : 'View Application →'}
               </Link>

@@ -1,7 +1,8 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 
-// Auth & Setup
+// Landing & Auth
+import { LandingPage } from './pages/LandingPage';
 import { Login } from './pages/Login';
 import { Register } from './pages/Register';
 import { AdminLogin } from './pages/AdminLogin';
@@ -60,8 +61,9 @@ function App() {
         <div className="app-container">
           <main className="main-content">
             <Routes>
-              {/* Public Auth Routes */}
-              <Route path="/" element={<Login />} />
+              {/* Public Routes */}
+              <Route path="/" element={<LandingPage />} />
+              <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/admin/login" element={<AdminLogin />} />
               

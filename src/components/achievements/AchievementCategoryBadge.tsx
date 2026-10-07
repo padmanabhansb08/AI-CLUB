@@ -13,20 +13,20 @@ export const AchievementCategoryBadge: React.FC<CategoryBadgeProps> = ({
   const getBadgeStyle = () => {
     switch (category?.toUpperCase()) {
       case 'EVENT':
-        return 'bg-cyan-500/10 text-cyan-300 border-cyan-500/30';
+        return 'bg-indigo-50 text-indigo-700 border-indigo-200';
       case 'LEARNING':
-        return 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30';
+        return 'bg-emerald-50 text-emerald-700 border-emerald-200';
       case 'PROJECT':
-        return 'bg-indigo-500/10 text-indigo-300 border-indigo-500/30';
+        return 'bg-blue-50 text-blue-700 border-blue-200';
       case 'TEAM':
-        return 'bg-purple-500/10 text-purple-300 border-purple-500/30';
+        return 'bg-purple-50 text-purple-700 border-purple-200';
       case 'COMMUNITY':
-        return 'bg-pink-500/10 text-pink-300 border-pink-500/30';
+        return 'bg-pink-50 text-pink-700 border-pink-200';
       case 'MILESTONE':
-        return 'bg-amber-500/10 text-amber-300 border-amber-500/30';
+        return 'bg-amber-50 text-amber-700 border-amber-200';
       case 'SPECIAL':
       default:
-        return 'bg-blue-500/10 text-blue-300 border-blue-500/30';
+        return 'bg-[#FAF9F6] text-[#111111] border-[rgba(17,17,17,0.12)]';
     }
   };
 
