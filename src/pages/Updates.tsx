@@ -33,11 +33,11 @@ export const Updates: React.FC = () => {
         update.summary.toLowerCase().includes(searchLower) ||
         update.category.toLowerCase().includes(searchLower) ||
         update.source.toLowerCase().includes(searchLower) ||
-        update.tags.some(tag => tag.toLowerCase().includes(searchLower));
+        (update.tags || []).some(tag => tag.toLowerCase().includes(searchLower));
       
       return matchesCategory && matchesSearch;
     });
-  }, [searchTerm, activeCategory]);
+  }, [mockUpdates, searchTerm, activeCategory]);
 
   const featuredUpdate = filteredUpdates.find(u => u.featured) || filteredUpdates[0];
   const listUpdates = filteredUpdates.filter(u => u.id !== featuredUpdate?.id);
@@ -54,7 +54,7 @@ export const Updates: React.FC = () => {
       {/* Header */}
       <div className="updates-header">
         <div className="updates-title-block">
-          <h2>AI & TECH UPDATES</h2>
+          <h2>AI & tech updates</h2>
           <p>Stay current with AI, research, tools, and the technologies shaping what comes next.</p>
         </div>
       </div>
@@ -77,7 +77,7 @@ export const Updates: React.FC = () => {
             <button 
               key={cat}
               className={`filter-pill ${activeCategory === cat ? 'active' : ''}`}
-              onClick={() => setActiveCategory(cat)}
+              aria-pressed={activeCategory === cat} onClick={() => setActiveCategory(cat)}
             >
               {cat}
             </button>

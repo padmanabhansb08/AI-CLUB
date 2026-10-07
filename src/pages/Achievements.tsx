@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { DashboardLayout } from '../components/layout/DashboardLayout';
+import { ErrorState } from '../components/common/ErrorState';
 import { achievementsApi } from '../api/achievements.api';
 import { AchievementCard } from '../components/achievements/AchievementCard';
 import {
@@ -37,6 +38,7 @@ export const Achievements: React.FC = () => {
     inProgressCount: 0,
   });
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [evaluating, setEvaluating] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('ALL');
@@ -46,6 +48,7 @@ export const Achievements: React.FC = () => {
   const loadData = async () => {
     try {
       setLoading(true);
+      setError(null);
       const [achievementsRes, statsRes] = await Promise.all([
         achievementsApi.getAchievements({ limit: 100 }),
         achievementsApi.getMyStats(),
@@ -54,6 +57,7 @@ export const Achievements: React.FC = () => {
       setStats(statsRes);
     } catch (err) {
       console.error('Failed to load achievements data', err);
+      setError(err instanceof Error ? err.message : 'Achievements could not be loaded.');
     } finally {
       setLoading(false);
     }
@@ -109,19 +113,18 @@ export const Achievements: React.FC = () => {
     });
   }, [achievements, activeTab, selectedCategory, searchTerm]);
 
+  if (error && !loading) return <DashboardLayout pageTitle="Achievements"><ErrorState message={error} onRetry={loadData} /></DashboardLayout>;
   return (
     <DashboardLayout pageTitle="Achievements">
       <div className="max-w-7xl mx-auto space-y-6 pb-12">
         {/* Hero Banner with Stats */}
         <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-[#121624] via-[#1a2035] to-[#121624] border border-white/10 p-6 sm:p-8 shadow-2xl">
-          <div className="absolute top-0 right-0 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none -mr-20 -mt-20" />
-          <div className="absolute bottom-0 left-0 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none -ml-20 -mb-20" />
 
           <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <span className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-cyan-500/10 text-cyan-300 border border-cyan-500/30">
-                  Sprint 6 Recognition
+                  Club recognition
                 </span>
                 <span className="text-gray-400 text-xs">AI CLUB Milestones</span>
               </div>

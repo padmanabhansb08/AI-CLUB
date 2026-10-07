@@ -10,6 +10,13 @@ const envSchema = z.object({
   JWT_SECRET: z.string().min(1, 'JWT_SECRET is required'),
   JWT_EXPIRES_IN: z.string().default('7d'),
   CORS_ORIGIN: z.string().default('http://localhost:5173'),
+  DATABASE_SSL: z.enum(['true', 'false']).default('false'),
+  FRONTEND_URL: z.string().url().default('http://localhost:5173'),
+  SMTP_HOST: z.string().optional(),
+  SMTP_PORT: z.string().default('587'),
+  SMTP_USER: z.string().optional(),
+  SMTP_PASSWORD: z.string().optional(),
+  MAIL_FROM: z.string().optional(),
 });
 
 const _env = envSchema.safeParse(process.env);

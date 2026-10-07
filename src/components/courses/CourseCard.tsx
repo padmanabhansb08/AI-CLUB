@@ -30,6 +30,10 @@ export const CourseCard: React.FC<Props> = ({ course, onEnrollClick, showStatus 
 
   return (
     <div
+      role="link"
+      tabIndex={0}
+      aria-label={`View course: ${course.title}`}
+      onKeyDown={event => { if (event.target === event.currentTarget && event.key === 'Enter') navigate(`/courses/${course.slug || course.id}`); }}
       onClick={() => navigate(`/courses/${course.slug || course.id}`)}
       className="group flex flex-col justify-between rounded-2xl border border-[var(--border-color,rgba(255,255,255,0.08))] bg-[var(--surface-color,rgba(15,23,42,0.6))] backdrop-blur-md overflow-hidden hover:border-[var(--accent-color,#6366f1)] hover:shadow-xl hover:shadow-[var(--accent-color,rgba(99,102,241,0.12))] transition-all duration-300 cursor-pointer"
     >

@@ -39,7 +39,7 @@ export const Members: React.FC = () => {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold text-gray-100 flex items-center gap-2">
-              <Users size={24} className="text-accent" /> Student Member Directory
+              <Users size={24} className="text-accent" /> Member directory
             </h1>
             <p className="text-sm text-gray-400 mt-1">
               Connect with peer AI Club members, discover shared skills, and find research collaborators.
@@ -56,6 +56,7 @@ export const Members: React.FC = () => {
           <div className="relative flex-1">
             <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
             <input
+              aria-label="Search members"
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -68,6 +69,7 @@ export const Members: React.FC = () => {
           <div className="flex items-center gap-2">
             <Filter size={16} className="text-gray-500" />
             <select
+              aria-label="Member department"
               value={department}
               onChange={(e) => setDepartment(e.target.value)}
               className="bg-dark-bg border border-gray-700/80 rounded-lg px-3 py-2 text-sm text-gray-200 focus:outline-none focus:border-accent"

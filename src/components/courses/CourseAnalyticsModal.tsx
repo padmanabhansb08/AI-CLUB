@@ -1,3 +1,4 @@
+import { useDialog } from '../../hooks/useDialog';
 import React, { useState, useEffect } from 'react';
 import { X, Users, CheckCircle2, TrendingUp, BarChart2 } from 'lucide-react';
 import type { CourseItem, CourseAnalyticsData } from '../../types/courses';
@@ -10,6 +11,7 @@ interface Props {
 }
 
 export const CourseAnalyticsModal: React.FC<Props> = ({ course, courseId, onClose }) => {
+  const dialogRef = useDialog(true, onClose);
   const targetId = course?.id || courseId;
   const [analytics, setAnalytics] = useState<CourseAnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -34,7 +36,7 @@ export const CourseAnalyticsModal: React.FC<Props> = ({ course, courseId, onClos
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-      <div className="relative w-full max-w-xl rounded-2xl border border-[var(--border-color,rgba(255,255,255,0.08))] bg-slate-900 shadow-2xl p-6">
+      <div ref={dialogRef} role="dialog" aria-modal="true" aria-label="Course analytics" tabIndex={-1} className="relative w-full max-w-xl rounded-2xl border border-[var(--border-color,rgba(255,255,255,0.08))] bg-slate-900 shadow-2xl p-6">
         <div className="flex items-center justify-between pb-4 border-b border-white/5 mb-6">
           <div>
             <h3 className="text-xl font-bold text-white flex items-center gap-2">

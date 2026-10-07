@@ -1,3 +1,5 @@
+import { notifyError } from '../services/actionFeedback';
+import DOMPurify from 'dompurify';
 import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { coursesApi } from '../api/courses.api';
@@ -19,6 +21,16 @@ import {
   Clock,
   Sparkles,
 } from 'lucide-react';
+
+function youtubeEmbed(source: string): string | null {
+  try {
+    const url = new URL(source);
+    const host = url.hostname.replace(/^www\./, '');
+    if (!['youtube.com', 'm.youtube.com', 'youtu.be', 'youtube-nocookie.com'].includes(host)) return null;
+    const videoId = host === 'youtu.be' ? url.pathname.slice(1) : url.searchParams.get('v') || url.pathname.split('/').filter(Boolean)[1];
+    return videoId && /^[A-Za-z0-9_-]+$/.test(videoId) ? `https://www.youtube-nocookie.com/embed/${videoId}` : null;
+  } catch { return null; }
+}
 
 export const CourseLearning: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -106,7 +118,7 @@ export const CourseLearning: React.FC = () => {
         const full = await coursesApi.getLesson(selected.id);
         setActiveLesson(full);
         // Start lesson in background
-        coursesApi.startLesson(selected.id).catch(() => {});
+        await coursesApi.startLesson(selected.id);
       }
     } catch (err: any) {
       setError(err.message || 'Failed to load course classroom');
@@ -130,7 +142,7 @@ export const CourseLearning: React.FC = () => {
       // Start lesson
       await coursesApi.startLesson(lesson.id);
     } catch (err: any) {
-      alert(err.message || 'Could not load lesson');
+      notifyError(err.message || 'Could not load lesson');
     } finally {
       setActionLoading(false);
     }
@@ -152,10 +164,10 @@ export const CourseLearning: React.FC = () => {
 
       // If there is a next lesson, smoothly advance
       if (nextLesson) {
-        handleSelectLesson(nextLesson);
+        await handleSelectLesson(nextLesson);
       }
     } catch (err: any) {
-      alert(err.message || 'Failed to mark lesson complete');
+      notifyError(err.message || 'Failed to mark lesson complete');
     } finally {
       setActionLoading(false);
     }
@@ -163,7 +175,7 @@ export const CourseLearning: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-950 text-white flex flex-col items-center justify-center p-6">
+      <div className="classroom min-h-screen flex flex-col items-center justify-center p-6" role="status">
         <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-500 mb-3"></div>
         <p className="text-sm text-gray-400">Loading classroom...</p>
       </div>
@@ -172,7 +184,7 @@ export const CourseLearning: React.FC = () => {
 
   if (error || !course) {
     return (
-      <div className="min-h-screen bg-slate-950 text-white flex flex-col items-center justify-center p-6">
+      <div className="classroom min-h-screen flex flex-col items-center justify-center p-6" role="alert">
         <p className="text-red-400 text-sm mb-4">{error || 'Course not found'}</p>
         <button
           type="button"
@@ -186,9 +198,10 @@ export const CourseLearning: React.FC = () => {
   }
 
   const isCurrentCompleted = activeLesson?.progress_status === 'COMPLETED';
+  const embedUrl = activeLesson?.video_url ? youtubeEmbed(activeLesson.video_url) : null;
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col">
+    <div className="classroom min-h-screen flex flex-col">
       {/* Top Classroom Navigation Bar */}
       <header className="h-16 border-b border-white/10 bg-slate-900/90 backdrop-blur-md px-4 sm:px-6 flex items-center justify-between shrink-0 sticky top-0 z-40">
         <div className="flex items-center gap-3 min-w-0">
@@ -231,7 +244,7 @@ export const CourseLearning: React.FC = () => {
           {activeLesson && (
             <button
               type="button"
-              disabled={actionLoading}
+              disabled={actionLoading || isCurrentCompleted}
               onClick={handleCompleteCurrentLesson}
               className={`text-xs font-semibold py-2 px-3.5 rounded-xl flex items-center gap-1.5 transition-all ${
                 isCurrentCompleted
@@ -250,6 +263,8 @@ export const CourseLearning: React.FC = () => {
             onClick={() => setSidebarOpen(!sidebarOpen)}
             className="lg:hidden p-2 rounded-xl text-gray-400 hover:text-white hover:bg-white/5"
             title="Toggle Curriculum Syllabus"
+            aria-label="Toggle curriculum"
+            aria-expanded={sidebarOpen}
           >
             {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
@@ -349,9 +364,9 @@ export const CourseLearning: React.FC = () => {
               <div className="rounded-2xl border border-white/10 bg-slate-900 overflow-hidden shadow-xl">
                 {activeLesson.content_type === 'VIDEO' ? (
                   <div className="relative aspect-video w-full bg-black flex items-center justify-center">
-                    {activeLesson.video_url?.includes('youtube.com') || activeLesson.video_url?.includes('youtu.be') ? (
+                    {embedUrl ? (
                       <iframe
-                        src={activeLesson.video_url.replace('watch?v=', 'embed/')}
+                        src={embedUrl}
                         title={activeLesson.title}
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                         allowFullScreen
@@ -394,7 +409,7 @@ export const CourseLearning: React.FC = () => {
                     <div className="prose prose-invert max-w-none text-sm text-gray-200 leading-relaxed space-y-4">
                       {activeLesson.content ? (
                         <div
-                          dangerouslySetInnerHTML={{ __html: activeLesson.content }}
+                          dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(activeLesson.content) }}
                           className="space-y-4"
                         />
                       ) : (
@@ -406,6 +421,12 @@ export const CourseLearning: React.FC = () => {
                   </div>
                 )}
               </div>
+
+              {activeLesson.content_type === 'VIDEO' && activeLesson.video_url && (
+                <p className="text-sm text-gray-400">
+                  Player unavailable? <a href={activeLesson.video_url} target="_blank" rel="noopener noreferrer" className="text-indigo-600 underline">Open the original video</a>, or contact the course organizer if the source has been removed.
+                </p>
+              )}
 
               {/* Bottom Next / Prev Lesson Navigation Bar */}
               <div className="flex items-center justify-between pt-6 border-t border-white/10 mt-6">
@@ -435,7 +456,7 @@ export const CourseLearning: React.FC = () => {
                     onClick={() => navigate(`/courses/${course.slug || course.id}`)}
                     className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-xs font-semibold text-white transition-all shadow-md"
                   >
-                    Course Completed! <Sparkles size={16} />
+                    {overallPercentage === 100 ? 'Course completed' : 'Back to course'} <Sparkles size={16} />
                   </button>
                 )}
               </div>

@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /profile
+Disallow: /settings
+Disallow: /members
+Disallow: /reset-password
+Disallow: /verify-email

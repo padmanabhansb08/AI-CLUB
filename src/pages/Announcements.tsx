@@ -1,3 +1,4 @@
+import { DashboardLayout } from '../components/layout/DashboardLayout';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { StateView } from '../components/common/StateView';
@@ -13,9 +14,10 @@ export const Announcements = () => {
     fetchAnnouncements();
   }, []);
 
-  const fetchAnnouncements = async () => {
+  async function fetchAnnouncements() {
     try {
       setLoading(true);
+      setError(null);
       const res = await announcementService.getVisibleAnnouncements();
       setAnnouncements(res.data);
     } catch (err: any) {
@@ -23,7 +25,7 @@ export const Announcements = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
@@ -37,7 +39,7 @@ export const Announcements = () => {
     return 'text-gray-300 bg-gray-800 border-gray-700';
   };
 
-  return (
+  return (<DashboardLayout pageTitle="Announcements">{(
     <div className="max-w-4xl mx-auto space-y-6">
       <div className="flex justify-between items-end border-b border-gray-800 pb-4">
         <div>
@@ -46,7 +48,7 @@ export const Announcements = () => {
         </div>
       </div>
 
-      <StateView loading={loading} error={error as any} empty={announcements.length === 0} emptyMessage="No announcements at this time.">
+      <StateView loading={loading} error={error} retry={fetchAnnouncements} empty={announcements.length === 0} emptyMessage="No announcements at this time.">
         <div className="space-y-4">
           {announcements.map((item) => (
             <Link 
@@ -54,7 +56,7 @@ export const Announcements = () => {
               to={`/announcements/${item.id}`}
               className={`block p-5 rounded-lg border transition-colors ${item.read ? 'bg-gray-900 border-gray-800 hover:border-gray-700' : 'bg-gray-800/80 border-blue-900/30 hover:border-blue-800/50'}`}
             >
-              <div className="flex justify-between items-start gap-4 mb-2">
+              <div className="flex flex-wrap justify-between items-start gap-4 mb-2">
                 <div className="flex items-center gap-2 flex-wrap">
                   {!item.read && (
                     <span className="w-2 h-2 rounded-full bg-blue-500 flex-shrink-0"></span>
@@ -86,5 +88,5 @@ export const Announcements = () => {
         </div>
       </StateView>
     </div>
-  );
+  )}</DashboardLayout>);
 };

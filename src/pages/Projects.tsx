@@ -1,3 +1,4 @@
+import { notifyError, notifySuccess } from '../services/actionFeedback';
 import React, { useState, useEffect } from 'react';
 import { DashboardLayout } from '../components/layout/DashboardLayout';
 import { ProjectCard } from '../components/projects/ProjectCard';
@@ -58,10 +59,10 @@ export const Projects: React.FC = () => {
   const handleQuickJoin = async (project: ProjectItem) => {
     try {
       await projectsApi.joinProject(project.id, 'CONTRIBUTOR');
-      alert(`Join request submitted for "${project.title}"! Project leads will review.`);
+      notifySuccess(`Join request submitted for "${project.title}"! Project leads will review.`);
       fetchProjects();
     } catch (err: any) {
-      alert(err.message || 'Failed to submit join request');
+      notifyError(err.message || 'Failed to submit join request');
     }
   };
 
@@ -76,11 +77,11 @@ export const Projects: React.FC = () => {
           <div className="flex items-center gap-2 mb-1">
             <FolderGit2 className="text-[var(--accent-color, #6366f1)]" size={24} />
             <h2 className="text-2xl font-bold tracking-tight text-white m-0">
-              CLUB PROJECTS & TEAMS
+              Projects & teams
             </h2>
           </div>
           <p className="text-sm text-[var(--text-muted, #94a3b8)]">
-            Explore club-driven AI initiatives, join collaborative pods, and build production solutions together.
+          Explore club projects, find collaborators, and keep track of your team’s work.
           </p>
         </div>
       </div>

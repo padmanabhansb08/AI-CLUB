@@ -1,4 +1,5 @@
 import React from 'react';
+import DOMPurify from 'dompurify';
 import { useParams, useNavigate } from 'react-router-dom';
 import { DashboardLayout } from '../components/layout/DashboardLayout';
 import { useRepository } from '../services/content/useRepository';
@@ -60,7 +61,7 @@ export const UpdateDetail: React.FC = () => {
             
             <div 
               className="article-content-html"
-              dangerouslySetInnerHTML={{ __html: update.content }} 
+              dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(update.content) }}
             />
 
             <div className="article-tags-section">

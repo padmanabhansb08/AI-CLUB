@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavLink, useNavigate, Outlet } from 'react-router-dom';
 import { 
   Users, Trophy, Zap, BookOpen, BarChart3, Settings, LogOut, 
-  Menu, X, Bell, Search, LayoutDashboard, Calendar, Megaphone, FolderGit2, ShieldCheck
+  Menu, X, Bell, LayoutDashboard, Calendar, Megaphone, FolderGit2, ShieldCheck
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { useMobile } from '../../hooks/useMobile';
+import { useDialog } from '../../hooks/useDialog';
 import { NotificationBell } from '../notifications/NotificationBell';
 
 interface AdminLayoutProps {
@@ -16,6 +18,13 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ pageTitle, children })
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
   const { user, logout } = useAuth();
+  const mobile = useMobile();
+  const navigationRef = useDialog<HTMLElement>(mobile && isMobileMenuOpen, () => setIsMobileMenuOpen(false));
+  useEffect(() => {
+    const close = (event: KeyboardEvent) => { if (event.key === 'Escape') setIsMobileMenuOpen(false); };
+    document.addEventListener('keydown', close);
+    return () => document.removeEventListener('keydown', close);
+  }, []);
 
   const handleLogout = async () => {
     await logout();
@@ -37,7 +46,8 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ pageTitle, children })
   ];
 
   return (
-    <div className="dashboard-container">
+    <div className="dashboard-container admin-layout">
+      <a className="skip-link" href="#admin-content">Skip to content</a>
       {/* Mobile Header */}
       <div className="mobile-header">
         <div className="logo-container">
@@ -46,6 +56,8 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ pageTitle, children })
         </div>
         <button 
           className="mobile-menu-btn"
+          aria-label={isMobileMenuOpen ? 'Close navigation' : 'Open navigation'}
+          aria-expanded={isMobileMenuOpen}
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
         >
           {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
@@ -53,7 +65,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ pageTitle, children })
       </div>
 
       {/* Sidebar */}
-      <aside className={`sidebar ${isMobileMenuOpen ? 'mobile-open' : ''}`}>
+      <aside ref={navigationRef} inert={mobile && !isMobileMenuOpen} aria-label="Administration navigation" className={`sidebar ${isMobileMenuOpen ? 'mobile-open open' : ''}`}>
         <div className="sidebar-header">
           <div className="logo-container">
             <div className="logo-icon"></div>
@@ -101,10 +113,6 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ pageTitle, children })
         <header className="dashboard-topbar">
           <h1 className="page-title">{pageTitle}</h1>
           <div className="topbar-actions">
-            <div className="search-bar hidden-mobile">
-              <Search size={18} className="search-icon" />
-              <input type="text" placeholder="Search admin..." />
-            </div>
             <NotificationBell />
             <div className="user-profile">
               <div className="avatar admin-avatar">
@@ -119,7 +127,7 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ pageTitle, children })
         </header>
 
         {/* Page Content */}
-        <div className="dashboard-content">
+        <div className="dashboard-content" id="admin-content" tabIndex={-1}>
           {children || <Outlet />}
         </div>
       </main>

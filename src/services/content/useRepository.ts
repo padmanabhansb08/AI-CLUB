@@ -13,6 +13,7 @@ export function useRepository<T extends { id: string }>(repo: Repository<T>) {
       setLoading(repo.isLoading());
       setError(repo.getError());
     });
+    repo.fetchData();
     return () => { unsubscribe(); };
   }, [repo]);
 

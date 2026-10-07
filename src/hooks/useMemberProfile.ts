@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { profileApi } from '../api/profile.api';
+import { useAuth } from '../context/AuthContext';
 import type {
   MemberProfile,
   ProfileUpdatePayload,
@@ -8,6 +9,7 @@ import type {
 } from '../types/profile';
 
 export function useMemberProfile() {
+  const { refreshUser } = useAuth();
   const [profile, setProfile] = useState<MemberProfile | null>(null);
   const [catalogSkills, setCatalogSkills] = useState<SkillItem[]>([]);
   const [catalogInterests, setCatalogInterests] = useState<InterestItem[]>([]);
@@ -45,6 +47,7 @@ export function useMemberProfile() {
       setSaveError(null);
       const updated = await profileApi.updateProfile(payload);
       setProfile(updated);
+      await refreshUser();
       return updated;
     } catch (err: any) {
       setSaveError(err.message || 'Failed to save profile changes');

@@ -58,7 +58,7 @@ export const authService = {
       await client.query('COMMIT');
 
       const token = jwt.sign(
-        { userId: user.id, role: user.role },
+        { userId: user.id, role: user.role, sessionVersion: 0 },
         config.JWT_SECRET,
         { expiresIn: config.JWT_EXPIRES_IN as any }
       );
@@ -101,7 +101,7 @@ export const authService = {
     }
 
     const token = jwt.sign(
-      { userId: user.id, role: user.role },
+      { userId: user.id, role: user.role, sessionVersion: user.session_version || 0 },
       config.JWT_SECRET,
       { expiresIn: config.JWT_EXPIRES_IN as any }
     );
@@ -124,11 +124,12 @@ export const authService = {
     return {
       token,
       user: {
+        ...memberData,
+        memberId: memberData.id,
         id: user.id,
         userId: user.id,
         email: user.email,
         role: user.role,
-        ...memberData,
       },
     };
   },
@@ -154,11 +155,12 @@ export const authService = {
     }
 
     return {
+      ...memberData,
+      memberId: memberData.id,
       id: user.id,
       userId: user.id,
       email: user.email,
       role: user.role,
-      ...memberData,
     };
   },
 };

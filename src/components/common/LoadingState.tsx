@@ -10,7 +10,7 @@ export const LoadingState: React.FC<LoadingStateProps> = ({
   fullScreen = false,
 }) => {
   const content = (
-    <div className="loading-state-container" style={{
+    <div className="loading-state-container" role="status" aria-live="polite" style={{
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',

@@ -42,6 +42,10 @@ export const ProjectCard: React.FC<Props> = ({ project, onJoinClick }) => {
         cursor: 'pointer',
       }}
       onClick={handleCardClick}
+      role="link"
+      tabIndex={0}
+      aria-label={`View project: ${project.title}`}
+      onKeyDown={event => { if (event.key === 'Enter' && event.target === event.currentTarget) handleCardClick(); }}
     >
       <div>
         {/* Top Badges */}
@@ -71,7 +75,7 @@ export const ProjectCard: React.FC<Props> = ({ project, onJoinClick }) => {
                 style={{
                   backgroundColor: 'rgba(255, 255, 255, 0.05)',
                   border: '1px solid rgba(255, 255, 255, 0.1)',
-                  color: '#cbd5e1',
+                  color: 'var(--text-secondary)',
                 }}
               >
                 {tech}

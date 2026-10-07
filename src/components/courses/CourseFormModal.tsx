@@ -1,3 +1,4 @@
+import { useDialog } from '../../hooks/useDialog';
 import React, { useState } from 'react';
 import { X, Plus, Trash2 } from 'lucide-react';
 import {
@@ -15,6 +16,7 @@ interface Props {
 }
 
 export const CourseFormModal: React.FC<Props> = ({ course, onClose, onSaved }) => {
+  const dialogRef = useDialog(true, onClose);
   const [formData, setFormData] = useState({
     title: course?.title || '',
     short_description: course?.short_description || '',
@@ -88,14 +90,14 @@ export const CourseFormModal: React.FC<Props> = ({ course, onClose, onSaved }) =
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm overflow-y-auto">
-      <div className="relative w-full max-w-2xl rounded-2xl border border-[var(--border-color,rgba(255,255,255,0.08))] bg-slate-900 shadow-2xl p-6 my-8">
+      <div ref={dialogRef} role="dialog" aria-modal="true" aria-label="Course editor" tabIndex={-1} className="relative w-full max-w-2xl rounded-2xl border border-[var(--border-color,rgba(255,255,255,0.08))] bg-slate-900 shadow-2xl p-6 my-8">
         <div className="flex items-center justify-between pb-4 border-b border-white/5 mb-6">
           <h3 className="text-xl font-bold text-white">
             {course?.id ? 'Edit Course' : 'Create New Course'}
           </h3>
           <button
             type="button"
-            onClick={onClose}
+            aria-label="Close dialog" onClick={onClose}
             className="p-1 rounded-lg text-gray-400 hover:text-white hover:bg-white/5"
           >
             <X size={20} />
@@ -111,10 +113,10 @@ export const CourseFormModal: React.FC<Props> = ({ course, onClose, onSaved }) =
         <form onSubmit={handleSubmit} className="flex flex-col gap-5 max-h-[75vh] overflow-y-auto pr-2">
           {/* Title */}
           <div>
-            <label className="block text-xs font-semibold text-gray-300 uppercase mb-2">
+            <label className="block text-xs font-semibold text-gray-300 uppercase mb-2" htmlFor="courseformmodal-field-1">
               Course Title *
             </label>
-            <input
+            <input id="courseformmodal-field-1"
               type="text"
               required
               value={formData.title}
@@ -126,10 +128,10 @@ export const CourseFormModal: React.FC<Props> = ({ course, onClose, onSaved }) =
 
           {/* Short Description */}
           <div>
-            <label className="block text-xs font-semibold text-gray-300 uppercase mb-2">
+            <label className="block text-xs font-semibold text-gray-300 uppercase mb-2" htmlFor="courseformmodal-field-2">
               Short Summary
             </label>
-            <input
+            <input id="courseformmodal-field-2"
               type="text"
               value={formData.short_description}
               onChange={(e) => setFormData({ ...formData, short_description: e.target.value })}
@@ -140,10 +142,10 @@ export const CourseFormModal: React.FC<Props> = ({ course, onClose, onSaved }) =
 
           {/* Full Description */}
           <div>
-            <label className="block text-xs font-semibold text-gray-300 uppercase mb-2">
+            <label className="block text-xs font-semibold text-gray-300 uppercase mb-2" htmlFor="courseformmodal-field-3">
               Detailed Description *
             </label>
-            <textarea
+            <textarea id="courseformmodal-field-3"
               required
               rows={4}
               value={formData.description}
@@ -156,10 +158,10 @@ export const CourseFormModal: React.FC<Props> = ({ course, onClose, onSaved }) =
           {/* Category & Difficulty */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold text-gray-300 uppercase mb-2">
+              <label className="block text-xs font-semibold text-gray-300 uppercase mb-2" htmlFor="courseformmodal-field-4">
                 Category *
               </label>
-              <select
+              <select id="courseformmodal-field-4"
                 value={formData.category}
                 onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                 className="w-full px-3.5 py-2.5 rounded-xl border border-white/10 bg-slate-800/80 text-sm text-white focus:outline-none focus:border-indigo-500"
@@ -173,10 +175,10 @@ export const CourseFormModal: React.FC<Props> = ({ course, onClose, onSaved }) =
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-gray-300 uppercase mb-2">
+              <label className="block text-xs font-semibold text-gray-300 uppercase mb-2" htmlFor="courseformmodal-field-5">
                 Difficulty Level *
               </label>
-              <select
+              <select id="courseformmodal-field-5"
                 value={formData.difficulty}
                 onChange={(e) => setFormData({ ...formData, difficulty: e.target.value })}
                 className="w-full px-3.5 py-2.5 rounded-xl border border-white/10 bg-slate-800/80 text-sm text-white focus:outline-none focus:border-indigo-500"
@@ -193,10 +195,10 @@ export const CourseFormModal: React.FC<Props> = ({ course, onClose, onSaved }) =
           {/* Status & Estimated Duration */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold text-gray-300 uppercase mb-2">
+              <label className="block text-xs font-semibold text-gray-300 uppercase mb-2" htmlFor="courseformmodal-field-6">
                 Course Status
               </label>
-              <select
+              <select id="courseformmodal-field-6"
                 value={formData.status}
                 onChange={(e) => setFormData({ ...formData, status: e.target.value as any })}
                 className="w-full px-3.5 py-2.5 rounded-xl border border-white/10 bg-slate-800/80 text-sm text-white focus:outline-none focus:border-indigo-500"
@@ -210,10 +212,10 @@ export const CourseFormModal: React.FC<Props> = ({ course, onClose, onSaved }) =
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-gray-300 uppercase mb-2">
+              <label className="block text-xs font-semibold text-gray-300 uppercase mb-2" htmlFor="courseformmodal-field-7">
                 Estimated Duration (Minutes)
               </label>
-              <input
+              <input id="courseformmodal-field-7"
                 type="number"
                 min={0}
                 value={formData.estimated_duration_minutes}
@@ -227,10 +229,10 @@ export const CourseFormModal: React.FC<Props> = ({ course, onClose, onSaved }) =
 
           {/* Thumbnail URL */}
           <div>
-            <label className="block text-xs font-semibold text-gray-300 uppercase mb-2">
+            <label className="block text-xs font-semibold text-gray-300 uppercase mb-2" htmlFor="courseformmodal-field-8">
               Thumbnail Image URL
             </label>
-            <input
+            <input id="courseformmodal-field-8"
               type="url"
               value={formData.thumbnail_url}
               onChange={(e) => setFormData({ ...formData, thumbnail_url: e.target.value })}
@@ -264,6 +266,7 @@ export const CourseFormModal: React.FC<Props> = ({ course, onClose, onSaved }) =
                       next[i] = e.target.value;
                       setObjectives(next);
                     }}
+                    aria-label={`Learning objective ${i + 1}`}
                     placeholder={`Objective ${i + 1}`}
                     className="flex-1 px-3 py-2 rounded-xl border border-white/10 bg-slate-800/80 text-xs text-white focus:outline-none focus:border-indigo-500"
                   />
@@ -306,6 +309,7 @@ export const CourseFormModal: React.FC<Props> = ({ course, onClose, onSaved }) =
                       next[i] = e.target.value;
                       setPrerequisites(next);
                     }}
+                    aria-label={`Prerequisite ${i + 1}`}
                     placeholder={`Prerequisite ${i + 1}`}
                     className="flex-1 px-3 py-2 rounded-xl border border-white/10 bg-slate-800/80 text-xs text-white focus:outline-none focus:border-indigo-500"
                   />
@@ -326,10 +330,10 @@ export const CourseFormModal: React.FC<Props> = ({ course, onClose, onSaved }) =
           {/* Technologies & Skills */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold text-gray-300 uppercase mb-2">
+              <label className="block text-xs font-semibold text-gray-300 uppercase mb-2" htmlFor="courseformmodal-field-9">
                 Technologies (comma separated)
               </label>
-              <input
+              <input id="courseformmodal-field-9"
                 type="text"
                 value={technologies}
                 onChange={(e) => setTechnologies(e.target.value)}
@@ -339,10 +343,10 @@ export const CourseFormModal: React.FC<Props> = ({ course, onClose, onSaved }) =
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-gray-300 uppercase mb-2">
+              <label className="block text-xs font-semibold text-gray-300 uppercase mb-2" htmlFor="courseformmodal-field-10">
                 Skills Taught (comma separated)
               </label>
-              <input
+              <input id="courseformmodal-field-10"
                 type="text"
                 value={skills}
                 onChange={(e) => setSkills(e.target.value)}

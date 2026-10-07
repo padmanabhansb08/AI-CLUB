@@ -34,7 +34,7 @@ export const EventFilters: React.FC<EventFiltersProps> = ({
       {/* Tab Navigation */}
       <div className="flex flex-wrap items-center gap-2 border-b border-zinc-800 pb-3">
         <button
-          onClick={() => onTabChange('upcoming')}
+          aria-pressed={activeTab === 'upcoming'} onClick={() => onTabChange('upcoming')}
           className={`px-4 py-2 rounded-xl text-xs md:text-sm font-semibold transition-all ${
             activeTab === 'upcoming'
               ? 'bg-emerald-500 text-black shadow-lg shadow-emerald-950/40'
@@ -44,7 +44,7 @@ export const EventFilters: React.FC<EventFiltersProps> = ({
           Upcoming Events
         </button>
         <button
-          onClick={() => onTabChange('all')}
+          aria-pressed={activeTab === 'all'} onClick={() => onTabChange('all')}
           className={`px-4 py-2 rounded-xl text-xs md:text-sm font-semibold transition-all ${
             activeTab === 'all'
               ? 'bg-emerald-500 text-black shadow-lg shadow-emerald-950/40'
@@ -55,7 +55,7 @@ export const EventFilters: React.FC<EventFiltersProps> = ({
         </button>
         {!isAdmin && (
           <button
-            onClick={() => onTabChange('registered')}
+            aria-pressed={activeTab === 'registered'} onClick={() => onTabChange('registered')}
             className={`px-4 py-2 rounded-xl text-xs md:text-sm font-semibold transition-all ${
               activeTab === 'registered'
                 ? 'bg-emerald-500 text-black shadow-lg shadow-emerald-950/40'
@@ -66,7 +66,7 @@ export const EventFilters: React.FC<EventFiltersProps> = ({
           </button>
         )}
         <button
-          onClick={() => onTabChange('past')}
+          aria-pressed={activeTab === 'past'} onClick={() => onTabChange('past')}
           className={`px-4 py-2 rounded-xl text-xs md:text-sm font-semibold transition-all ${
             activeTab === 'past'
               ? 'bg-emerald-500 text-black shadow-lg shadow-emerald-950/40'
@@ -83,6 +83,7 @@ export const EventFilters: React.FC<EventFiltersProps> = ({
         <div className="relative flex-1">
           <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500" />
           <input
+            aria-label="Search events"
             type="text"
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
@@ -92,6 +93,7 @@ export const EventFilters: React.FC<EventFiltersProps> = ({
           {search && (
             <button
               onClick={() => onSearchChange('')}
+              aria-label="Clear event search"
               className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300"
             >
               <X size={14} />
@@ -103,6 +105,7 @@ export const EventFilters: React.FC<EventFiltersProps> = ({
         <div className="flex items-center gap-2">
           <div className="relative">
             <select
+              aria-label="Event type"
               value={selectedType}
               onChange={(e) => onTypeChange(e.target.value)}
               className="appearance-none pl-3.5 pr-8 py-2.5 rounded-xl bg-zinc-900/80 border border-zinc-800 text-xs md:text-sm text-zinc-200 focus:outline-none focus:border-emerald-500/80 cursor-pointer"

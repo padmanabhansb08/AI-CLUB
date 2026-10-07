@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavLink, Link, useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, 
@@ -18,6 +18,8 @@ import {
   Users
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { useMobile } from '../../hooks/useMobile';
+import { useDialog } from '../../hooks/useDialog';
 import { NotificationBell } from '../notifications/NotificationBell';
 
 interface DashboardLayoutProps {
@@ -27,13 +29,25 @@ interface DashboardLayoutProps {
 
 export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, pageTitle = 'Dashboard' }) => {
   const navigate = useNavigate();
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
+  const displayName = user?.fullName || user?.email?.split('@')[0] || 'Member';
+  const initials = displayName.split(/\s+/).map(part => part[0]).slice(0, 2).join('').toUpperCase();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
+  const mobile = useMobile();
+  const navigationRef = useDialog<HTMLElement>(mobile && mobileMenuOpen, () => setMobileMenuOpen(false));
+
+  useEffect(() => {
+    const dismiss = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') { setMobileMenuOpen(false); setProfileDropdownOpen(false); }
+    };
+    document.addEventListener('keydown', dismiss);
+    return () => document.removeEventListener('keydown', dismiss);
+  }, []);
 
   const handleLogout = async () => {
     await logout();
-    navigate('/');
+    navigate('/login', { replace: true });
   };
 
   const navItems = [
@@ -51,18 +65,19 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, page
 
   return (
     <div className="dashboard-layout">
+      <a className="skip-link" href="#member-content">Skip to content</a>
       {/* Mobile Menu Overlay */}
       {mobileMenuOpen && (
         <div className="mobile-overlay" onClick={() => setMobileMenuOpen(false)}></div>
       )}
 
       {/* Sidebar */}
-      <aside className={`sidebar ${mobileMenuOpen ? 'open' : ''}`}>
+      <aside ref={navigationRef} inert={mobile && !mobileMenuOpen} aria-label="Member navigation" className={`sidebar ${mobileMenuOpen ? 'open' : ''}`}>
         <div className="sidebar-header">
           <div className="sidebar-brand">
-            <span style={{ color: 'var(--accent-color)' }}>{'>_'}</span> AI CLUB
+            <span className="club-brand-mark" aria-hidden="true">AI</span> AI CLUB
           </div>
-          <button className="mobile-close" onClick={() => setMobileMenuOpen(false)}>
+          <button aria-label="Close navigation" className="mobile-close" onClick={() => setMobileMenuOpen(false)}>
             <X size={20} />
           </button>
         </div>
@@ -109,7 +124,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, page
         {/* Topbar */}
         <header className="topbar">
           <div className="topbar-left">
-            <button className="mobile-toggle" onClick={() => setMobileMenuOpen(true)}>
+            <button aria-label="Open navigation" aria-expanded={mobileMenuOpen} className="mobile-toggle" onClick={() => setMobileMenuOpen(true)}>
               <Menu size={24} />
             </button>
             <h1 className="page-title">{pageTitle}</h1>
@@ -121,10 +136,12 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, page
             <div className="profile-menu-container">
               <button 
                 className="profile-btn" 
+                aria-label={`Account menu for ${displayName}`}
+                aria-expanded={profileDropdownOpen}
                 onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
               >
-                <div className="avatar">JD</div>
-                <span className="profile-name">John Doe</span>
+                <div className="avatar">{initials}</div>
+                <span className="profile-name">{displayName}</span>
               </button>
               
               {profileDropdownOpen && (
@@ -140,7 +157,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, page
         </header>
 
         {/* Page Content */}
-        <div className="dashboard-content">
+        <div id="member-content" className="dashboard-content" tabIndex={-1}>
           {children}
         </div>
       </main>

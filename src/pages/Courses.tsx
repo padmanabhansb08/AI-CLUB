@@ -1,3 +1,4 @@
+import { notifyError } from '../services/actionFeedback';
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { DashboardLayout } from '../components/layout/DashboardLayout';
@@ -111,12 +112,12 @@ export const Courses: React.FC = () => {
       setTimeout(() => setToastMessage(null), 4000);
       fetchCourses();
     } catch (err: any) {
-      alert(err.message || 'Could not enroll in course');
+      notifyError(err.message || 'Could not enroll in course');
     }
   };
 
   return (
-    <DashboardLayout pageTitle="Curriculum & Learning Management">
+    <DashboardLayout pageTitle="Courses">
       {/* Toast notification */}
       {toastMessage && (
         <div className="fixed top-20 right-6 z-50 p-4 rounded-xl bg-emerald-500/90 text-white shadow-xl backdrop-blur-md flex items-center gap-2 text-sm font-semibold animate-slide-in">
@@ -125,12 +126,12 @@ export const Courses: React.FC = () => {
       )}
 
       {/* Header Banner */}
-      <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-8">
+      <div className="courses-header flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-8">
         <div>
           <div className="flex items-center gap-2.5 mb-1.5">
             <GraduationCap className="text-indigo-400" size={28} />
             <h2 className="text-2xl font-bold tracking-tight text-white m-0">
-              COURSES & LEARNING PATHS
+              Courses & learning paths
             </h2>
           </div>
           <p className="text-sm text-[var(--text-muted,#94a3b8)]">
@@ -144,7 +145,7 @@ export const Courses: React.FC = () => {
             onClick={() => navigate('/my-learning')}
             className="btn btn-primary flex items-center gap-2 self-start sm:self-auto"
           >
-            <PlayCircle size={16} /> My Learning Dashboard <ArrowRight size={16} />
+            <PlayCircle size={16} /> My learning <ArrowRight size={16} />
           </button>
         )}
       </div>
@@ -153,7 +154,8 @@ export const Courses: React.FC = () => {
       <div className="flex items-center gap-2 border-b border-[var(--border-color,rgba(255,255,255,0.08))] mb-6 overflow-x-auto pb-1">
         <button
           type="button"
-          onClick={() => {
+          aria-pressed={activeTab === 'ALL'}
+            onClick={() => {
             setActiveTab('ALL');
             setPage(1);
           }}
@@ -170,7 +172,8 @@ export const Courses: React.FC = () => {
           <>
             <button
               type="button"
-              onClick={() => {
+              aria-pressed={activeTab === 'ENROLLED'}
+                onClick={() => {
                 setActiveTab('ENROLLED');
                 setPage(1);
               }}
@@ -184,7 +187,8 @@ export const Courses: React.FC = () => {
             </button>
             <button
               type="button"
-              onClick={() => {
+              aria-pressed={activeTab === 'IN_PROGRESS'}
+                onClick={() => {
                 setActiveTab('IN_PROGRESS');
                 setPage(1);
               }}
@@ -198,7 +202,8 @@ export const Courses: React.FC = () => {
             </button>
             <button
               type="button"
-              onClick={() => {
+              aria-pressed={activeTab === 'COMPLETED'}
+                onClick={() => {
                 setActiveTab('COMPLETED');
                 setPage(1);
               }}

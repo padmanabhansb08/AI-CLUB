@@ -83,7 +83,7 @@ export default function Events() {
             <span>AI CLUB Events & Workshops</span>
           </div>
           <h1 className="text-2xl md:text-4xl font-extrabold text-zinc-100 tracking-tight">
-            Discover & Learn with the Community
+            Club events
           </h1>
           <p className="text-xs md:text-sm text-zinc-400 max-w-2xl leading-relaxed">
             Hands-on workshops, webinars, hackathons, and guest lectures hosted by AI CLUB members and industry mentors.

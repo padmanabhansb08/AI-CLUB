@@ -1,3 +1,6 @@
+import { confirmAction } from '../../services/confirmation';
+import { notifyError } from '../../services/actionFeedback';
+import { AdminLayout } from '../../components/layout/AdminLayout';
 import React, { useEffect, useState } from 'react';
 import { StateView } from '../../components/common/StateView';
 import { announcementService } from '../../services/content/announcementService';
@@ -26,9 +29,10 @@ export const AdminAnnouncements = () => {
     fetchAnnouncements();
   }, []);
 
-  const fetchAnnouncements = async () => {
+  async function fetchAnnouncements() {
     try {
       setLoading(true);
+      setError(null);
       const res = await announcementService.getAllAdmin();
       setAnnouncements(res);
     } catch (err: any) {
@@ -36,7 +40,7 @@ export const AdminAnnouncements = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }
 
   const handleCreate = () => {
     setFormData({
@@ -67,14 +71,14 @@ export const AdminAnnouncements = () => {
   };
 
   const handleDelete = async (id: string) => {
-    if (!window.confirm('Are you sure you want to delete this announcement? This will also delete all read-state records.')) {
+    if (!await confirmAction('Are you sure you want to delete this announcement? This will also delete all read-state records.')) {
       return;
     }
     try {
       await announcementService.delete(id);
       fetchAnnouncements();
     } catch (err: any) {
-      alert(err.message || 'Failed to delete');
+      notifyError(err.message || 'Failed to delete');
     }
   };
 
@@ -96,11 +100,12 @@ export const AdminAnnouncements = () => {
       setIsEditing(false);
       fetchAnnouncements();
     } catch (err: any) {
-      alert(err.message || 'Failed to save announcement');
+      notifyError(err.message || 'Failed to save announcement');
     }
   };
 
   return (
+    <AdminLayout pageTitle="Announcements">
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
@@ -229,7 +234,7 @@ export const AdminAnnouncements = () => {
         </div>
       )}
 
-      <StateView loading={loading} error={error as any} empty={announcements.length === 0} emptyMessage="No announcements found.">
+      <StateView loading={loading} error={error} retry={fetchAnnouncements} empty={announcements.length === 0} emptyMessage="No announcements found.">
         <div className="bg-gray-900 rounded-lg border border-gray-800 overflow-hidden">
           <table className="w-full text-left text-sm text-gray-300">
             <thead className="bg-gray-800/50 text-gray-400 uppercase font-mono text-xs">
@@ -295,5 +300,6 @@ export const AdminAnnouncements = () => {
         </div>
       </StateView>
     </div>
+    </AdminLayout>
   );
 };

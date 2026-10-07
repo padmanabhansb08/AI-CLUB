@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { config } from '../config';
+import { pool } from '../db';
 
 export interface AuthenticatedUser {
   userId: string;
@@ -12,7 +13,7 @@ export interface AuthRequest extends Request {
   user?: AuthenticatedUser;
 }
 
-export const authenticate = (req: AuthRequest, res: Response, next: NextFunction) => {
+export const authenticate = async (req: AuthRequest, res: Response, next: NextFunction) => {
   const authHeader = req.headers.authorization;
   if (!authHeader?.startsWith('Bearer ')) {
     return res.status(401).json({
@@ -40,13 +41,18 @@ export const authenticate = (req: AuthRequest, res: Response, next: NextFunction
       });
     }
 
+    const current = await pool.query('SELECT role, session_version FROM users WHERE id = $1', [userId]);
+    if (!current.rows[0] || (decoded.sessionVersion || 0) !== current.rows[0].session_version) {
+      return res.status(401).json({ success: false, error: { code: 'UNAUTHORIZED', message: 'Your session has ended. Please sign in again.' } });
+    }
     req.user = {
       userId,
       id: userId,
-      role: decoded.role,
+      role: current.rows[0].role,
     };
     next();
   } catch (err: any) {
+    if (!['TokenExpiredError', 'JsonWebTokenError', 'NotBeforeError'].includes(err.name)) return next(err);
     return res.status(401).json({
       success: false,
       error: {
@@ -58,7 +64,7 @@ export const authenticate = (req: AuthRequest, res: Response, next: NextFunction
   }
 };
 
-export const authenticateOptional = (req: AuthRequest, res: Response, next: NextFunction) => {
+export const authenticateOptional = async (req: AuthRequest, res: Response, next: NextFunction) => {
   const authHeader = req.headers.authorization;
   if (!authHeader?.startsWith('Bearer ')) {
     return next();
@@ -69,14 +75,13 @@ export const authenticateOptional = (req: AuthRequest, res: Response, next: Next
     const decoded = jwt.verify(token, config.JWT_SECRET) as any;
     const userId = decoded.userId || decoded.id;
     if (userId && decoded.role) {
-      req.user = {
-        userId,
-        id: userId,
-        role: decoded.role,
-      };
+      const current = await pool.query('SELECT role, session_version FROM users WHERE id = $1', [userId]);
+      if (current.rows[0] && (decoded.sessionVersion || 0) === current.rows[0].session_version) {
+        req.user = { userId, id: userId, role: current.rows[0].role };
+      }
     }
-  } catch {
-    // Silently continue without user attachment for optional auth
+  } catch (err: any) {
+    if (!['TokenExpiredError', 'JsonWebTokenError', 'NotBeforeError'].includes(err.name)) return next(err);
   }
   next();
 };

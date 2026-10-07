@@ -1,133 +1,210 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Sparkles } from 'lucide-react';
+import React, { useMemo, useState } from 'react';
+import { ArrowRight, Sparkles } from 'lucide-react';
+import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
+import type { User } from '../api/auth.api';
 import { AuthLayout } from '../components/layout/AuthLayout';
-import { Input } from '../components/ui/Input';
 import { Button } from '../components/ui/Button';
+import { Input } from '../components/ui/Input';
 import { useAuth } from '../context/AuthContext';
+
+const REMEMBERED_EMAIL_KEY = 'aiclub:remembered-email';
+
+type LoginErrors = {
+  email?: string;
+  password?: string;
+};
+
+type LoginLocationState = {
+  message?: string;
+  from?: {
+    pathname?: string;
+  };
+};
+
+const isValidEmail = (value: string) => /^\S+@\S+\.\S+$/.test(value);
 
 export const Login: React.FC = () => {
   const navigate = useNavigate();
-  const { login } = useAuth();
-  const [email, setEmail] = useState('');
+  const location = useLocation();
+  const { login, user, isAuthenticated, isLoading: isSessionLoading } = useAuth();
+  const rememberedEmail = useMemo(
+    () => localStorage.getItem(REMEMBERED_EMAIL_KEY) || '',
+    [],
+  );
+  const [email, setEmail] = useState(rememberedEmail);
   const [password, setPassword] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [rememberEmail, setRememberEmail] = useState(Boolean(rememberedEmail));
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const [fieldErrors, setFieldErrors] = useState<LoginErrors>({});
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const getDestination = (signedInUser: User) => {
+    const requestedPath = (location.state as LoginLocationState | null)?.from?.pathname;
+    const role = signedInUser.role?.toLowerCase();
+
+    if (role === 'admin' || role === 'super_admin') return '/admin';
+    if (requestedPath?.startsWith('/') && !requestedPath.startsWith('/login')) {
+      return requestedPath;
+    }
+    return '/dashboard';
+  };
+
+  const validate = () => {
+    const nextErrors: LoginErrors = {};
+    const normalizedEmail = email.trim();
+
+    if (!normalizedEmail) nextErrors.email = 'Enter your email address.';
+    else if (!isValidEmail(normalizedEmail)) nextErrors.email = 'Enter a valid email address.';
+    if (!password) nextErrors.password = 'Enter your password.';
+
+    setFieldErrors(nextErrors);
+    return Object.keys(nextErrors).length === 0;
+  };
+
+  const completeLogin = async (loginEmail: string, loginPassword: string) => {
+    const signedInUser = await login(loginEmail, loginPassword);
+
+    if (rememberEmail) localStorage.setItem(REMEMBERED_EMAIL_KEY, loginEmail);
+    else localStorage.removeItem(REMEMBERED_EMAIL_KEY);
+
+    navigate(getDestination(signedInUser), { replace: true });
+  };
+
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
     setError('');
-    setIsLoading(true);
+    if (!validate()) return;
 
+    setIsSubmitting(true);
     try {
-      await login(email, password);
-      navigate('/dashboard');
-    } catch (err: any) {
-      setError(err.message || 'Login failed. Please check your credentials.');
+      await completeLogin(email.trim().toLowerCase(), password);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'We could not sign you in. Try again.');
     } finally {
-      setIsLoading(false);
+      setIsSubmitting(false);
     }
   };
 
   const handleDemoLogin = async () => {
+    const demoEmail = 'student@aiclub.com';
+    setEmail(demoEmail);
+    setPassword('student123');
+    setFieldErrors({});
     setError('');
-    setIsLoading(true);
+    setIsSubmitting(true);
+
     try {
-      await login('student@aiclub.com', 'student123');
-      navigate('/dashboard');
-    } catch (err: any) {
-      setError(err.message || 'Unable to connect to AI CLUB server for demo login.');
+      await completeLogin(demoEmail, 'student123');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Demo access is temporarily unavailable.');
     } finally {
-      setIsLoading(false);
+      setIsSubmitting(false);
     }
   };
 
-  const handleAutoFill = () => {
-    setEmail('student@aiclub.com');
-    setPassword('student123');
-  };
+  if (!isSessionLoading && isAuthenticated && user) {
+    return <Navigate to={getDestination(user)} replace />;
+  }
 
   return (
     <AuthLayout
       title="Welcome back"
-      subtitle="Sign in to your student account"
+      subtitle="Sign in to your AI CLUB account."
     >
-      <form onSubmit={handleSubmit}>
+      <form className="login-form" onSubmit={handleSubmit} noValidate>
+        {(location.state as LoginLocationState | null)?.message && (
+          <p className="login-notice" role="status">{(location.state as LoginLocationState).message}</p>
+        )}
         <Input
-          label="College Email"
+          id="login-email"
+          label="Email address"
           type="email"
-          placeholder="student@aiclub.com"
+          placeholder="name@example.com"
           value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          onChange={(event) => {
+            setEmail(event.target.value);
+            if (fieldErrors.email) setFieldErrors((current) => ({ ...current, email: undefined }));
+          }}
+          autoComplete="email"
+          autoCapitalize="none"
+          spellCheck={false}
+          error={fieldErrors.email}
+          disabled={isSubmitting}
           required
         />
 
         <Input
+          id="login-password"
           label="Password"
           type="password"
-          placeholder="••••••••"
+          placeholder="Enter your password"
           value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          onChange={(event) => {
+            setPassword(event.target.value);
+            if (fieldErrors.password) setFieldErrors((current) => ({ ...current, password: undefined }));
+          }}
+          autoComplete="current-password"
+          error={fieldErrors.password}
+          disabled={isSubmitting}
           required
         />
 
-        <div className="flex-between mb-6">
-          <label className="checkbox-container">
-            <input type="checkbox" />
-            <span>Remember me</span>
+        <div className="login-options">
+          <label className="checkbox-container" htmlFor="remember-email">
+            <input
+              id="remember-email"
+              type="checkbox"
+              checked={rememberEmail}
+              onChange={(event) => setRememberEmail(event.target.checked)}
+              disabled={isSubmitting}
+            />
+            <span>Remember my email</span>
           </label>
-          <a href="#" className="text-sm text-accent" onClick={(e) => e.preventDefault()}>
+          <Link to="/forgot-password" className="login-help-link">
             Forgot password?
-          </a>
+          </Link>
         </div>
 
-        {error && <div className="form-error mb-4">{error}</div>}
+        {error && (
+          <div className="login-alert" role="alert" aria-live="assertive">
+            <span className="login-alert-mark" aria-hidden="true">!</span>
+            <span>{error}</span>
+          </div>
+        )}
 
-        <Button type="submit" isLoading={isLoading} className="mb-4">
-          Login
+        <Button
+          type="submit"
+          isLoading={isSubmitting}
+          loadingLabel="Checking credentials…"
+          className="login-submit"
+        >
+          <span>Sign in</span>
+          <ArrowRight size={17} />
         </Button>
 
-        <div className="auth-divider">
-          <span>OR</span>
+        {import.meta.env.DEV && <>
+        <div className="auth-divider" aria-hidden="true">
+          <span>or</span>
         </div>
 
         <Button
           type="button"
           variant="secondary"
-          className="demo-btn mb-3"
+          className="demo-btn"
           onClick={handleDemoLogin}
-          disabled={isLoading}
+          disabled={isSubmitting}
           id="demo-login-btn"
         >
-          <Sparkles size={16} style={{ color: 'var(--accent-color)' }} />
-          <span>Demo Student Login</span>
+          <Sparkles size={16} />
+          <span>Try the demo account</span>
         </Button>
 
-        <div className="flex-between mb-6" style={{ fontSize: '0.8rem', color: 'var(--text-tertiary)' }}>
-          <button
-            type="button"
-            onClick={handleAutoFill}
-            style={{
-              background: 'none',
-              border: 'none',
-              color: 'var(--accent-color)',
-              cursor: 'pointer',
-              fontSize: '0.8rem',
-              padding: 0,
-            }}
-          >
-            Auto-fill demo credentials
-          </button>
-          <Link to="/admin/login" className="text-accent" style={{ fontSize: '0.8rem' }}>
-            Admin Portal &rarr;
-          </Link>
-        </div>
+        <p className="login-demo-note">No account needed — explore the student dashboard with sample data.</p>
+        </>}
 
-        <div className="text-sm" style={{ textAlign: 'center', color: 'var(--text-secondary)' }}>
-          New member?{' '}
-          <Link to="/register" className="text-accent" style={{ fontWeight: 500 }}>
-            Create account
-          </Link>
+        <div className="login-footer-actions">
+          <span>New to the club? <Link to="/register">Create an account</Link></span>
+          <Link to="/admin/login" className="login-admin-link">Admin access <ArrowRight size={13} /></Link>
         </div>
       </form>
     </AuthLayout>

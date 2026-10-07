@@ -79,9 +79,6 @@ export const Register: React.FC = () => {
       const response = await authService.registerStudent(payload);
       if (response.success) {
         setSuccess(true);
-        setTimeout(() => {
-          navigate('/');
-        }, 2000);
       } else {
         setErrors({ submit: response.error || 'Registration failed' });
       }
@@ -101,9 +98,9 @@ export const Register: React.FC = () => {
         <div style={{ textAlign: 'center', padding: '2rem 0' }}>
           <div style={{ color: 'var(--success-color)', fontSize: '3rem', marginBottom: '1rem' }}>✓</div>
           <p style={{ color: 'var(--text-secondary)', marginBottom: '2rem' }}>
-            Your account has been created. Redirecting to login...
+            Your account has been created. Sign in to join events, start learning, and find a project team.
           </p>
-          <Button onClick={() => navigate('/')}>Go to Login</Button>
+          <Button onClick={() => navigate('/login')}>Go to Login</Button>
         </div>
       </AuthLayout>
     );
@@ -185,7 +182,7 @@ export const Register: React.FC = () => {
           label="Phone Number"
           name="phone"
           type="tel"
-          placeholder="+1 234 567 8900"
+          placeholder="+91 98765 43210"
           value={formData.phone}
           onChange={handleChange}
           error={errors.phone}
@@ -223,7 +220,7 @@ export const Register: React.FC = () => {
 
         <div className="text-sm" style={{ textAlign: 'center', color: 'var(--text-secondary)' }}>
           Already have an account?{' '}
-          <Link to="/" className="text-accent" style={{ fontWeight: 500 }}>
+          <Link to="/login" className="text-accent" style={{ fontWeight: 500 }}>
             Sign in
           </Link>
         </div>

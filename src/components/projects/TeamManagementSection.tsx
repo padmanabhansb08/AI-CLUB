@@ -1,3 +1,6 @@
+import { confirmAction } from '../../services/confirmation';
+import { useDialog } from '../../hooks/useDialog';
+import { notifyError, notifySuccess } from '../../services/actionFeedback';
 import React, { useState, useEffect } from 'react';
 import {
   Users,
@@ -36,6 +39,8 @@ export const TeamManagementSection: React.FC<Props> = ({
 
   // Invite Member Modal
   const [showInviteModal, setShowInviteModal] = useState(false);
+  const createRef = useDialog(showCreateModal, () => setShowCreateModal(false));
+  const inviteRef = useDialog(showInviteModal, () => setShowInviteModal(false));
   const [invitingTeamId, setInvitingTeamId] = useState<string | null>(null);
   const [candidateMembers, setCandidateMembers] = useState<any[]>([]);
   const [selectedCandidateId, setSelectedCandidateId] = useState('');
@@ -78,7 +83,7 @@ export const TeamManagementSection: React.FC<Props> = ({
       setCreateData({ name: '', description: '', max_members: 4 });
       await fetchTeams();
     } catch (err: any) {
-      alert(err.message || 'Failed to create team');
+      notifyError(err.message || 'Failed to create team');
     } finally {
       setCreating(false);
     }
@@ -90,20 +95,20 @@ export const TeamManagementSection: React.FC<Props> = ({
       await projectsApi.joinTeam(teamId);
       await fetchTeams();
     } catch (err: any) {
-      alert(err.message || 'Failed to join team');
+      notifyError(err.message || 'Failed to join team');
     } finally {
       setActionLoading(null);
     }
   };
 
   const handleLeaveTeam = async (teamId: string) => {
-    if (!confirm('Are you sure you want to leave this team?')) return;
+    if (!await confirmAction('Are you sure you want to leave this team?')) return;
     try {
       setActionLoading(`leave-${teamId}`);
       await projectsApi.leaveTeam(teamId);
       await fetchTeams();
     } catch (err: any) {
-      alert(err.message || 'Failed to leave team');
+      notifyError(err.message || 'Failed to leave team');
     } finally {
       setActionLoading(null);
     }
@@ -131,24 +136,24 @@ export const TeamManagementSection: React.FC<Props> = ({
     try {
       setInviting(true);
       await projectsApi.inviteToTeam(invitingTeamId, selectedCandidateId);
-      alert('Team invitation sent successfully!');
+      notifySuccess('Team invitation sent successfully!');
       setShowInviteModal(false);
       setSelectedCandidateId('');
     } catch (err: any) {
-      alert(err.message || 'Failed to send invitation');
+      notifyError(err.message || 'Failed to send invitation');
     } finally {
       setInviting(false);
     }
   };
 
   const handleDisbandTeam = async (teamId: string, teamName: string) => {
-    if (!confirm(`Are you sure you want to disband "${teamName}"? This action cannot be undone.`)) return;
+    if (!await confirmAction(`Are you sure you want to disband "${teamName}"? This action cannot be undone.`)) return;
     try {
       setActionLoading(`disband-${teamId}`);
       await projectsApi.deleteTeam(teamId);
       await fetchTeams();
     } catch (err: any) {
-      alert(err.message || 'Failed to disband team');
+      notifyError(err.message || 'Failed to disband team');
     } finally {
       setActionLoading(null);
     }
@@ -159,7 +164,7 @@ export const TeamManagementSection: React.FC<Props> = ({
       await projectsApi.updateTeamMemberRole(teamId, memberId, newRole);
       await fetchTeams();
     } catch (err: any) {
-      alert(err.message || 'Failed to update member role');
+      notifyError(err.message || 'Failed to update member role');
     }
   };
 
@@ -365,18 +370,18 @@ export const TeamManagementSection: React.FC<Props> = ({
       {/* Create Team Modal */}
       {showCreateModal && (
         <div className="modal-backdrop fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50">
-          <div className="modal-content w-full max-w-md bg-[var(--surface-color, #1e293b)] border border-[var(--border-color, #334155)] rounded-2xl p-6">
-            <h3 className="text-lg font-bold text-white mb-2">Form a Team Pod</h3>
+          <div ref={createRef} role="dialog" aria-modal="true" aria-label="Create a team" tabIndex={-1} className="modal-content w-full max-w-md bg-[var(--surface-color, #1e293b)] border border-[var(--border-color, #334155)] rounded-2xl p-6">
+            <h3 className="text-lg font-bold text-white mb-2">Create a team</h3>
             <p className="text-xs text-[var(--text-muted, #94a3b8)] mb-4">
               You will automatically become the initial Team Lead of this pod.
             </p>
 
             <form onSubmit={handleCreateTeam} className="space-y-4">
               <div>
-                <label className="block text-xs font-medium text-[var(--text-muted, #94a3b8)] mb-1">
+                <label className="block text-xs font-medium text-[var(--text-muted, #94a3b8)] mb-1" htmlFor="teammanagementsection-field-1">
                   Team Name *
                 </label>
-                <input
+                <input id="teammanagementsection-field-1"
                   type="text"
                   required
                   minLength={2}
@@ -389,10 +394,10 @@ export const TeamManagementSection: React.FC<Props> = ({
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-[var(--text-muted, #94a3b8)] mb-1">
+                <label className="block text-xs font-medium text-[var(--text-muted, #94a3b8)] mb-1" htmlFor="teammanagementsection-field-2">
                   Pod Focus / Mission (optional)
                 </label>
-                <textarea
+                <textarea id="teammanagementsection-field-2"
                   rows={3}
                   className="form-input w-full px-3 py-2 rounded-lg bg-[var(--bg-color, #0f172a)] border border-[var(--border-color, #334155)] text-white text-sm focus:outline-none focus:border-[var(--accent-color, #6366f1)]"
                   placeholder="What aspect will this squad tackle?"
@@ -402,10 +407,10 @@ export const TeamManagementSection: React.FC<Props> = ({
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-[var(--text-muted, #94a3b8)] mb-1">
+                <label className="block text-xs font-medium text-[var(--text-muted, #94a3b8)] mb-1" htmlFor="teammanagementsection-field-3">
                   Maximum Pod Members (2 - 20)
                 </label>
-                <input
+                <input id="teammanagementsection-field-3"
                   type="number"
                   min={2}
                   max={20}
@@ -440,8 +445,8 @@ export const TeamManagementSection: React.FC<Props> = ({
       {/* Invite Member Modal */}
       {showInviteModal && (
         <div className="modal-backdrop fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50">
-          <div className="modal-content w-full max-w-md bg-[var(--surface-color, #1e293b)] border border-[var(--border-color, #334155)] rounded-2xl p-6">
-            <h3 className="text-lg font-bold text-white mb-2">Invite Member to Pod</h3>
+          <div ref={inviteRef} role="dialog" aria-modal="true" aria-label="Invite a member" tabIndex={-1} className="modal-content w-full max-w-md bg-[var(--surface-color, #1e293b)] border border-[var(--border-color, #334155)] rounded-2xl p-6">
+            <h3 className="text-lg font-bold text-white mb-2">Invite a member</h3>
             <p className="text-xs text-[var(--text-muted, #94a3b8)] mb-4">
               Select an active project contributor to send an invitation.
             </p>

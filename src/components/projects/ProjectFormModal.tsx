@@ -1,3 +1,4 @@
+import { useDialog } from '../../hooks/useDialog';
 import React, { useState } from 'react';
 import { X } from 'lucide-react';
 import {
@@ -15,6 +16,7 @@ interface Props {
 }
 
 export const ProjectFormModal: React.FC<Props> = ({ project, onClose, onSaved }) => {
+  const dialogRef = useDialog(true, onClose);
   const [formData, setFormData] = useState({
     title: project?.title || '',
     short_description:
@@ -96,7 +98,7 @@ export const ProjectFormModal: React.FC<Props> = ({ project, onClose, onSaved })
 
   return (
     <div className="modal-backdrop fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50">
-      <div className="modal-content w-full max-w-3xl bg-[var(--surface-color, #1e293b)] border border-[var(--border-color, #334155)] rounded-2xl p-6 max-h-[90vh] flex flex-col">
+      <div ref={dialogRef} role="dialog" aria-modal="true" aria-label="Project editor" tabIndex={-1} className="modal-content w-full max-w-3xl bg-[var(--surface-color, #1e293b)] border border-[var(--border-color, #334155)] rounded-2xl p-6 max-h-[90vh] flex flex-col">
         {/* Header */}
         <div className="flex justify-between items-center mb-4 pb-3 border-b border-white/10">
           <div>
@@ -110,7 +112,7 @@ export const ProjectFormModal: React.FC<Props> = ({ project, onClose, onSaved })
           <button
             type="button"
             className="text-[var(--text-muted, #94a3b8)] hover:text-white p-1 rounded"
-            onClick={onClose}
+            aria-label="Close dialog" onClick={onClose}
           >
             <X size={20} />
           </button>
@@ -127,10 +129,10 @@ export const ProjectFormModal: React.FC<Props> = ({ project, onClose, onSaved })
           {/* Title & Domain & Difficulty */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <div className="md:col-span-3">
-              <label className="block text-xs font-medium text-[var(--text-muted, #94a3b8)] mb-1">
+              <label className="block text-xs font-medium text-[var(--text-muted, #94a3b8)] mb-1" htmlFor="projectformmodal-field-1">
                 Project Title *
               </label>
-              <input
+              <input id="projectformmodal-field-1"
                 type="text"
                 required
                 className="form-input w-full px-3 py-2 rounded-lg bg-[var(--bg-color, #0f172a)] border border-[var(--border-color, #334155)] text-white text-sm focus:outline-none focus:border-[var(--accent-color, #6366f1)]"
@@ -141,10 +143,10 @@ export const ProjectFormModal: React.FC<Props> = ({ project, onClose, onSaved })
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-[var(--text-muted, #94a3b8)] mb-1">
+              <label className="block text-xs font-medium text-[var(--text-muted, #94a3b8)] mb-1" htmlFor="projectformmodal-field-2">
                 Domain / Field *
               </label>
-              <select
+              <select id="projectformmodal-field-2"
                 className="form-input w-full px-3 py-2 rounded-lg bg-[var(--bg-color, #0f172a)] border border-[var(--border-color, #334155)] text-white text-sm focus:outline-none focus:border-[var(--accent-color, #6366f1)]"
                 value={formData.domain}
                 onChange={(e) => setFormData({ ...formData, domain: e.target.value as any })}
@@ -158,10 +160,10 @@ export const ProjectFormModal: React.FC<Props> = ({ project, onClose, onSaved })
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-[var(--text-muted, #94a3b8)] mb-1">
+              <label className="block text-xs font-medium text-[var(--text-muted, #94a3b8)] mb-1" htmlFor="projectformmodal-field-3">
                 Difficulty Level *
               </label>
-              <select
+              <select id="projectformmodal-field-3"
                 className="form-input w-full px-3 py-2 rounded-lg bg-[var(--bg-color, #0f172a)] border border-[var(--border-color, #334155)] text-white text-sm focus:outline-none focus:border-[var(--accent-color, #6366f1)]"
                 value={formData.difficulty}
                 onChange={(e) => setFormData({ ...formData, difficulty: e.target.value as any })}
@@ -175,10 +177,10 @@ export const ProjectFormModal: React.FC<Props> = ({ project, onClose, onSaved })
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-[var(--text-muted, #94a3b8)] mb-1">
+              <label className="block text-xs font-medium text-[var(--text-muted, #94a3b8)] mb-1" htmlFor="projectformmodal-field-4">
                 Status *
               </label>
-              <select
+              <select id="projectformmodal-field-4"
                 className="form-input w-full px-3 py-2 rounded-lg bg-[var(--bg-color, #0f172a)] border border-[var(--border-color, #334155)] text-white text-sm focus:outline-none focus:border-[var(--accent-color, #6366f1)]"
                 value={formData.status}
                 onChange={(e) => setFormData({ ...formData, status: e.target.value as any })}
@@ -194,10 +196,10 @@ export const ProjectFormModal: React.FC<Props> = ({ project, onClose, onSaved })
 
           {/* Short Description */}
           <div>
-            <label className="block text-xs font-medium text-[var(--text-muted, #94a3b8)] mb-1">
+            <label className="block text-xs font-medium text-[var(--text-muted, #94a3b8)] mb-1" htmlFor="projectformmodal-field-5">
               Short Description (1-2 sentences) *
             </label>
-            <input
+            <input id="projectformmodal-field-5"
               type="text"
               required
               maxLength={500}
@@ -210,10 +212,10 @@ export const ProjectFormModal: React.FC<Props> = ({ project, onClose, onSaved })
 
           {/* Full Description */}
           <div>
-            <label className="block text-xs font-medium text-[var(--text-muted, #94a3b8)] mb-1">
+            <label className="block text-xs font-medium text-[var(--text-muted, #94a3b8)] mb-1" htmlFor="projectformmodal-field-6">
               Full Overview & Scope
             </label>
-            <textarea
+            <textarea id="projectformmodal-field-6"
               rows={4}
               className="form-input w-full px-3 py-2 rounded-lg bg-[var(--bg-color, #0f172a)] border border-[var(--border-color, #334155)] text-white text-sm focus:outline-none focus:border-[var(--accent-color, #6366f1)]"
               placeholder="Detailed architecture, background problem, and approach..."
@@ -225,10 +227,10 @@ export const ProjectFormModal: React.FC<Props> = ({ project, onClose, onSaved })
           {/* Technologies & Max Team Size */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <div className="md:col-span-2">
-              <label className="block text-xs font-medium text-[var(--text-muted, #94a3b8)] mb-1">
+              <label className="block text-xs font-medium text-[var(--text-muted, #94a3b8)] mb-1" htmlFor="projectformmodal-field-7">
                 Technologies & Tools (comma-separated)
               </label>
-              <input
+              <input id="projectformmodal-field-7"
                 type="text"
                 className="form-input w-full px-3 py-2 rounded-lg bg-[var(--bg-color, #0f172a)] border border-[var(--border-color, #334155)] text-white text-sm focus:outline-none focus:border-[var(--accent-color, #6366f1)]"
                 placeholder="PyTorch, ROS2, OpenCV, Docker"
@@ -238,10 +240,10 @@ export const ProjectFormModal: React.FC<Props> = ({ project, onClose, onSaved })
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-[var(--text-muted, #94a3b8)] mb-1">
+              <label className="block text-xs font-medium text-[var(--text-muted, #94a3b8)] mb-1" htmlFor="projectformmodal-field-8">
                 Max Team Size
               </label>
-              <input
+              <input id="projectformmodal-field-8"
                 type="number"
                 min={1}
                 max={20}
@@ -255,10 +257,10 @@ export const ProjectFormModal: React.FC<Props> = ({ project, onClose, onSaved })
           {/* Objectives & Requirements */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-medium text-[var(--text-muted, #94a3b8)] mb-1">
+              <label className="block text-xs font-medium text-[var(--text-muted, #94a3b8)] mb-1" htmlFor="projectformmodal-field-9">
                 Project Objectives (one per line)
               </label>
-              <textarea
+              <textarea id="projectformmodal-field-9"
                 rows={3}
                 className="form-input w-full px-3 py-2 rounded-lg bg-[var(--bg-color, #0f172a)] border border-[var(--border-color, #334155)] text-white text-sm focus:outline-none focus:border-[var(--accent-color, #6366f1)]"
                 placeholder="Implement visual odometry&#10;Benchmark on drone test dataset&#10;Publish open-source repo"
@@ -268,10 +270,10 @@ export const ProjectFormModal: React.FC<Props> = ({ project, onClose, onSaved })
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-[var(--text-muted, #94a3b8)] mb-1">
+              <label className="block text-xs font-medium text-[var(--text-muted, #94a3b8)] mb-1" htmlFor="projectformmodal-field-10">
                 Prerequisites & Requirements (one per line)
               </label>
-              <textarea
+              <textarea id="projectformmodal-field-10"
                 rows={3}
                 className="form-input w-full px-3 py-2 rounded-lg bg-[var(--bg-color, #0f172a)] border border-[var(--border-color, #334155)] text-white text-sm focus:outline-none focus:border-[var(--accent-color, #6366f1)]"
                 placeholder="Basic Python & C++&#10;Understanding of neural networks"
@@ -284,10 +286,10 @@ export const ProjectFormModal: React.FC<Props> = ({ project, onClose, onSaved })
           {/* URLs */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <div>
-              <label className="block text-xs font-medium text-[var(--text-muted, #94a3b8)] mb-1">
+              <label className="block text-xs font-medium text-[var(--text-muted, #94a3b8)] mb-1" htmlFor="projectformmodal-field-11">
                 GitHub Repository URL
               </label>
-              <input
+              <input id="projectformmodal-field-11"
                 type="url"
                 className="form-input w-full px-3 py-2 rounded-lg bg-[var(--bg-color, #0f172a)] border border-[var(--border-color, #334155)] text-white text-sm focus:outline-none focus:border-[var(--accent-color, #6366f1)]"
                 placeholder="https://github.com/..."
@@ -297,10 +299,10 @@ export const ProjectFormModal: React.FC<Props> = ({ project, onClose, onSaved })
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-[var(--text-muted, #94a3b8)] mb-1">
+              <label className="block text-xs font-medium text-[var(--text-muted, #94a3b8)] mb-1" htmlFor="projectformmodal-field-12">
                 Live Demo URL
               </label>
-              <input
+              <input id="projectformmodal-field-12"
                 type="url"
                 className="form-input w-full px-3 py-2 rounded-lg bg-[var(--bg-color, #0f172a)] border border-[var(--border-color, #334155)] text-white text-sm focus:outline-none focus:border-[var(--accent-color, #6366f1)]"
                 placeholder="https://demo.aiclub.com"
@@ -310,10 +312,10 @@ export const ProjectFormModal: React.FC<Props> = ({ project, onClose, onSaved })
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-[var(--text-muted, #94a3b8)] mb-1">
+              <label className="block text-xs font-medium text-[var(--text-muted, #94a3b8)] mb-1" htmlFor="projectformmodal-field-13">
                 Documentation URL
               </label>
-              <input
+              <input id="projectformmodal-field-13"
                 type="url"
                 className="form-input w-full px-3 py-2 rounded-lg bg-[var(--bg-color, #0f172a)] border border-[var(--border-color, #334155)] text-white text-sm focus:outline-none focus:border-[var(--accent-color, #6366f1)]"
                 placeholder="https://docs.aiclub.com"

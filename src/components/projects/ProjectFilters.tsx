@@ -48,6 +48,7 @@ export const ProjectFilters: React.FC<Props> = ({
             className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--text-muted, #94a3b8)]"
           />
           <input
+            aria-label="Search projects"
             type="text"
             className="w-full pl-10 pr-4 py-2.5 rounded-lg text-sm bg-[var(--surface-color, #1e293b)] border border-[var(--border-color, #334155)] text-white placeholder-[#64748b] focus:outline-none focus:border-[var(--accent-color, #6366f1)]"
             placeholder="Search projects by title, description, or tech stack..."
@@ -83,6 +84,7 @@ export const ProjectFilters: React.FC<Props> = ({
         <select
           className="text-xs px-3 py-1.5 rounded-lg bg-[var(--surface-color, #1e293b)] border border-[var(--border-color, #334155)] text-white focus:outline-none focus:border-[var(--accent-color, #6366f1)]"
           value={domain}
+          aria-label="Project domain"
           onChange={(e) => onDomainChange(e.target.value)}
         >
           <option value="ALL">All Domains</option>
@@ -97,6 +99,7 @@ export const ProjectFilters: React.FC<Props> = ({
         <select
           className="text-xs px-3 py-1.5 rounded-lg bg-[var(--surface-color, #1e293b)] border border-[var(--border-color, #334155)] text-white focus:outline-none focus:border-[var(--accent-color, #6366f1)]"
           value={difficulty}
+          aria-label="Project difficulty"
           onChange={(e) => onDifficultyChange(e.target.value)}
         >
           <option value="ALL">All Difficulties</option>
@@ -111,6 +114,7 @@ export const ProjectFilters: React.FC<Props> = ({
         <select
           className="text-xs px-3 py-1.5 rounded-lg bg-[var(--surface-color, #1e293b)] border border-[var(--border-color, #334155)] text-white focus:outline-none focus:border-[var(--accent-color, #6366f1)]"
           value={status}
+          aria-label="Project status"
           onChange={(e) => onStatusChange(e.target.value)}
         >
           <option value="ALL">All Statuses</option>
@@ -123,6 +127,7 @@ export const ProjectFilters: React.FC<Props> = ({
         <select
           className="text-xs px-3 py-1.5 rounded-lg bg-[var(--surface-color, #1e293b)] border border-[var(--border-color, #334155)] text-white ml-auto focus:outline-none focus:border-[var(--accent-color, #6366f1)]"
           value={sort}
+          aria-label="Sort projects"
           onChange={(e) => onSortChange(e.target.value)}
         >
           <option value="latest">Sort: Newest First</option>

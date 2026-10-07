@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, Check, Bell, Loader2, ShieldCheck } from 'lucide-react';
 import { notificationsApi } from '../../api/notifications.api';
+import { useDialog } from '../../hooks/useDialog';
 import type { NotificationPreferences } from '../../types/notifications';
 
 interface NotificationPreferencesModalProps {
@@ -14,6 +15,8 @@ export const NotificationPreferencesModal: React.FC<NotificationPreferencesModal
   onClose,
   onSaved,
 }) => {
+  const dialogRef = useDialog(isOpen, onClose);
+  const [error, setError] = useState('');
   const [preferences, setPreferences] = useState<NotificationPreferences>({
     event_notifications: true,
     project_notifications: true,
@@ -43,7 +46,7 @@ export const NotificationPreferencesModal: React.FC<NotificationPreferencesModal
             });
           }
         })
-        .catch((err) => console.error('Failed to load preferences:', err))
+        .catch((err) => setError(err.message || 'Preferences could not be loaded.'))
         .finally(() => setLoading(false));
     }
   }, [isOpen]);
@@ -60,6 +63,7 @@ export const NotificationPreferencesModal: React.FC<NotificationPreferencesModal
   const handleSave = async () => {
     setSaving(true);
     setSuccessMsg('');
+    setError('');
     try {
       await notificationsApi.updatePreferences(preferences);
       setSuccessMsg('Preferences saved successfully!');
@@ -69,7 +73,7 @@ export const NotificationPreferencesModal: React.FC<NotificationPreferencesModal
         onClose();
       }, 1000);
     } catch (err) {
-      console.error('Failed to save preferences:', err);
+      setError(err instanceof Error ? err.message : 'Preferences were not saved. Try again.');
     } finally {
       setSaving(false);
     }
@@ -115,10 +119,16 @@ export const NotificationPreferencesModal: React.FC<NotificationPreferencesModal
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md">
       <div
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Notification preferences"
+        tabIndex={-1}
         className="w-full max-w-lg rounded-2xl border border-white/10 p-6 flex flex-col shadow-2xl relative"
         style={{ backgroundColor: '#121624' }}
       >
         <button
+          aria-label="Close notification preferences"
           onClick={onClose}
           className="absolute top-5 right-5 text-gray-400 hover:text-white p-1 rounded-lg hover:bg-white/5 transition-colors"
         >
@@ -149,6 +159,11 @@ export const NotificationPreferencesModal: React.FC<NotificationPreferencesModal
               return (
                 <div
                   key={opt.key}
+                  role="switch"
+                  aria-checked={checked}
+                  aria-label={opt.title}
+                  tabIndex={0}
+                  onKeyDown={event => { if (event.key === ' ' || event.key === 'Enter') { event.preventDefault(); handleToggle(opt.key); } }}
                   onClick={() => handleToggle(opt.key)}
                   className="flex items-center justify-between p-3.5 rounded-xl bg-white/[0.03] border border-white/5 hover:border-white/15 cursor-pointer transition-all"
                 >
@@ -180,6 +195,7 @@ export const NotificationPreferencesModal: React.FC<NotificationPreferencesModal
           </div>
         )}
 
+        {error && <p role="alert" className="form-error">{error}</p>}
         {successMsg && (
           <div className="my-2 p-2.5 rounded-lg bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-xs flex items-center gap-2">
             <Check size={16} />

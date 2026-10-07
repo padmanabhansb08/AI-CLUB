@@ -104,6 +104,12 @@ export const NotificationItem: React.FC<NotificationItemProps> = ({
   return (
     <div
       onClick={handleClick}
+      role="link"
+      tabIndex={0}
+      aria-label={notification.title}
+      onKeyDown={(event) => {
+        if (event.key === 'Enter' && event.target === event.currentTarget) handleClick(event as unknown as React.MouseEvent);
+      }}
       className={`notification-item-card flex items-start gap-3 p-3.5 rounded-xl cursor-pointer transition-all duration-200 border ${
         isUnread
           ? 'bg-[var(--bg-card)]/90 border-cyan-500/30 hover:border-cyan-500/60 shadow-sm'

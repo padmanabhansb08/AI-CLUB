@@ -1,3 +1,4 @@
+import { notifyError } from '../services/actionFeedback';
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { DashboardLayout } from '../components/layout/DashboardLayout';
@@ -68,7 +69,7 @@ export const CourseDetail: React.FC = () => {
       await coursesApi.enroll(course.id);
       await fetchCourseData();
     } catch (err: any) {
-      alert(err.message || 'Enrollment failed');
+      notifyError(err.message || 'Enrollment failed');
     } finally {
       setEnrolling(false);
     }

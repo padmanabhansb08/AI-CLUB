@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { DashboardLayout } from '../components/layout/DashboardLayout';
 import { notificationsApi } from '../api/notifications.api';
+import { notifyError } from '../services/actionFeedback';
 import { NotificationItem } from '../components/notifications/NotificationItem';
 import { NotificationPreferencesModal } from '../components/notifications/NotificationPreferencesModal';
 import {
@@ -48,6 +49,7 @@ export const Notifications: React.FC = () => {
       }
     } catch (err) {
       console.error('Failed to load notifications:', err);
+      notifyError(err instanceof Error ? err.message : 'Notifications could not be loaded. Please refresh to retry.');
     } finally {
       setLoading(false);
     }
@@ -66,6 +68,7 @@ export const Notifications: React.FC = () => {
       setUnreadCount((prev) => Math.max(0, prev - 1));
     } catch (err) {
       console.error('Failed to mark read:', err);
+      notifyError(err instanceof Error ? err.message : 'This notification was not marked as read.');
     }
   };
 
@@ -77,6 +80,7 @@ export const Notifications: React.FC = () => {
       setUnreadCount(0);
     } catch (err) {
       console.error('Failed to mark all as read:', err);
+      notifyError(err instanceof Error ? err.message : 'Notifications were not marked as read.');
     }
   };
 
@@ -129,7 +133,8 @@ export const Notifications: React.FC = () => {
         {/* Tab Controls */}
         <div className="flex items-center gap-2 p-1.5 rounded-2xl bg-[#121624] border border-white/10 w-fit">
           <button
-            onClick={() => {
+            aria-pressed={activeTab === 'ALL'}
+              onClick={() => {
               setActiveTab('ALL');
               setPage(1);
             }}
@@ -144,7 +149,8 @@ export const Notifications: React.FC = () => {
           </button>
 
           <button
-            onClick={() => {
+            aria-pressed={activeTab === 'UNREAD'}
+              onClick={() => {
               setActiveTab('UNREAD');
               setPage(1);
             }}
@@ -164,7 +170,8 @@ export const Notifications: React.FC = () => {
           </button>
 
           <button
-            onClick={() => {
+            aria-pressed={activeTab === 'ACTIVITY'}
+              onClick={() => {
               setActiveTab('ACTIVITY');
               setPage(1);
             }}

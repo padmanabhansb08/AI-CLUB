@@ -213,16 +213,16 @@ export const Profile: React.FC = () => {
   const missingItems = profile.profileCompletion?.missing || [];
 
   return (
-    <DashboardLayout pageTitle="Member Profile">
+    <DashboardLayout pageTitle="Profile">
       <div className="page-container max-w-5xl mx-auto pb-12">
         {/* Header Bar */}
         <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
           <div>
             <h1 className="page-title mb-1 text-2xl font-bold flex items-center gap-2">
-              <User size={24} className="text-accent" /> Member Identity
+              <User size={24} className="text-accent" /> Your profile
             </h1>
             <p className="text-gray-400 text-sm">
-              Manage your academic credentials, technical skills, interests, and club identity.
+              Update your details, skills, interests, and public club profile.
             </p>
           </div>
 
@@ -287,7 +287,7 @@ export const Profile: React.FC = () => {
                   onClick={() => setIsEditing(true)}
                   className="text-xs px-2.5 py-1 rounded bg-gray-800 hover:bg-gray-700 text-gray-300 hover:text-white transition-colors flex items-center gap-1 border border-gray-700"
                 >
-                  <Plus size={12} /> {item}
+                  <Plus size={12} /> {({ profilePhoto: 'Profile photo', bio: 'About you', skills: 'Skills', interests: 'Interests', github: 'GitHub', linkedin: 'LinkedIn', portfolio: 'Portfolio' } as Record<string,string>)[item] || item}
                 </button>
               ))}
             </div>
@@ -668,7 +668,7 @@ export const Profile: React.FC = () => {
                   required
                 />
                 <Input
-                  label="Register Number (Immutable)"
+                  label="Register number"
                   value={profile.registerNumber}
                   disabled
                 />
@@ -702,7 +702,7 @@ export const Profile: React.FC = () => {
                   placeholder="+91 9876543210"
                 />
                 <Input
-                  label="College Email (Immutable)"
+                  label="Email address"
                   value={profile.collegeEmail}
                   disabled
                 />
@@ -748,10 +748,11 @@ export const Profile: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">
+                <label htmlFor="profile-bio" className="block text-sm font-medium text-gray-300 mb-1">
                   Bio / About Me ({bio.length}/1000)
                 </label>
                 <textarea
+                  id="profile-bio"
                   value={bio}
                   onChange={(e) => setBio(e.target.value)}
                   maxLength={1000}
@@ -800,6 +801,7 @@ export const Profile: React.FC = () => {
                   <input
                     type="text"
                     value={newSkillName}
+                    aria-label="Add a skill"
                     onChange={(e) => setNewSkillName(e.target.value)}
                     placeholder="e.g. PyTorch, React, Rust"
                     className="w-full bg-dark-bg border border-gray-700 rounded-lg p-2.5 text-sm text-gray-200 focus:outline-none focus:border-accent"
@@ -814,6 +816,7 @@ export const Profile: React.FC = () => {
                 <div className="sm:col-span-1">
                   <select
                     value={newSkillProficiency}
+                    aria-label="Skill proficiency"
                     onChange={(e) => setNewSkillProficiency(e.target.value as SkillProficiency)}
                     className="w-full bg-dark-bg border border-gray-700 rounded-lg p-2.5 text-sm text-gray-200 focus:outline-none focus:border-accent"
                   >
@@ -890,6 +893,7 @@ export const Profile: React.FC = () => {
                 <input
                   type="text"
                   value={newInterestName}
+                  aria-label="Add an interest"
                   onChange={(e) => setNewInterestName(e.target.value)}
                   placeholder="Custom interest (e.g. Edge AI, Quantization)..."
                   className="flex-1 bg-dark-bg border border-gray-700 rounded-lg p-2.5 text-sm text-gray-200 focus:outline-none focus:border-accent"

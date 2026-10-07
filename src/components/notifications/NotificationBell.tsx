@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { notifyError } from '../../services/actionFeedback';
 import { Bell } from 'lucide-react';
 import { notificationsApi } from '../../api/notifications.api';
 import { NotificationDropdown } from './NotificationDropdown';
@@ -13,6 +14,7 @@ export const NotificationBell: React.FC<NotificationBellProps> = ({ className = 
   const [unreadCount, setUnreadCount] = useState(0);
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const fetchUnreadCount = useCallback(async () => {
     try {
@@ -25,12 +27,13 @@ export const NotificationBell: React.FC<NotificationBellProps> = ({ className = 
 
   const fetchDropdownNotifications = useCallback(async () => {
     setLoading(true);
+    setError('');
     try {
       const res = await notificationsApi.getNotifications({ page: 1, limit: 10 });
       setNotifications(res.items);
       setUnreadCount(res.pagination.unreadCount ?? 0);
-    } catch {
-      // ignore
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Notifications are unavailable. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -46,10 +49,12 @@ export const NotificationBell: React.FC<NotificationBellProps> = ({ className = 
       fetchUnreadCount();
     };
     window.addEventListener('focus', onFocus);
+    window.addEventListener('aiclub:notifications-changed', onFocus);
 
     return () => {
       clearInterval(interval);
       window.removeEventListener('focus', onFocus);
+      window.removeEventListener('aiclub:notifications-changed', onFocus);
     };
   }, [fetchUnreadCount]);
 
@@ -69,6 +74,7 @@ export const NotificationBell: React.FC<NotificationBellProps> = ({ className = 
       setUnreadCount((prev) => Math.max(0, prev - 1));
     } catch (err) {
       console.error('Failed to mark notification as read:', err);
+      notifyError(err instanceof Error ? err.message : 'This notification could not be marked read.');
     }
   };
 
@@ -80,6 +86,7 @@ export const NotificationBell: React.FC<NotificationBellProps> = ({ className = 
       setUnreadCount(0);
     } catch (err) {
       console.error('Failed to mark all notifications as read:', err);
+      notifyError(err instanceof Error ? err.message : 'Notifications could not be marked read.');
     }
   };
 
@@ -106,6 +113,7 @@ export const NotificationBell: React.FC<NotificationBellProps> = ({ className = 
         notifications={notifications}
         unreadCount={unreadCount}
         loading={loading}
+        error={error}
         onMarkAsRead={handleMarkAsRead}
         onMarkAllAsRead={handleMarkAllAsRead}
       />

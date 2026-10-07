@@ -1,3 +1,4 @@
+import { DashboardLayout } from '../components/layout/DashboardLayout';
 import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { StateView } from '../components/common/StateView';
@@ -17,9 +18,10 @@ export const AnnouncementDetail = () => {
     }
   }, [id]);
 
-  const loadAnnouncement = async (announcementId: string) => {
+  async function loadAnnouncement(announcementId: string) {
     try {
       setLoading(true);
+      setError(null);
       const data = await announcementService.getById(announcementId);
       setAnnouncement(data);
       
@@ -34,17 +36,17 @@ export const AnnouncementDetail = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }
 
-  if (!loading && !announcement) {
-    return (
+  if (!loading && !announcement && !error) {
+    return (<DashboardLayout pageTitle="Announcement Detail">{(
       <div className="text-center py-12">
         <h2 className="text-2xl font-bold text-gray-200">Announcement not found</h2>
         <button onClick={() => navigate('/announcements')} className="mt-4 text-blue-400 hover:text-blue-300">
           Return to announcements
         </button>
       </div>
-    );
+    )}</DashboardLayout>);
   }
 
   const getPriorityColor = (priority: string) => {
@@ -55,13 +57,13 @@ export const AnnouncementDetail = () => {
     }
   };
 
-  return (
+  return (<DashboardLayout pageTitle="Announcement Detail">{(
     <div className="max-w-3xl mx-auto space-y-6">
       <Link to="/announcements" className="text-sm font-mono text-gray-500 hover:text-gray-300 uppercase tracking-widest inline-flex items-center gap-2">
         &larr; Back to announcements
       </Link>
 
-      <StateView loading={loading} error={error as any}>
+      <StateView loading={loading} error={error} retry={() => id && loadAnnouncement(id)}>
         {announcement && (
           <div className="bg-gray-900 border border-gray-800 rounded-lg p-8">
             <div className="flex flex-wrap items-center gap-3 mb-6 border-b border-gray-800 pb-6">
@@ -87,5 +89,5 @@ export const AnnouncementDetail = () => {
         )}
       </StateView>
     </div>
-  );
+  )}</DashboardLayout>);
 };

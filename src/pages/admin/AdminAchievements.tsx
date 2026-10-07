@@ -1,3 +1,5 @@
+import { confirmAction } from '../../services/confirmation';
+import { useDialog } from '../../hooks/useDialog';
 import React, { useState, useEffect } from 'react';
 import { AdminLayout } from '../../components/layout/AdminLayout';
 import { achievementsApi } from '../../api/achievements.api';
@@ -82,6 +84,8 @@ export const AdminAchievements: React.FC = () => {
 
   // Stats Modal State
   const [selectedStats, setSelectedStats] = useState<AdminAchievementStats | null>(null);
+  const editorRef = useDialog(isFormOpen, () => setIsFormOpen(false));
+  const statsRef = useDialog(!!selectedStats, () => setSelectedStats(null));
 
   const loadData = async () => {
     setLoading(true);
@@ -186,7 +190,7 @@ export const AdminAchievements: React.FC = () => {
   };
 
   const handleDelete = async (id: string, name: string) => {
-    if (window.confirm(`Delete "${name}"?\nThis will remove it from all member profiles.`)) {
+    if (await confirmAction(`Delete "${name}"?\nThis will remove it from all member profiles.`)) {
       try {
         await achievementsApi.deleteAchievement(id);
         setAchievements((prev) => prev.filter((a) => a.id !== id));
@@ -255,8 +259,8 @@ export const AdminAchievements: React.FC = () => {
 
         {/* Action Header & Filters */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="relative min-w-[240px]">
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="relative flex-1 min-w-[200px]">
               <Search
                 size={16}
                 className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
@@ -264,6 +268,7 @@ export const AdminAchievements: React.FC = () => {
               <input
                 type="text"
                 placeholder="Search achievements..."
+                aria-label="Search achievements"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full bg-[#121624] border border-white/10 rounded-xl pl-9 pr-3 py-2 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500/50"
@@ -272,6 +277,7 @@ export const AdminAchievements: React.FC = () => {
 
             <select
               value={categoryFilter}
+              aria-label="Achievement category"
               onChange={(e) => setCategoryFilter(e.target.value)}
               className="bg-[#121624] border border-white/10 rounded-xl px-3 py-2 text-xs text-gray-300 focus:outline-none"
             >
@@ -409,10 +415,12 @@ export const AdminAchievements: React.FC = () => {
         {isFormOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md">
             <div
+              ref={editorRef} role="dialog" aria-modal="true" aria-label="Achievement editor" tabIndex={-1}
               className="w-full max-w-lg rounded-2xl border border-white/10 p-6 flex flex-col shadow-2xl relative"
               style={{ backgroundColor: '#121624' }}
             >
               <button
+                aria-label="Close achievement editor"
                 onClick={() => setIsFormOpen(false)}
                 className="absolute top-5 right-5 text-gray-400 hover:text-white"
               >
@@ -426,10 +434,10 @@ export const AdminAchievements: React.FC = () => {
 
               <form onSubmit={handleSave} className="space-y-4">
                 <div>
-                  <label className="block text-xs font-semibold text-gray-300 mb-1">
+                  <label className="block text-xs font-semibold text-gray-300 mb-1" htmlFor="adminachievements-field-1">
                     Achievement Name *
                   </label>
-                  <input
+                  <input id="adminachievements-field-1"
                     type="text"
                     required
                     value={formData.name}
@@ -440,10 +448,10 @@ export const AdminAchievements: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-gray-300 mb-1">
+                  <label className="block text-xs font-semibold text-gray-300 mb-1" htmlFor="adminachievements-field-2">
                     Slug (Unique identifier)
                   </label>
-                  <input
+                  <input id="adminachievements-field-2"
                     type="text"
                     value={formData.slug}
                     onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
@@ -453,10 +461,10 @@ export const AdminAchievements: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-gray-300 mb-1">
+                  <label className="block text-xs font-semibold text-gray-300 mb-1" htmlFor="adminachievements-field-3">
                     Description *
                   </label>
-                  <textarea
+                  <textarea id="adminachievements-field-3"
                     required
                     rows={2}
                     value={formData.description}
@@ -468,10 +476,10 @@ export const AdminAchievements: React.FC = () => {
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-semibold text-gray-300 mb-1">
+                    <label className="block text-xs font-semibold text-gray-300 mb-1" htmlFor="adminachievements-field-4">
                       Category
                     </label>
-                    <select
+                    <select id="adminachievements-field-4"
                       value={formData.category}
                       onChange={(e) =>
                         setFormData({ ...formData, category: e.target.value as AchievementCategory })
@@ -487,10 +495,10 @@ export const AdminAchievements: React.FC = () => {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-semibold text-gray-300 mb-1">
+                    <label className="block text-xs font-semibold text-gray-300 mb-1" htmlFor="adminachievements-field-5">
                       Criteria Metric
                     </label>
-                    <select
+                    <select id="adminachievements-field-5"
                       value={formData.criteria_type}
                       onChange={(e) =>
                         setFormData({
@@ -511,10 +519,10 @@ export const AdminAchievements: React.FC = () => {
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-semibold text-gray-300 mb-1">
+                    <label className="block text-xs font-semibold text-gray-300 mb-1" htmlFor="adminachievements-field-6">
                       Target Count *
                     </label>
-                    <input
+                    <input id="adminachievements-field-6"
                       type="number"
                       min={1}
                       required
@@ -527,10 +535,10 @@ export const AdminAchievements: React.FC = () => {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-semibold text-gray-300 mb-1">
+                    <label className="block text-xs font-semibold text-gray-300 mb-1" htmlFor="adminachievements-field-7">
                       Points Awarded *
                     </label>
-                    <input
+                    <input id="adminachievements-field-7"
                       type="number"
                       min={0}
                       required
@@ -569,10 +577,12 @@ export const AdminAchievements: React.FC = () => {
         {selectedStats && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md">
             <div
+              ref={statsRef} role="dialog" aria-modal="true" aria-label="Achievement statistics" tabIndex={-1}
               className="w-full max-w-md rounded-2xl border border-white/10 p-6 flex flex-col shadow-2xl relative"
               style={{ backgroundColor: '#121624' }}
             >
               <button
+                aria-label="Close achievement statistics"
                 onClick={() => setSelectedStats(null)}
                 className="absolute top-5 right-5 text-gray-400 hover:text-white"
               >

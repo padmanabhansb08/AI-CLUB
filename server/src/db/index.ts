@@ -3,6 +3,9 @@ import { config } from '../config';
 
 export const pool = new Pool({
   connectionString: config.DATABASE_URL,
+  ssl: config.DATABASE_SSL === 'true' ? { rejectUnauthorized: false } : undefined,
+  connectionTimeoutMillis: 10000,
+  query_timeout: 10000,
 });
 
 pool.on('error', (err) => {

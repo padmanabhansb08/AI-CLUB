@@ -1,3 +1,4 @@
+import { useDialog } from '../../hooks/useDialog';
 import React, { useState } from 'react';
 import { X, Calendar, Clock, MapPin, Globe, Users, AlertCircle, Loader2 } from 'lucide-react';
 import { EVENT_TYPES, type EventItem, type EventTypeEnum } from '../../types/events';
@@ -17,6 +18,7 @@ export const EventForm: React.FC<EventFormProps> = ({
   onSubmit,
   title = 'Create Event',
 }) => {
+  const dialogRef = useDialog(isOpen, onClose);
   // Format ISO strings to datetime-local format (YYYY-MM-DDTHH:mm)
   const formatForInput = (isoString?: string | null) => {
     if (!isoString) return '';
@@ -140,7 +142,7 @@ export const EventForm: React.FC<EventFormProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl bg-zinc-900 border border-zinc-800 shadow-2xl p-6 text-zinc-100 space-y-5">
+      <div ref={dialogRef} role="dialog" aria-modal="true" aria-label="Event editor" tabIndex={-1} className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl bg-zinc-900 border border-zinc-800 shadow-2xl p-6 text-zinc-100 space-y-5">
         {/* Header */}
         <div className="flex items-center justify-between pb-4 border-b border-zinc-800">
           <div>
@@ -150,6 +152,7 @@ export const EventForm: React.FC<EventFormProps> = ({
             </p>
           </div>
           <button
+            aria-label="Close event editor"
             onClick={onClose}
             disabled={submitting}
             className="p-1.5 rounded-lg text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 transition-colors"
@@ -174,10 +177,10 @@ export const EventForm: React.FC<EventFormProps> = ({
         >
           {/* Title */}
           <div>
-            <label className="block font-medium text-zinc-300 mb-1">
+            <label className="block font-medium text-zinc-300 mb-1" htmlFor="eventform-field-100">
               Event Title <span className="text-rose-400">*</span>
             </label>
-            <input
+            <input id="eventform-field-100"
               type="text"
               value={formData.title}
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
@@ -190,10 +193,10 @@ export const EventForm: React.FC<EventFormProps> = ({
           {/* Type & Organizer */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div>
-              <label className="block font-medium text-zinc-300 mb-1">
+              <label className="block font-medium text-zinc-300 mb-1" htmlFor="eventform-field-101">
                 Event Type <span className="text-rose-400">*</span>
               </label>
-              <select
+              <select id="eventform-field-101"
                 value={formData.event_type}
                 onChange={(e) => setFormData({ ...formData, event_type: e.target.value as EventTypeEnum })}
                 className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-950 border border-zinc-800 text-zinc-100 focus:outline-none focus:border-emerald-500"
@@ -207,8 +210,8 @@ export const EventForm: React.FC<EventFormProps> = ({
             </div>
 
             <div>
-              <label className="block font-medium text-zinc-300 mb-1">Organizer</label>
-              <input
+              <label className="block font-medium text-zinc-300 mb-1" htmlFor="eventform-field-1">Organizer</label>
+              <input id="eventform-field-1"
                 type="text"
                 value={formData.organizer}
                 onChange={(e) => setFormData({ ...formData, organizer: e.target.value })}
@@ -236,11 +239,11 @@ export const EventForm: React.FC<EventFormProps> = ({
           {/* Schedule: Start & End */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 p-3.5 rounded-xl bg-zinc-950/60 border border-zinc-800/80">
             <div>
-              <label className="block font-medium text-zinc-300 mb-1 flex items-center gap-1.5">
+              <label className="block font-medium text-zinc-300 mb-1 flex items-center gap-1.5" htmlFor="eventform-field-102">
                 <Calendar size={13} className="text-emerald-400" />
                 Start Date & Time <span className="text-rose-400">*</span>
               </label>
-              <input
+              <input id="eventform-field-102"
                 type="datetime-local"
                 value={formData.start_at}
                 onChange={(e) => setFormData({ ...formData, start_at: e.target.value })}
@@ -250,11 +253,11 @@ export const EventForm: React.FC<EventFormProps> = ({
             </div>
 
             <div>
-              <label className="block font-medium text-zinc-300 mb-1 flex items-center gap-1.5">
+              <label className="block font-medium text-zinc-300 mb-1 flex items-center gap-1.5" htmlFor="eventform-field-103">
                 <Clock size={13} className="text-emerald-400" />
                 End Date & Time <span className="text-rose-400">*</span>
               </label>
-              <input
+              <input id="eventform-field-103"
                 type="datetime-local"
                 value={formData.end_at}
                 onChange={(e) => setFormData({ ...formData, end_at: e.target.value })}
@@ -267,11 +270,11 @@ export const EventForm: React.FC<EventFormProps> = ({
           {/* Location & Meeting URL */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div>
-              <label className="block font-medium text-zinc-300 mb-1 flex items-center gap-1.5">
+              <label className="block font-medium text-zinc-300 mb-1 flex items-center gap-1.5" htmlFor="eventform-field-104">
                 <MapPin size={13} className="text-zinc-400" />
                 Physical Venue / Room
               </label>
-              <input
+              <input id="eventform-field-104"
                 type="text"
                 value={formData.location}
                 onChange={(e) => setFormData({ ...formData, location: e.target.value })}
@@ -282,11 +285,11 @@ export const EventForm: React.FC<EventFormProps> = ({
             </div>
 
             <div>
-              <label className="block font-medium text-zinc-300 mb-1 flex items-center gap-1.5">
+              <label className="block font-medium text-zinc-300 mb-1 flex items-center gap-1.5" htmlFor="eventform-field-105">
                 <Globe size={13} className="text-cyan-400" />
                 Virtual Meeting URL
               </label>
-              <input
+              <input id="eventform-field-105"
                 type="url"
                 value={formData.meeting_url}
                 onChange={(e) => setFormData({ ...formData, meeting_url: e.target.value })}
@@ -299,11 +302,11 @@ export const EventForm: React.FC<EventFormProps> = ({
 
           {/* Capacity */}
           <div>
-            <label className="block font-medium text-zinc-300 mb-1 flex items-center gap-1.5">
+            <label className="block font-medium text-zinc-300 mb-1 flex items-center gap-1.5" htmlFor="eventform-field-106">
               <Users size={13} className="text-zinc-400" />
               Capacity (Max Attendees)
             </label>
-            <input
+            <input id="eventform-field-106"
               type="number"
               min="1"
               value={formData.capacity}
@@ -317,10 +320,10 @@ export const EventForm: React.FC<EventFormProps> = ({
           {/* Registration Window */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 p-3.5 rounded-xl bg-zinc-950/60 border border-zinc-800/80">
             <div>
-              <label className="block font-medium text-zinc-300 mb-1">
+              <label className="block font-medium text-zinc-300 mb-1" htmlFor="eventform-field-2">
                 Registration Opens At
               </label>
-              <input
+              <input id="eventform-field-2"
                 type="datetime-local"
                 value={formData.registration_open_at}
                 onChange={(e) => setFormData({ ...formData, registration_open_at: e.target.value })}
@@ -329,10 +332,10 @@ export const EventForm: React.FC<EventFormProps> = ({
             </div>
 
             <div>
-              <label className="block font-medium text-zinc-300 mb-1">
+              <label className="block font-medium text-zinc-300 mb-1" htmlFor="eventform-field-3">
                 Registration Closes At
               </label>
-              <input
+              <input id="eventform-field-3"
                 type="datetime-local"
                 value={formData.registration_close_at}
                 onChange={(e) => setFormData({ ...formData, registration_close_at: e.target.value })}

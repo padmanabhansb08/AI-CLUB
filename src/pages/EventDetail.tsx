@@ -1,3 +1,4 @@
+import { confirmAction } from '../services/confirmation';
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { 
@@ -62,7 +63,7 @@ export default function EventDetail() {
 
   const handleCancelRegistration = async () => {
     if (!event) return;
-    if (!confirm('Are you sure you want to cancel your registration?')) return;
+    if (!await confirmAction('Are you sure you want to cancel your registration?')) return;
     try {
       setActionLoading(true);
       setFeedback(null);

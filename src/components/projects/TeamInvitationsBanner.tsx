@@ -1,3 +1,4 @@
+import { notifyError } from '../../services/actionFeedback';
 import React, { useState, useEffect } from 'react';
 import { Mail, Check, X } from 'lucide-react';
 import type { TeamInvitationItem } from '../../types/projects';
@@ -35,7 +36,7 @@ export const TeamInvitationsBanner: React.FC<Props> = ({ onInvitationsChanged })
       await fetchInvitations();
       if (onInvitationsChanged) onInvitationsChanged();
     } catch (err: any) {
-      alert(err.message || `Failed to ${action.toLowerCase()} invitation`);
+      notifyError(err.message || `Failed to ${action.toLowerCase()} invitation`);
     } finally {
       setActionLoading(null);
     }

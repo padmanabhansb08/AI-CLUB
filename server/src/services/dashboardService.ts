@@ -49,7 +49,6 @@ export const dashboardService = {
     // 2. Parallel queries for stats and content
     const [
       projectInterestsRes,
-      projectTeamsRes,
       courseProgressRes,
       achievementsRes,
       totalPointsRes,
@@ -65,10 +64,18 @@ export const dashboardService = {
       upcomingEventsRes,
     ] = await Promise.all([
       // Student's projects
-      query('SELECT COUNT(*) as count FROM project_interests WHERE member_id = $1', [memberId]),
-      query('SELECT COUNT(*) as count FROM project_team_members WHERE member_id = $1', [memberId]),
+      query(`SELECT COUNT(*) as count FROM (
+        SELECT project_id FROM project_memberships WHERE member_id = $1 AND status IN ('ACTIVE','PENDING')
+        UNION SELECT pi.project_id FROM project_interests pi WHERE pi.member_id = $1
+          AND NOT EXISTS (SELECT 1 FROM project_memberships pm WHERE pm.project_id = pi.project_id AND pm.member_id = $1)
+        UNION SELECT pt.project_id FROM project_team_members tm JOIN project_teams pt ON pt.id = tm.team_id WHERE tm.member_id = $1
+      ) memberships`, [memberId]),
       // Student's courses
-      query('SELECT COUNT(*) as count FROM course_progress WHERE member_id = $1', [memberId]),
+      query(`SELECT COUNT(*) as count FROM (
+        SELECT course_id FROM course_enrollments WHERE member_id = $1 AND status != 'DROPPED'
+        UNION SELECT cp.course_id FROM course_progress cp WHERE cp.member_id = $1
+          AND NOT EXISTS (SELECT 1 FROM course_enrollments ce WHERE ce.course_id = cp.course_id AND ce.member_id = $1)
+      ) enrollments`, [memberId]),
       // Student's achievements (supports both tables)
       query(`
         SELECT COUNT(DISTINCT achievement_id) as count 
@@ -96,7 +103,7 @@ export const dashboardService = {
         LIMIT 5
       `, [memberId]),
       // Student's registered events
-      query('SELECT COUNT(*) as count FROM event_registrations WHERE member_id = $1', [memberId]),
+      query("SELECT COUNT(*) as count FROM event_registrations WHERE member_id = $1 AND UPPER(status) IN ('REGISTERED', 'ATTENDED')", [memberId]),
       // Total counts for context
       query('SELECT COUNT(*) as count FROM projects WHERE status = \'Active\''),
       query('SELECT COUNT(*) as count FROM courses'),
@@ -114,6 +121,8 @@ export const dashboardService = {
           EXISTS(SELECT 1 FROM announcement_reads ar WHERE ar.announcement_id = a.id AND ar.member_id = $1) as "read"
         FROM announcements a
         WHERE a.status = 'published'
+          AND (a.published_at IS NULL OR a.published_at <= NOW())
+          AND (a.expires_at IS NULL OR a.expires_at > NOW())
         ORDER BY a.published_at DESC
         LIMIT 3
       `, [memberId]),
@@ -179,9 +188,7 @@ export const dashboardService = {
       `, [memberId]),
     ]);
 
-    const myProjectCount =
-      parseInt(projectInterestsRes.rows[0].count, 10) +
-      parseInt(projectTeamsRes.rows[0].count, 10);
+    const myProjectCount = parseInt(projectInterestsRes.rows[0].count, 10);
     const myCourseCount = parseInt(courseProgressRes.rows[0].count, 10);
     const myAchievementCount = parseInt(achievementsRes.rows[0].count, 10);
     const myEventCount = parseInt(eventsRes.rows[0].count, 10);
@@ -216,30 +223,40 @@ export const dashboardService = {
         SELECT 
           c.id, 
           c.title, 
-          cp.status, 
-          cp.progress_percent as "progressPercent", 
-          cp.created_at::text as timestamp
-        FROM course_progress cp
-        JOIN courses c ON c.id = cp.course_id
-        WHERE cp.member_id = $1
-        ORDER BY cp.created_at DESC
+          ce.status,
+          (SELECT CASE WHEN COUNT(cl.id) = 0 THEN 0 ELSE ROUND(100.0 * COUNT(lp.id) FILTER (WHERE lp.status = 'COMPLETED') / COUNT(cl.id))::int END
+            FROM course_modules cm JOIN course_lessons cl ON cl.module_id = cm.id
+            LEFT JOIN lesson_progress lp ON lp.lesson_id = cl.id AND lp.member_id = $1
+            WHERE cm.course_id = c.id) as "progressPercent",
+          ce.last_accessed_at::text as timestamp
+        FROM course_enrollments ce JOIN courses c ON c.id = ce.course_id
+        WHERE ce.member_id = $1 AND ce.status != 'DROPPED'
+        UNION ALL
+        SELECT c.id, c.title, cp.status, cp.progress_percent, cp.created_at::text
+        FROM course_progress cp JOIN courses c ON c.id = cp.course_id
+        WHERE cp.member_id = $1 AND NOT EXISTS (SELECT 1 FROM course_enrollments ce WHERE ce.course_id = cp.course_id AND ce.member_id = $1)
+        ORDER BY timestamp DESC
         LIMIT 3
       `, [memberId]),
       query(`
         SELECT 
           p.id, 
           p.title, 
-          pi.created_at::text as timestamp
-        FROM project_interests pi
-        JOIN projects p ON p.id = pi.project_id
-        WHERE pi.member_id = $1
-        ORDER BY pi.created_at DESC
+          pm.created_at::text as timestamp,
+          pm.status
+        FROM project_memberships pm JOIN projects p ON p.id = pm.project_id
+        WHERE pm.member_id = $1 AND pm.status IN ('ACTIVE','PENDING')
+        UNION ALL
+        SELECT p.id, p.title, pi.created_at::text, 'INTERESTED' FROM project_interests pi JOIN projects p ON p.id = pi.project_id
+        WHERE pi.member_id = $1 AND NOT EXISTS (SELECT 1 FROM project_memberships pm WHERE pm.project_id = pi.project_id AND pm.member_id = $1)
+        ORDER BY timestamp DESC
         LIMIT 3
       `, [memberId]),
       query(`
         SELECT 
           e.id, 
           e.title, 
+          er.status,
           er.registered_at::text as timestamp
         FROM event_registrations er
         JOIN events e ON e.id = er.event_id
@@ -267,7 +284,7 @@ export const dashboardService = {
       activityList.push({
         id: `course-${r.id}`,
         type: 'course',
-        title: `Course: ${r.status || 'In Progress'}`,
+        title: r.status === 'COMPLETED' ? 'Course completed' : 'Learning in progress',
         description: `${r.title} (${r.progressPercent || 0}%)`,
         timestamp: r.timestamp,
         icon: '📚',
@@ -279,7 +296,7 @@ export const dashboardService = {
       activityList.push({
         id: `proj-${r.id}`,
         type: 'project',
-        title: 'Project Interest Logged',
+        title: r.status === 'PENDING' ? 'Project join request submitted' : r.status === 'INTERESTED' ? 'Project interest saved' : 'Project joined',
         description: r.title,
         timestamp: r.timestamp,
         icon: '🚀',
@@ -291,7 +308,7 @@ export const dashboardService = {
       activityList.push({
         id: `event-${r.id}`,
         type: 'event',
-        title: 'Event Registration',
+        title: r.status?.toUpperCase() === 'CANCELLED' ? 'Event registration cancelled' : 'Event registration',
         description: r.title,
         timestamp: r.timestamp,
         icon: '📅',

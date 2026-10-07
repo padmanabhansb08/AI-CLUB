@@ -1,3 +1,6 @@
+import { confirmAction } from '../../services/confirmation';
+import { useDialog } from '../../hooks/useDialog';
+import { notifyError } from '../../services/actionFeedback';
 import React, { useState } from 'react';
 import { User, Check, X, Shield, Trash2 } from 'lucide-react';
 import type { ProjectMembershipItem } from '../../types/projects';
@@ -18,6 +21,7 @@ export const ProjectMembersModal: React.FC<Props> = ({
   onClose,
   onMembersUpdated,
 }) => {
+  const dialogRef = useDialog(true, onClose);
   const [filter, setFilter] = useState<'ALL' | 'ACTIVE' | 'PENDING'>('ALL');
   const [actionLoading, setActionLoading] = useState<string | null>(null);
 
@@ -34,7 +38,7 @@ export const ProjectMembersModal: React.FC<Props> = ({
       });
       onMembersUpdated();
     } catch (err: any) {
-      alert(err.message || 'Failed to approve member');
+      notifyError(err.message || 'Failed to approve member');
     } finally {
       setActionLoading(null);
     }
@@ -48,20 +52,20 @@ export const ProjectMembersModal: React.FC<Props> = ({
       });
       onMembersUpdated();
     } catch (err: any) {
-      alert(err.message || 'Failed to reject request');
+      notifyError(err.message || 'Failed to reject request');
     } finally {
       setActionLoading(null);
     }
   };
 
   const handleRemove = async (memberId: string, name?: string) => {
-    if (!confirm(`Are you sure you want to remove ${name || 'this contributor'} from the project?`)) return;
+    if (!await confirmAction(`Are you sure you want to remove ${name || 'this contributor'} from the project?`)) return;
     try {
       setActionLoading(memberId);
       await projectsApi.removeProjectMember(projectId, memberId);
       onMembersUpdated();
     } catch (err: any) {
-      alert(err.message || 'Failed to remove member');
+      notifyError(err.message || 'Failed to remove member');
     } finally {
       setActionLoading(null);
     }
@@ -76,7 +80,7 @@ export const ProjectMembersModal: React.FC<Props> = ({
       });
       onMembersUpdated();
     } catch (err: any) {
-      alert(err.message || 'Failed to update role');
+      notifyError(err.message || 'Failed to update role');
     } finally {
       setActionLoading(null);
     }
@@ -84,7 +88,7 @@ export const ProjectMembersModal: React.FC<Props> = ({
 
   return (
     <div className="modal-backdrop fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50">
-      <div className="modal-content w-full max-w-2xl bg-[var(--surface-color, #1e293b)] border border-[var(--border-color, #334155)] rounded-2xl p-6 max-h-[85vh] flex flex-col">
+      <div ref={dialogRef} role="dialog" aria-modal="true" aria-label="Project members" tabIndex={-1} className="modal-content w-full max-w-2xl bg-[var(--surface-color, #1e293b)] border border-[var(--border-color, #334155)] rounded-2xl p-6 max-h-[85vh] flex flex-col">
         {/* Header */}
         <div className="flex justify-between items-center mb-4 pb-3 border-b border-white/10">
           <div>
