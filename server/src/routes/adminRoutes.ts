@@ -42,12 +42,14 @@ router.get('/analytics/engagement', analyticsController.getEngagement);
 router.get('/audit-logs', auditLogController.getAuditLogs);
 router.get('/audit-logs/:id', auditLogController.getAuditLogById);
 
-// Secure Data Exports (Sprint 7)
-router.get('/exports/members', exportController.exportMembers);
-router.get('/exports/events', exportController.exportEvents);
-router.get('/exports/attendance', exportController.exportAttendance);
-router.get('/exports/course-enrollments', exportController.exportCourseEnrollments);
-router.get('/exports/achievements', exportController.exportAchievements);
+import { exportLimiter } from '../middleware/rateLimiter';
+
+// Secure Data Exports (Sprint 7) - Rate limited to protect memory and DB performance
+router.get('/exports/members', exportLimiter, exportController.exportMembers);
+router.get('/exports/events', exportLimiter, exportController.exportEvents);
+router.get('/exports/attendance', exportLimiter, exportController.exportAttendance);
+router.get('/exports/course-enrollments', exportLimiter, exportController.exportCourseEnrollments);
+router.get('/exports/achievements', exportLimiter, exportController.exportAchievements);
 
 // Admin Achievements (Sprint 6)
 router.post('/achievements', sprint6AchievementController.create);

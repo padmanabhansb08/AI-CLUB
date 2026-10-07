@@ -45,12 +45,12 @@ export const ProjectFilters: React.FC<Props> = ({
         <div className="relative flex-1">
           <Search
             size={18}
-            className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--text-muted, #94a3b8)]"
+            className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--text-muted, #94a3b8)] pointer-events-none"
           />
           <input
             aria-label="Search projects"
             type="text"
-            className="w-full pl-10 pr-4 py-2.5 rounded-lg text-sm bg-[var(--surface-color, #1e293b)] border border-[var(--border-color, #334155)] text-white placeholder-[#64748b] focus:outline-none focus:border-[var(--accent-color, #6366f1)]"
+            className="w-full pl-11 pr-4 py-2.5 rounded-lg text-sm bg-[var(--surface-color, #1e293b)] border border-[var(--border-color, #334155)] text-white placeholder-[#64748b] focus:outline-none focus:border-[var(--accent-color, #6366f1)]"
             placeholder="Search projects by title, description, or tech stack..."
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}

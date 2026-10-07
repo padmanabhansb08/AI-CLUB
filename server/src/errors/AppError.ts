@@ -50,3 +50,9 @@ export class ConflictError extends AppError {
     super(409, 'CONFLICT', message, details);
   }
 }
+
+export class RateLimitError extends AppError {
+  constructor(message = 'Rate limit exceeded, please try again later', details: any = {}) {
+    super(429, 'RATE_LIMIT_EXCEEDED', message, details);
+  }
+}

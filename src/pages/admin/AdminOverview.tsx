@@ -98,6 +98,15 @@ export const AdminOverview: React.FC = () => {
           </button>
 
           <Link 
+            to="/admin/applications" 
+            className="btn-primary"
+            style={{ fontSize: '0.8125rem', padding: '6px 14px', display: 'flex', alignItems: 'center', gap: 6, background: '#2563eb' }}
+          >
+            <Users size={14} />
+            <span>Review Applications</span>
+          </Link>
+
+          <Link 
             to="/admin/audit-logs" 
             className="btn-secondary"
             style={{ fontSize: '0.8125rem', padding: '6px 12px', display: 'flex', alignItems: 'center', gap: 6 }}
@@ -108,7 +117,7 @@ export const AdminOverview: React.FC = () => {
 
           <Link 
             to="/admin/notifications" 
-            className="btn-primary"
+            className="btn-secondary"
             style={{ fontSize: '0.8125rem', padding: '6px 14px', display: 'flex', alignItems: 'center', gap: 6 }}
           >
             <Megaphone size={14} />

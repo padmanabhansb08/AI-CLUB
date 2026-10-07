@@ -37,9 +37,9 @@ export const RegistrationButton: React.FC<RegistrationButtonProps> = ({
     return (
       <button
         disabled
-        className={`px-4 py-2.5 rounded-xl bg-zinc-800/80 text-zinc-500 border border-zinc-700/60 font-medium text-sm flex items-center justify-center gap-2 cursor-not-allowed ${className}`}
+        className={`px-4 py-2.5 rounded-full bg-[#FAF9F6] text-[#92908A] border border-[rgba(17,17,17,0.1)] font-medium text-xs flex items-center justify-center gap-2 cursor-not-allowed ${className}`}
       >
-        <XCircle size={16} />
+        <XCircle size={15} />
         <span>Event Cancelled</span>
       </button>
     );
@@ -49,9 +49,9 @@ export const RegistrationButton: React.FC<RegistrationButtonProps> = ({
     return (
       <button
         disabled
-        className={`px-4 py-2.5 rounded-xl bg-zinc-800/80 text-zinc-500 border border-zinc-700/60 font-medium text-sm flex items-center justify-center gap-2 cursor-not-allowed ${className}`}
+        className={`px-4 py-2.5 rounded-full bg-[#FAF9F6] text-[#92908A] border border-[rgba(17,17,17,0.1)] font-medium text-xs flex items-center justify-center gap-2 cursor-not-allowed ${className}`}
       >
-        <Check size={16} />
+        <Check size={15} />
         <span>Event Completed</span>
       </button>
     );
@@ -61,9 +61,9 @@ export const RegistrationButton: React.FC<RegistrationButtonProps> = ({
     return (
       <button
         disabled
-        className={`px-4 py-2.5 rounded-xl bg-indigo-950/60 text-indigo-300 border border-indigo-800/60 font-medium text-sm flex items-center justify-center gap-2 cursor-default ${className}`}
+        className={`px-4 py-2.5 rounded-full bg-indigo-50 text-indigo-800 border border-indigo-200 font-medium text-xs flex items-center justify-center gap-2 cursor-default ${className}`}
       >
-        <UserCheck size={16} />
+        <UserCheck size={15} />
         <span>Attended</span>
       </button>
     );
@@ -74,19 +74,19 @@ export const RegistrationButton: React.FC<RegistrationButtonProps> = ({
       <div className="flex items-center gap-2">
         <button
           disabled
-          className="px-4 py-2.5 rounded-xl bg-emerald-950/60 text-emerald-300 border border-emerald-700/60 font-medium text-sm flex items-center justify-center gap-2 cursor-default"
+          className="px-4 py-2 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 font-medium text-xs flex items-center justify-center gap-2 cursor-default"
         >
-          <Check size={16} />
+          <Check size={15} />
           <span>Registered</span>
         </button>
         {onCancelRegistration && (
           <button
             onClick={onCancelRegistration}
             disabled={loading}
-            className="px-3 py-2.5 rounded-xl bg-zinc-800/80 hover:bg-rose-950/40 text-zinc-400 hover:text-rose-300 border border-zinc-700/60 hover:border-rose-800/60 text-xs font-medium transition-colors"
+            className="px-3.5 py-2 rounded-full bg-[#FAF9F6] hover:bg-rose-50 text-[#66645F] hover:text-rose-700 border border-[rgba(17,17,17,0.1)] hover:border-rose-200 text-xs font-medium transition-colors"
             title="Cancel Registration"
           >
-            {loading ? <Loader2 size={14} className="animate-spin" /> : 'Cancel'}
+            {loading ? <Loader2 size={13} className="animate-spin" /> : 'Cancel'}
           </button>
         )}
       </div>
@@ -97,10 +97,10 @@ export const RegistrationButton: React.FC<RegistrationButtonProps> = ({
     return (
       <button
         disabled
-        className={`px-4 py-2.5 rounded-xl bg-zinc-800/60 text-zinc-500 border border-zinc-700/40 font-medium text-sm flex items-center justify-center gap-2 cursor-not-allowed ${className}`}
+        className={`px-4 py-2.5 rounded-full bg-[#FAF9F6] text-[#92908A] border border-[rgba(17,17,17,0.1)] font-medium text-xs flex items-center justify-center gap-2 cursor-not-allowed ${className}`}
         title={`Opens on ${new Date(event.registration_open_at!).toLocaleString()}`}
       >
-        <Clock size={16} />
+        <Clock size={15} />
         <span>Registration Not Open</span>
       </button>
     );
@@ -110,9 +110,9 @@ export const RegistrationButton: React.FC<RegistrationButtonProps> = ({
     return (
       <button
         disabled
-        className={`px-4 py-2.5 rounded-xl bg-zinc-800/60 text-zinc-500 border border-zinc-700/40 font-medium text-sm flex items-center justify-center gap-2 cursor-not-allowed ${className}`}
+        className={`px-4 py-2.5 rounded-full bg-[#FAF9F6] text-[#92908A] border border-[rgba(17,17,17,0.1)] font-medium text-xs flex items-center justify-center gap-2 cursor-not-allowed ${className}`}
       >
-        <Clock size={16} />
+        <Clock size={15} />
         <span>Registration Closed</span>
       </button>
     );
@@ -122,9 +122,9 @@ export const RegistrationButton: React.FC<RegistrationButtonProps> = ({
     return (
       <button
         disabled
-        className={`px-4 py-2.5 rounded-xl bg-amber-950/60 text-amber-400 border border-amber-800/60 font-medium text-sm flex items-center justify-center gap-2 cursor-not-allowed ${className}`}
+        className={`px-4 py-2.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200 font-medium text-xs flex items-center justify-center gap-2 cursor-not-allowed ${className}`}
       >
-        <AlertCircle size={16} />
+        <AlertCircle size={15} />
         <span>Event Full</span>
       </button>
     );
@@ -134,11 +134,11 @@ export const RegistrationButton: React.FC<RegistrationButtonProps> = ({
     <button
       onClick={onRegister}
       disabled={loading}
-      className={`px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-black font-semibold text-sm shadow-lg shadow-emerald-950/40 transition-all active:scale-[0.98] flex items-center justify-center gap-2 ${className}`}
+      className={`pill-btn px-6 py-2.5 text-xs font-semibold inline-flex items-center justify-center gap-2 ${className}`}
     >
       {loading ? (
         <>
-          <Loader2 size={16} className="animate-spin" />
+          <Loader2 size={15} className="animate-spin" />
           <span>Registering...</span>
         </>
       ) : (

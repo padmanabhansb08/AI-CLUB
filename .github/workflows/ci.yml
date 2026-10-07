@@ -1,0 +1,139 @@
+name: AI CLUB CI Pipeline
+
+on:
+  push:
+    branches: [main, master, frontend, develop]
+  pull_request:
+    branches: [main, master, frontend]
+
+# Principle of least privilege: default read-only workflow permissions
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint-and-typecheck:
+    name: Lint & Typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 1
+
+      - name: Setup Node.js 20 LTS
+        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install Frontend Dependencies
+        run: npm ci
+
+      - name: Install Backend Dependencies
+        working-directory: ./server
+        run: npm ci
+
+      - name: Run Root Linter
+        run: npm run lint
+
+      - name: Typecheck Frontend
+        run: npm run typecheck
+
+      - name: Typecheck Backend Server
+        working-directory: ./server
+        run: npm run typecheck
+
+  test-and-verify:
+    name: Database Migrations & Automated Tests
+    runs-on: ubuntu-latest
+    needs: lint-and-typecheck
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: aiclub
+          POSTGRES_PASSWORD: aiclub_password
+          POSTGRES_DB: aiclub_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Setup Node.js 20 LTS
+        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: |
+          npm ci
+          cd server && npm ci
+
+      - name: Run Database Migrations
+        working-directory: ./server
+        env:
+          NODE_ENV: test
+          DATABASE_URL: postgresql://aiclub:aiclub_password@localhost:5432/aiclub_db
+          JWT_SECRET: ci_test_jwt_secret_not_for_production
+        run: npm run db:migrate
+
+      - name: Run Database Seeds
+        working-directory: ./server
+        env:
+          NODE_ENV: test
+          DATABASE_URL: postgresql://aiclub:aiclub_password@localhost:5432/aiclub_db
+          JWT_SECRET: ci_test_jwt_secret_not_for_production
+        run: npm run db:seed
+
+      - name: Execute Full Automated Test Suite (200+ tests)
+        working-directory: ./server
+        env:
+          NODE_ENV: test
+          DATABASE_URL: postgresql://aiclub:aiclub_password@localhost:5432/aiclub_db
+          JWT_SECRET: ci_test_jwt_secret_not_for_production
+        run: npm test
+
+  build-production:
+    name: Production Build Verification
+    runs-on: ubuntu-latest
+    needs: test-and-verify
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Setup Node.js 20 LTS
+        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: |
+          npm ci
+          cd server && npm ci
+
+      - name: Build Frontend Bundle (Vite)
+        run: npm run build
+
+      - name: Build Backend Server (TypeScript)
+        working-directory: ./server
+        run: npm run build
+
+      - name: Verify No Secrets Leaked in Built Bundle
+        run: |
+          ! grep -ri "AI_API_KEY=" dist/
+          ! grep -ri "DATABASE_URL=" dist/
+          ! grep -ri "JWT_SECRET=" dist/
+          ! grep -ri "SUPABASE_SERVICE_ROLE_KEY" dist/

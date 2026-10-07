@@ -9,7 +9,7 @@
     "start": "node dist/server.js",
     "typecheck": "tsc --noEmit",
     "db:migrate": "tsx src/db/migrate.ts",
-    "db:seed": "tsx src/db/seeds/001_initial_seed.ts",
+    "db:seed": "tsx src/db/seeds/index.ts",
     "test": "node --test --test-concurrency=1 --import tsx src/tests/**/*.test.ts"
   },
   "keywords": [],
@@ -17,6 +17,7 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+    "@supabase/supabase-js": "^2.117.2",
     "bcrypt": "^6.0.0",
     "cors": "^2.8.6",
     "dotenv": "^18.0.5",

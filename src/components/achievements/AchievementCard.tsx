@@ -30,15 +30,10 @@ export const AchievementCard: React.FC<AchievementCardProps> = ({ achievement })
       to={`/achievements/${achievement.slug || achievement.id}`}
       className={`group relative rounded-2xl p-5 border transition-all duration-300 flex flex-col justify-between overflow-hidden ${
         isEarned
-          ? 'bg-gradient-to-b from-[#181d2e] to-[#121624] border-amber-500/30 hover:border-amber-500/60 shadow-lg shadow-amber-500/5 hover:-translate-y-1'
-          : 'bg-[#121624]/60 border-white/5 hover:border-white/15 hover:bg-[#121624] hover:-translate-y-0.5'
+          ? 'bg-[#FFFFFF] border-amber-300 shadow-sm hover:shadow-md hover:-translate-y-0.5'
+          : 'bg-[#FFFFFF] border-[rgba(17,17,17,0.08)] hover:border-[rgba(17,17,17,0.2)] hover:shadow-sm hover:-translate-y-0.5'
       }`}
     >
-      {/* Top ambient glow for unlocked achievements */}
-      {isEarned && (
-        <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 rounded-full blur-2xl pointer-events-none -mr-10 -mt-10" />
-      )}
-
       <div>
         {/* Header row */}
         <div className="flex items-start justify-between gap-3 mb-4">
@@ -52,10 +47,10 @@ export const AchievementCard: React.FC<AchievementCardProps> = ({ achievement })
           <div className="flex flex-col items-end gap-1.5">
             <AchievementCategoryBadge category={achievement.category} />
             <span
-              className={`text-xs font-bold px-2 py-0.5 rounded-lg border ${
+              className={`text-xs font-bold px-2 py-0.5 rounded-full border ${
                 isEarned
-                  ? 'bg-amber-500/20 text-amber-300 border-amber-500/40'
-                  : 'bg-white/5 text-gray-400 border-white/10'
+                  ? 'bg-amber-50 text-amber-800 border-amber-200'
+                  : 'bg-[#FAF9F6] text-[#66645F] border-[rgba(17,17,17,0.08)]'
               }`}
             >
               +{achievement.points} PTS
@@ -64,44 +59,44 @@ export const AchievementCard: React.FC<AchievementCardProps> = ({ achievement })
         </div>
 
         {/* Title & Description */}
-        <h3 className="text-base font-bold text-white group-hover:text-cyan-300 transition-colors mb-1.5 flex items-center gap-1.5">
+        <h3 className="text-base font-bold text-[#111111] group-hover:text-black transition-colors mb-1.5 flex items-center gap-1.5">
           {achievement.name}
-          {isEarned && <CheckCircle2 size={16} className="text-amber-400 shrink-0" />}
+          {isEarned && <CheckCircle2 size={16} className="text-amber-600 shrink-0" />}
         </h3>
 
-        <p className="text-xs text-gray-400 line-clamp-2 leading-relaxed mb-4">
+        <p className="text-xs text-[#66645F] line-clamp-2 leading-relaxed mb-4">
           {achievement.description}
         </p>
       </div>
 
       {/* Progress & Footer */}
-      <div className="pt-3 border-t border-white/5 mt-auto">
+      <div className="pt-3 border-t border-[rgba(17,17,17,0.06)] mt-auto">
         {isEarned ? (
-          <div className="flex items-center justify-between text-xs text-amber-300/90 font-medium">
+          <div className="flex items-center justify-between text-xs text-amber-800 font-medium">
             <span className="flex items-center gap-1.5">
-              <Sparkles size={14} className="text-amber-400" />
+              <Sparkles size={14} className="text-amber-600" />
               <span>Unlocked</span>
             </span>
-            {formattedDate && <span className="text-gray-400 text-[11px]">{formattedDate}</span>}
+            {formattedDate && <span className="text-[#92908A] text-[11px] font-mono">{formattedDate}</span>}
           </div>
         ) : (
           <div>
-            <div className="flex items-center justify-between text-[11px] text-gray-400 mb-1.5">
+            <div className="flex items-center justify-between text-[11px] text-[#66645F] mb-1.5">
               <span>Progress</span>
-              <span className="font-semibold text-gray-300">
+              <span className="font-semibold text-[#111111] font-mono">
                 {progress.current} / {progress.target} ({progress.percentage}%)
               </span>
             </div>
-            <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
+            <div className="w-full h-1.5 bg-[#EBE9E3] rounded-full overflow-hidden">
               <div
-                className="h-full bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full transition-all duration-500"
+                className="h-full bg-[#050505] rounded-full transition-all duration-500"
                 style={{ width: `${Math.min(100, Math.max(0, progress.percentage))}%` }}
               />
             </div>
           </div>
         )}
 
-        <div className="flex items-center justify-between mt-3 text-[11px] text-gray-500 group-hover:text-cyan-400 transition-colors">
+        <div className="flex items-center justify-between mt-3 text-[11px] text-[#66645F] group-hover:text-[#111111] transition-colors">
           <span>View details</span>
           <ChevronRight size={14} className="transform group-hover:translate-x-1 transition-transform" />
         </div>

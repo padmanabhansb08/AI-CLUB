@@ -11,6 +11,10 @@ import * as m9 from './migrations/009_sprint5_courses_lms';
 import * as m10 from './migrations/010_sprint6_achievements_notifications';
 import * as m11 from './migrations/011_sprint7_admin_analytics_audit';
 import * as security from './migrations/006_account_security';
+import * as m12 from './migrations/012_sprint8_ai_intelligence_layer';
+import * as m13 from './migrations/013_sprint9_production_indexes';
+import * as m14 from './migrations/014_membership_application_assessment';
+import * as m15 from './migrations/015_supabase_profiles_and_views';
 
 interface Migration {
   name: string;
@@ -31,6 +35,10 @@ const MIGRATIONS: Migration[] = [
   { name: '010_sprint6_achievements_notifications', up: m10.up, down: m10.down },
   { name: '011_sprint7_admin_analytics_audit', up: m11.up, down: m11.down },
   { name: '012_account_security', up: security.up, down: security.down },
+  { name: '012_sprint8_ai_intelligence_layer', up: m12.up, down: m12.down },
+  { name: '013_sprint9_production_indexes', up: m13.up, down: m13.down },
+  { name: '014_membership_application_assessment', up: m14.up, down: m14.down },
+  { name: '015_supabase_profiles_and_views', up: m15.up, down: m15.down },
 ];
 
 export async function runMigrations() {
@@ -70,17 +78,15 @@ export async function runMigrations() {
       }
     }
 
-    if (count === 0) {
-      console.log('[migrate] Database is up to date. No pending migrations.');
-    } else {
-      console.log(`[migrate] Successfully executed ${count} migration(s).`);
-    }
+    console.log(`[migrate] Successfully executed ${count} migration(s).`);
+  } catch (error) {
+    console.error('[migrate] Migration process failed:', error);
+    process.exit(1);
   } finally {
     client.release();
   }
 }
 
-// Run directly when invoked as a script
 if (require.main === module || process.argv[1]?.endsWith('migrate.ts')) {
   runMigrations()
     .then(async () => {
@@ -88,7 +94,7 @@ if (require.main === module || process.argv[1]?.endsWith('migrate.ts')) {
       process.exit(0);
     })
     .catch(async (err) => {
-      console.error('[migrate] Migration process failed:', err);
+      console.error('[migrate] Failed:', err);
       await pool.end();
       process.exit(1);
     });

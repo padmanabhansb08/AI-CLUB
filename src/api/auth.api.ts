@@ -17,6 +17,12 @@ export interface User {
   bio?: string;
   skills?: string[];
   technicalInterests?: string[];
+  membershipStatus?: 'ACTIVE' | 'NONE' | 'SUSPENDED' | 'INACTIVE';
+  isClubMember?: boolean;
+  memberNumber?: string;
+  applicationId?: string;
+  applicationNumber?: string;
+  applicationStatus?: string;
 }
 
 export interface AuthResponse {

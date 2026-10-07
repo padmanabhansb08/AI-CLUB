@@ -1,9 +1,10 @@
 import type { PoolClient } from 'pg';
+
 export async function up(client: PoolClient) {
   await client.query(`
-    ALTER TABLE users ADD COLUMN email_verified_at TIMESTAMPTZ;
-    ALTER TABLE users ADD COLUMN session_version INTEGER NOT NULL DEFAULT 0;
-    CREATE TABLE account_tokens (
+    ALTER TABLE users ADD COLUMN IF NOT EXISTS email_verified_at TIMESTAMPTZ;
+    ALTER TABLE users ADD COLUMN IF NOT EXISTS session_version INTEGER NOT NULL DEFAULT 0;
+    CREATE TABLE IF NOT EXISTS account_tokens (
       token_hash TEXT PRIMARY KEY,
       user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
       purpose TEXT NOT NULL CHECK (purpose IN ('reset', 'verify')),
@@ -11,9 +12,13 @@ export async function up(client: PoolClient) {
       used_at TIMESTAMPTZ,
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
-    CREATE INDEX account_tokens_user_purpose ON account_tokens(user_id, purpose);
+    CREATE INDEX IF NOT EXISTS account_tokens_user_purpose ON account_tokens(user_id, purpose);
   `);
 }
+
 export async function down(client: PoolClient) {
-  await client.query('DROP TABLE IF EXISTS account_tokens; ALTER TABLE users DROP COLUMN IF EXISTS email_verified_at, DROP COLUMN IF EXISTS session_version;');
+  await client.query(`
+    DROP TABLE IF EXISTS account_tokens;
+    ALTER TABLE users DROP COLUMN IF EXISTS email_verified_at, DROP COLUMN IF EXISTS session_version;
+  `);
 }
